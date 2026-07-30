@@ -99,14 +99,23 @@
                 </div>
             </div>
 
-            <div class="hero-visual">
+                        <div class="hero-visual">
                 <div class="floating-tag">
                     <i data-lucide="sparkles" style="width:15px;height:15px"></i>
                     <span data-i18n="hero.floatingTag">Innovation Lab</span>
                 </div>
 
-                <div class="hero-img-container">
-                    <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo club showcase">
+                <div class="hero-img-container iso-illustration-wrapper">
+                    <!-- Isometric Line Art SVG - Hero -->
+                    <svg class="iso-img" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M200 320L50 240V220L200 300L350 220V240L200 320Z" fill="currentColor" fill-opacity="0.05"/>
+                        <path d="M200 290L80 220L200 150L320 220L200 290Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                        <path d="M200 240L140 205V135L200 170V240Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                        <path d="M200 240L260 205V135L200 170V240Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                        <path d="M200 170L140 135L200 100L260 135L200 170Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                        <path d="M120 120L100 110L120 100L140 110L120 120Z" stroke="var(--color-sage)" stroke-width="4" stroke-linejoin="round"/>
+                        <path d="M280 160L260 150L280 140L300 150L280 160Z" stroke="var(--color-sage)" stroke-width="4" stroke-linejoin="round"/>
+                    </svg>
                 </div>
 
                 <div class="floating-badge">
@@ -117,7 +126,6 @@
                     </div>
                 </div>
             </div>
-        </div>
     </section>
 
     <!-- TRUST BAR -->
@@ -140,12 +148,26 @@
     <!-- ABOUT / EMPATHY -->
     <section id="about" class="empathy-section section reveal">
         <div class="container">
-            <div class="card empathy-box" style="background:var(--gradient-primary);padding:var(--sp-64);text-align:center;">
-                <h2 style="font-size:clamp(2rem,4vw,3rem);color:var(--color-sage);margin-bottom:var(--sp-24);" data-i18n="empathy.title">You Don't Need to Be an Expert to Start.</h2>
-                <p style="color:rgba(255,255,255,.85);max-width:800px;margin:0 auto;font-size:1.2rem;" data-i18n="empathy.desc">At Econovo, we understand that entering the world of business can feel overwhelming.</p>
+            <div class="card empathy-box" style="background:var(--gradient-primary);padding:var(--sp-64); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-32);">
+                <div style="flex: 1 1 50%; min-width: 300px;">
+                    <h2 style="font-size:clamp(2rem,4vw,3rem);color:var(--color-sage);margin-bottom:var(--sp-24);" data-i18n="empathy.title">You Don't Need to Be an Expert to Start.</h2>
+                    <p style="color:rgba(255,255,255,.85);max-width:800px;font-size:1.2rem;" data-i18n="empathy.desc">At Econovo, we understand that entering the world of business can feel overwhelming.</p>
+                </div>
+                <div class="iso-illustration-wrapper" style="flex: 1 1 40%; min-width: 250px;">
+                    <!-- Isometric Line Art SVG - Target/Goals -->
+                    <svg class="iso-img" style="color: #fff;" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M200 280L100 220L200 160L300 220L200 280Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
+                        <path d="M200 250L130 210L200 170L270 210L200 250Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
+                        <path d="M280 110L200 190" stroke="var(--color-sage)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M280 110L230 105M280 110L285 160" stroke="var(--color-sage)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M200 280V330" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M150 350L200 330L250 350" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
             </div>
         </div>
     </section>
+
 
     <!-- WHY ECONOVO -->
     <section class="section">
