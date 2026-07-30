@@ -1,0 +1,148 @@
+/* ==========================================================================
+   ECONOVO — style.css
+   Design tokens, reset, base typography.
+   Signature idea: a "ledger" motif — tabular monospace figures, hairline
+   rules and a small-caps eyebrow system — borrowed from financial statements,
+   tuned down so it stays academic rather than "fintech dashboard".
+   ========================================================================== */
+
+:root {
+    /* ---- Brand colors (light) ---- */
+    --color-obsidian: #0E2A24;
+    --color-true-black: #1F1F1F; /* brand book 04 — the second "Obsidian Black" swatch */
+    --color-sage: #8FB8A6;
+    --color-sage-dim: #a8c9bb;
+    --color-chalk-1: #F4F7F2;
+    --color-chalk-2: #F6F4F0;
+    --color-white: #FFFFFF;
+    --color-ink: #0E2A24;
+    --color-ink-soft: rgba(14, 42, 36, 0.72);
+    --color-line: rgba(14, 42, 36, 0.10);
+
+    --bg: var(--color-chalk-1);
+    --bg-raised: var(--color-white);
+    --bg-sunken: var(--color-chalk-2);
+    --text: var(--color-ink);
+    --text-soft: var(--color-ink-soft);
+    --line: var(--color-line);
+    --brand-dark: var(--color-obsidian);
+    --brand-accent: var(--color-sage);
+
+    --gradient-primary: linear-gradient(135deg, var(--color-obsidian) 0%, #163a32 100%);
+    --gradient-sage: linear-gradient(135deg, var(--color-sage) 0%, var(--color-sage-dim) 100%);
+
+    /* ---- Type ---- */
+    --font-en: 'Host Grotesk', sans-serif;
+    --font-ar: 'IBM Plex Sans Arabic', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --font-current: var(--font-en);
+
+    /* ---- Spacing ---- */
+    --sp-4: .25rem;  --sp-8: .5rem;   --sp-12: .75rem; --sp-16: 1rem;
+    --sp-24: 1.5rem; --sp-32: 2rem;   --sp-48: 3rem;   --sp-64: 4rem;
+    --sp-96: 6rem;   --sp-128: 8rem;
+
+    /* ---- Elevation ---- */
+    --shadow-sm: 0 4px 6px -1px rgba(14, 42, 36, .05);
+    --shadow-md: 0 10px 15px -3px rgba(14, 42, 36, .08);
+    --shadow-lg: 0 20px 25px -5px rgba(14, 42, 36, .10);
+    --shadow-hover: 0 25px 40px -10px rgba(143, 184, 166, .28);
+
+    /* ---- Motion ---- */
+    --ease: cubic-bezier(.4,0,.2,1);
+    --ease-bounce: cubic-bezier(.68,-.4,.27,1.35);
+    --t-fast: .2s var(--ease);
+    --t-base: .4s var(--ease);
+    --t-slow: .8s cubic-bezier(.22,1,.36,1);
+
+    /* ---- Radii ---- */
+    --r-sm: 8px; --r-md: 16px; --r-lg: 24px; --r-pill: 9999px;
+}
+
+/* Dark theme — same hues, inverted ground, sage stays the constant accent */
+[data-theme="dark"] {
+    --bg: var(--color-true-black);          /* official Obsidian Black ground */
+    --bg-raised: var(--color-obsidian);     /* brand green cards float on true black */
+    --bg-sunken: #171717;
+    --text: #E7EFEA;
+    --text-soft: rgba(231, 239, 234, .72);
+    --line: rgba(231, 239, 234, .12);
+    --brand-dark: #141414;
+    --gradient-primary: linear-gradient(135deg, #141414 0%, #0E2A24 100%);
+    --shadow-sm: 0 4px 6px -1px rgba(0,0,0,.35);
+    --shadow-md: 0 10px 20px -3px rgba(0,0,0,.45);
+    --shadow-lg: 0 20px 30px -5px rgba(0,0,0,.5);
+}
+
+[lang="en"] { --font-current: var(--font-en); direction: ltr; }
+[lang="ar"] { --font-current: var(--font-ar); direction: rtl; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+    font-family: var(--font-current);
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background-color var(--t-base), color var(--t-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 700; letter-spacing: -.02em; }
+
+p { font-size: 1.125rem; color: var(--text-soft); }
+
+a { text-decoration: none; color: inherit; transition: color var(--t-fast); }
+
+ul, ol { list-style: none; }
+button { border: none; background: none; font-family: inherit; cursor: pointer; color: inherit; }
+img { max-width: 100%; display: block; }
+
+::selection { background: var(--color-sage); color: var(--color-obsidian); }
+
+/* Tabular / ledger numerals used for stats, eyebrows, timeline markers */
+.mono, .stat-value, .eyebrow, .ledger-num {
+    font-family: var(--font-mono);
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    letter-spacing: -0.01em;
+}
+
+/* Base hidden state for JS-rendered card grids (stats, why, pillars,
+   timeline, team, events, faq). animations.js reveals each container's
+   children with a staggered cascade the moment the grid scrolls into view. */
+.stagger-item { opacity: 0; transform: translateY(24px); }
+.stagger-item.in { opacity: 1; transform: translateY(0); transition: opacity .55s ease, transform .55s ease; }
+
+/* Immediate, light feedback on tap since touch devices have no :hover */
+.btn:active, .card:active, .social-btn:active, .icon-btn:active, .faq-question:active {
+    transform: scale(.97);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+    }
+    .stagger-item { opacity: 1 !important; transform: none !important; }
+}
+
+/* Utilities */
+.mb-8 { margin-bottom: var(--sp-8); }
+.mb-16 { margin-bottom: var(--sp-16); }
+.mb-24 { margin-bottom: var(--sp-24); }
+.mb-32 { margin-bottom: var(--sp-32); }
+
+/* Visible keyboard focus */
+a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--color-sage);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
