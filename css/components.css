@@ -171,3 +171,32 @@
 .mobile-menu-close { align-self: flex-end; }
 .mobile-menu-utility { display: flex; align-items: center; gap: var(--sp-16); padding-bottom: var(--sp-16); border-bottom: 1px solid var(--line); }
 .mobile-menu-utility .lang-btn { flex: 1; text-align: center; }
+/* ==========================================================================
+   Isometric Line Art Illustrations 
+   ========================================================================== */
+.iso-illustration-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.iso-img {
+    width: 100%;
+    height: auto;
+    max-width: 450px;
+    filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.08));
+    transition: transform var(--t-base), filter var(--t-base);
+    color: var(--brand-dark); /* اللون الافتراضي للخطوط */
+    z-index: 2;
+}
+
+[data-theme="dark"] .iso-img {
+    color: var(--text); /* تفتيح الخطوط في الوضع الليلي لتتناسق مع التصميم */
+    filter: drop-shadow(0 15px 25px rgba(255, 255, 255, 0.04));
+}
+
+.iso-img:hover {
+    transform: translateY(-8px) scale(1.03);
+    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.15));
+}
