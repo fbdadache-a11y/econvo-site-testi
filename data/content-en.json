@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "title": "Econovo Club | Turning Students Into Problem Solvers",
+    "description": "Econovo is a university club connecting economics, business, innovation, and practical skills.",
+    "keywords": "Econovo, university club, economics club, business club, Bordj Bou Arreridj, fintech, entrepreneurship, Algeria students"
+  },
+  "nav": {
+    "about": "About Us",
+    "pillars": "Our Focus",
+    "journey": "The Journey",
+    "team": "Team",
+    "events": "Events",
+    "faq": "FAQ",
+    "join": "Join Now"
+  },
+  "hero": {
+    "eyebrow": "University Club · Bordj Bou Arreridj",
+    "title": "Turning Students Into Problem Solvers.",
+    "desc": "We are a university club connecting economics, business, innovation, and practical skills. Join us to bridge the gap between academic theory and real-world application.",
+    "tags": ["Economics", "Business", "Innovation", "FinTech"],
+    "ctaJoin": "Become a Member",
+    "ctaExplore": "Explore Club",
+    "badgeTitle": "Practical Skills",
+    "badgeDesc": "Real-world impact",
+    "floatingTag": "Innovation Lab"
+  },
+  "trust": {
+    "label": "Affiliated with",
+    "items": ["Mohamed El Bachir El Ibrahimi University", "Economics", "Business", "Technology"]
+  },
+  "stats": [
+    { "value": "2026", "label": "Founded" },
+    { "value": "4", "label": "Focus Areas" },
+    { "value": "\u221e", "label": "Ideas Welcomed" },
+    { "value": "100%", "label": "Student-Led" }
+  ],
+  "empathy": {
+    "title": "You Don't Need to Be an Expert to Start.",
+    "desc": "At Econovo, we understand that entering the world of business and fintech can feel overwhelming. That's why our core value is Growth. Whether you're deeply passionate about finance, or just curious about entrepreneurship, you have a safe space here to learn, fail, and build."
+  },
+  "why": {
+    "eyebrow": "Why Econovo",
+    "title": "Four Reasons Students Stay",
+    "desc": "This is what membership actually looks like, week to week.",
+    "items": [
+      { "icon": "book-open", "title": "Learn", "desc": "Explore economics and business concepts outside the lecture hall, taught in plain language." },
+      { "icon": "hammer", "title": "Build", "desc": "Turn ideas into real projects and small ventures alongside people who'll actually build with you." },
+      { "icon": "users", "title": "Connect", "desc": "Meet students across majors and professionals who can open doors after graduation." },
+      { "icon": "trending-up", "title": "Grow", "desc": "Practice the soft and hard skills that make a strong CV and a stronger mindset." }
+    ]
+  },
+  "pillars": {
+    "eyebrow": "What We Do",
+    "title": "Our Core Focus Areas",
+    "desc": "Through workshops, projects, and discussions, we help you master these four pillars.",
+    "items": [
+      { "icon": "landmark", "title": "Economics", "desc": "Learn beyond the classroom. We dissect how global forces and local markets actually work." },
+      { "icon": "briefcase", "title": "Business", "desc": "Acquire real management skills. We analyze case studies and build actionable strategies." },
+      { "icon": "lightbulb", "title": "Innovation", "desc": "Transform creative ideas into practical projects. Entrepreneurship is about execution." },
+      { "icon": "wallet", "title": "FinTech", "desc": "Explore the future of finance. Understand blockchain, digital banking, and modern tech." }
+    ]
+  },
+  "journey": {
+    "eyebrow": "How It Works",
+    "title": "Your Journey With Us",
+    "desc": "A clear path from a curious student to a confident problem solver.",
+    "steps": [
+      { "num": "01", "title": "Curiosity & Onboarding", "desc": "Attend our welcoming sessions, meet the team, and discover which fields ignite your passion without any pressure." },
+      { "num": "02", "title": "Skill-Building Workshops", "desc": "Participate in hands-on workshops led by seniors and experts. No boring lectures, only interactive learning." },
+      { "num": "03", "title": "Collaborative Projects", "desc": "Work in teams to solve real problems. Apply what you've learned in a safe, supportive environment." },
+      { "num": "04", "title": "Becoming a Problem Solver", "desc": "Graduate from a learner to a doer. Build your portfolio, expand your network, and prepare for your career." }
+    ]
+  },
+  "team": {
+    "eyebrow": "Who Runs It",
+    "title": "Meet the Team",
+    "desc": "A small student board keeping things running \u2014 more roles open every semester.",
+    "members": [
+      { "role": "President", "name": "Dadache Fouad" },
+      { "role": "Vice President", "name": "Houssem Yettou" },
+      { "role": "Team Lead", "name": "Abdelilah" },
+      { "role": "Team Lead", "name": "Rahal Akram El Mokhtar" }
+    ]
+  },
+  "events": {
+    "eyebrow": "Upcoming",
+    "title": "Events & Workshops",
+    "desc": "What's next on the Econovo calendar.",
+    "items": [
+      { "icon": "calendar", "title": "Workshop: Financial Literacy", "desc": "A hands-on introduction to budgeting, saving, and everyday financial decisions.", "date": "Date: Coming Soon", "status": "Open" },
+      { "icon": "sparkles", "title": "More Events Coming Soon", "desc": "New workshops and sessions are being planned for this semester. Follow us so you don't miss the announcement.", "date": "Date: TBA", "status": "Open" }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Got Questions?",
+    "title": "Frequently Asked Questions",
+    "items": [
+      { "q": "Is the club only for Economics and Business students?", "a": "Absolutely not! Innovation requires diverse mindsets. Whether you study computer science, engineering, or literature, your unique perspective is valuable here." },
+      { "q": "What is the time commitment?", "a": "We respect your academic life. We usually hold 1\u20132 core sessions per week. You can involve yourself as deeply as your schedule allows." },
+      { "q": "Are there membership fees?", "a": "Our primary activities are free. We believe knowledge should be accessible. Some special external events might have nominal costs, which are always optional." },
+      { "q": "How can I join Econovo?", "a": "Tap \u201cBecome a Member\u201d to fill our join form, or message us on Instagram \u2014 we'll add you to the next onboarding session." }
+    ]
+  },
+  "cta": {
+    "title": "Ready to Transform Your University Experience?",
+    "desc": "Join a community of ambitious students. Let's grow together.",
+    "btn": "Become a Member Today"
+  },
+  "footer": {
+    "desc": "A university club connecting economics, business, innovation, and practical skills. Turning students into problem solvers.",
+    "btnInsta": "Follow on Instagram",
+    "btnFb": "Like our Facebook Page",
+    "navTitle": "Quick Links",
+    "contactTitle": "Location",
+    "locStr": "Mohamed El Bachir El Ibrahimi University",
+    "locStr2": "Bordj Bou Arreridj, Algeria",
+    "rights": "All rights reserved."
+  }
+}
