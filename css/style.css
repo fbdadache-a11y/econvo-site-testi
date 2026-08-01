@@ -1,148 +1,167 @@
-/* ==========================================================================
-   ECONOVO — style.css
-   Design tokens, reset, base typography.
-   Signature idea: a "ledger" motif — tabular monospace figures, hairline
-   rules and a small-caps eyebrow system — borrowed from financial statements,
-   tuned down so it stays academic rather than "fintech dashboard".
+* ==========================================================================
+   ECONOVO — style.css  (Anthropic-inspired redesign)
+   Philosophy: generous whitespace, no glass, no float animations,
+   typography does the heavy lifting. Colours stay faithful to brand.
    ========================================================================== */
 
 :root {
-    /* ---- Brand colors (light) ---- */
-    --color-obsidian: #0E2A24;
-    --color-true-black: #1F1F1F; /* brand book 04 — the second "Obsidian Black" swatch */
-    --color-sage: #8FB8A6;
-    --color-sage-dim: #a8c9bb;
-    --color-chalk-1: #F4F7F2;
-    --color-chalk-2: #F6F4F0;
-    --color-white: #FFFFFF;
-    --color-ink: #0E2A24;
-    --color-ink-soft: rgba(14, 42, 36, 0.72);
-    --color-line: rgba(14, 42, 36, 0.10);
+    /* ── Brand palette ── */
+    --obsidian:   #0E2A24;
+    --obsidian-2: #163a32;
+    --sage:       #8FB8A6;
+    --sage-light: #b8d4c8;
+    --sage-dim:   rgba(143,184,166,.12);
+    --chalk:      #F4F7F2;
+    --chalk-2:    #EEF1EC;
+    --ink:        #0E2A24;
+    --ink-soft:   rgba(14,42,36,.58);
+    --rule:       rgba(14,42,36,.10);
+    --white:      #FFFFFF;
 
-    --bg: var(--color-chalk-1);
-    --bg-raised: var(--color-white);
-    --bg-sunken: var(--color-chalk-2);
-    --text: var(--color-ink);
-    --text-soft: var(--color-ink-soft);
-    --line: var(--color-line);
-    --brand-dark: var(--color-obsidian);
-    --brand-accent: var(--color-sage);
+    /* ── Semantic aliases ── */
+    --bg:         var(--chalk);
+    --bg-raised:  var(--white);
+    --bg-muted:   var(--chalk-2);
+    --text:       var(--ink);
+    --text-soft:  var(--ink-soft);
+    --line:       var(--rule);
+    --accent:     var(--sage);
+    --brand:      var(--obsidian);
 
-    --gradient-primary: linear-gradient(135deg, var(--color-obsidian) 0%, #163a32 100%);
-    --gradient-sage: linear-gradient(135deg, var(--color-sage) 0%, var(--color-sage-dim) 100%);
-
-    /* ---- Type ---- */
-    --font-en: 'Host Grotesk', sans-serif;
-    --font-ar: 'IBM Plex Sans Arabic', sans-serif;
+    /* ── Type ── */
+    --font-sans: 'Host Grotesk', sans-serif;
+    --font-ar:   'IBM Plex Sans Arabic', sans-serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-    --font-current: var(--font-en);
+    --font:      var(--font-sans);
 
-    /* ---- Spacing ---- */
-    --sp-4: .25rem;  --sp-8: .5rem;   --sp-12: .75rem; --sp-16: 1rem;
-    --sp-24: 1.5rem; --sp-32: 2rem;   --sp-48: 3rem;   --sp-64: 4rem;
-    --sp-96: 6rem;   --sp-128: 8rem;
+    /* ── Spacing (8-pt grid) ── */
+    --s1:  .5rem;   /* 8  */
+    --s2:  1rem;    /* 16 */
+    --s3:  1.5rem;  /* 24 */
+    --s4:  2rem;    /* 32 */
+    --s5:  3rem;    /* 48 */
+    --s6:  4rem;    /* 64 */
+    --s7:  6rem;    /* 96 */
+    --s8:  8rem;    /* 128 */
 
-    /* ---- Elevation ---- */
-    --shadow-sm: 0 4px 6px -1px rgba(14, 42, 36, .05);
-    --shadow-md: 0 10px 15px -3px rgba(14, 42, 36, .08);
-    --shadow-lg: 0 20px 25px -5px rgba(14, 42, 36, .10);
-    --shadow-hover: 0 25px 40px -10px rgba(143, 184, 166, .28);
+    /* ── Legacy aliases (used by JS-rendered content) ── */
+    --sp-4:.25rem; --sp-8:var(--s1); --sp-12:.75rem; --sp-16:var(--s2);
+    --sp-24:var(--s3); --sp-32:var(--s4); --sp-48:var(--s5);
+    --sp-64:var(--s6); --sp-96:var(--s7); --sp-128:var(--s8);
+    --sp-20:1.25rem;
 
-    /* ---- Motion ---- */
-    --ease: cubic-bezier(.4,0,.2,1);
+    /* ── Motion: calm, purposeful ── */
+    --ease:   cubic-bezier(.4,0,.2,1);
+    --t-fast: 150ms var(--ease);
+    --t-base: 250ms var(--ease);
+
+    /* ── Radius: flat-ish, no pill everywhere ── */
+    --r-sm:  6px;
+    --r-md:  10px;
+    --r-lg:  14px;
+    --r-pill: 9999px;
+
+    /* ── Shadow: very subtle ── */
+    --shadow-sm: 0 1px 3px rgba(14,42,36,.07), 0 1px 2px rgba(14,42,36,.04);
+    --shadow-md: 0 4px 12px rgba(14,42,36,.08);
+    --shadow-hover: 0 8px 24px rgba(14,42,36,.12);
+
+    /* ── Gradients (kept for hero panel & footer) ── */
+    --gradient-primary: linear-gradient(160deg, var(--obsidian) 0%, var(--obsidian-2) 100%);
+    --gradient-sage:    linear-gradient(135deg, var(--sage) 0%, var(--sage-light) 100%);
+    /* legacy alias used by login/join */
+    --bg-sunken: var(--bg-muted);
+    --bg-raised: var(--white);
+    --color-obsidian: var(--obsidian);
+    --color-sage: var(--sage);
+    --color-ink: var(--ink);
+    --color-ink-soft: var(--ink-soft);
+    --color-line: var(--rule);
+    --color-sage-dim: var(--sage-dim);
+    --brand-dark: var(--obsidian);
+    --brand-accent: var(--sage);
+    --t-slow: 500ms var(--ease);
     --ease-bounce: cubic-bezier(.68,-.4,.27,1.35);
-    --t-fast: .2s var(--ease);
-    --t-base: .4s var(--ease);
-    --t-slow: .8s cubic-bezier(.22,1,.36,1);
-
-    /* ---- Radii ---- */
-    --r-sm: 8px; --r-md: 16px; --r-lg: 24px; --r-pill: 9999px;
 }
 
-/* Dark theme — same hues, inverted ground, sage stays the constant accent */
+/* ── Dark mode ── */
 [data-theme="dark"] {
-    --bg: var(--color-true-black);          /* official Obsidian Black ground */
-    --bg-raised: var(--color-obsidian);     /* brand green cards float on true black */
-    --bg-sunken: #171717;
-    --text: #E7EFEA;
-    --text-soft: rgba(231, 239, 234, .72);
-    --line: rgba(231, 239, 234, .12);
+    --bg:        #141414;
+    --bg-raised: #1e1e1e;
+    --bg-muted:  #191919;
+    --bg-sunken: #191919;
+    --text:      #E7EFEA;
+    --text-soft: rgba(231,239,234,.6);
+    --line:      rgba(231,239,234,.10);
+    --rule:      rgba(231,239,234,.10);
+    --brand:     #141414;
     --brand-dark: #141414;
-    --gradient-primary: linear-gradient(135deg, #141414 0%, #0E2A24 100%);
-    --shadow-sm: 0 4px 6px -1px rgba(0,0,0,.35);
-    --shadow-md: 0 10px 20px -3px rgba(0,0,0,.45);
-    --shadow-lg: 0 20px 30px -5px rgba(0,0,0,.5);
+    --obsidian:  #141414;
+    --gradient-primary: linear-gradient(160deg, #141414 0%, #0E2A24 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.35);
+    --shadow-hover: 0 8px 24px rgba(0,0,0,.4);
 }
 
-[lang="en"] { --font-current: var(--font-en); direction: ltr; }
-[lang="ar"] { --font-current: var(--font-ar); direction: rtl; }
+/* ── Language ── */
+[lang="en"] { --font: var(--font-sans); direction: ltr; }
+[lang="ar"] { --font: var(--font-ar);   direction: rtl; }
 
+/* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; font-size: 16px; }
-
 body {
-    font-family: var(--font-current);
-    background-color: var(--bg);
+    font-family: var(--font);
+    background: var(--bg);
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.65;
     overflow-x: hidden;
-    transition: background-color var(--t-base), color var(--t-base);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
+    transition: background var(--t-base), color var(--t-base);
 }
-
-h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 700; letter-spacing: -.02em; }
-
-p { font-size: 1.125rem; color: var(--text-soft); }
-
+h1,h2,h3,h4,h5,h6 { line-height: 1.1; font-weight: 700; letter-spacing: -.025em; }
+p { font-size: 1.0625rem; color: var(--text-soft); }
 a { text-decoration: none; color: inherit; transition: color var(--t-fast); }
-
-ul, ol { list-style: none; }
+ul,ol { list-style: none; }
 button { border: none; background: none; font-family: inherit; cursor: pointer; color: inherit; }
 img { max-width: 100%; display: block; }
+::selection { background: var(--sage); color: var(--obsidian); }
 
-::selection { background: var(--color-sage); color: var(--color-obsidian); }
-
-/* Tabular / ledger numerals used for stats, eyebrows, timeline markers */
+/* ── Mono numbers ── */
 .mono, .stat-value, .eyebrow, .ledger-num {
     font-family: var(--font-mono);
-    font-feature-settings: "tnum" 1, "lnum" 1;
-    letter-spacing: -0.01em;
+    font-feature-settings: "tnum" 1;
 }
 
-/* Base hidden state for JS-rendered card grids (stats, why, pillars,
-   timeline, team, events, faq). animations.js reveals each container's
-   children with a staggered cascade the moment the grid scrolls into view. */
-.stagger-item { opacity: 0; transform: translateY(24px); }
-.stagger-item.in { opacity: 1; transform: translateY(0); transition: opacity .55s ease, transform .55s ease; }
+/* ── Scroll fade-in (replaces translateY bounce) ── */
+.stagger-item { opacity: 0; }
+.stagger-item.in { opacity: 1; transition: opacity .5s var(--ease); }
 
-/* Immediate, light feedback on tap since touch devices have no :hover */
-.btn:active, .card:active, .social-btn:active, .icon-btn:active, .faq-question:active {
-    transform: scale(.97);
-}
+.btn:active { transform: scale(.98); }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: .001ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: .001ms !important;
-        scroll-behavior: auto !important;
-    }
-    .stagger-item { opacity: 1 !important; transform: none !important; }
-}
-
-/* Utilities */
-.mb-8 { margin-bottom: var(--sp-8); }
-.mb-16 { margin-bottom: var(--sp-16); }
-.mb-24 { margin-bottom: var(--sp-24); }
-.mb-32 { margin-bottom: var(--sp-32); }
-
-/* Visible keyboard focus */
-a:focus-visible, button:focus-visible, input:focus-visible {
-    outline: 2px solid var(--color-sage);
+/* ── Focus ── */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--sage);
     outline-offset: 3px;
     border-radius: 4px;
 }
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .001ms !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+    }
+    .stagger-item { opacity: 1 !important; }
+}
+
+/* ── Utilities ── */
+.mb-8  { margin-bottom: var(--s1); }
+.mb-16 { margin-bottom: var(--s2); }
+.mb-24 { margin-bottom: var(--s3); }
+.mb-32 { margin-bottom: var(--s4); }
+CSSEOF
+echo "style.css written"
