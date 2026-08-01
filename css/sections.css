@@ -50,7 +50,7 @@
 @keyframes trustMarqueeRtl { from { transform: translateX(0); } to { transform: translateX(50%); } }
 @media (prefers-reduced-motion: reduce) { .trust-track { animation: none; } }
 
-/* ---- Stats (ledger row) ---- */
+/* ---- Stats ---- */
 .stats-section { padding: var(--sp-64) 0; }
 .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .stat-cell { padding: var(--sp-32) var(--sp-16); text-align: center; border-right: 1px solid var(--line); }
@@ -61,13 +61,13 @@
 [data-theme="dark"] .stat-value { color: var(--color-sage); }
 .stat-label { font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-soft); font-weight: 600; }
 
-/* ---- Why grid ---- */
+/* ---- Grids ---- */
 .why-grid, .pillars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--sp-24); }
 .why-card, .pillar-card { padding: var(--sp-32); }
 .why-card h3, .pillar-card h3 { font-size: 1.4rem; margin-bottom: var(--sp-12); }
 .why-card p, .pillar-card p { font-size: 1rem; }
 
-/* ---- Journey timeline (numbered — real sequence) ---- */
+/* ---- Timeline ---- */
 .journey-section { background: var(--bg-sunken); }
 .timeline { position: relative; max-width: 800px; margin: 0 auto; }
 .timeline::before { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: var(--color-sage); transform: translateX(-50%); opacity: .35; }
@@ -131,8 +131,7 @@
 .social-btn svg { width: 20px; height: 20px; }
 .footer-bottom { text-align: center; padding-top: var(--sp-32); border-top: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.4); font-size: .85rem; }
 
-/* ---- Reveal-on-scroll base state (animated via GSAP in animations.js;
-       this is the CSS fallback if JS fails to load) ---- */
+/* ---- Reveal States ---- */
 .reveal { opacity: 0; transform: translateY(32px); transition: all .7s cubic-bezier(.5,0,0,1); }
 .reveal.active { opacity: 1; transform: translateY(0); }
 .delay-100 { transition-delay: .1s; } .delay-200 { transition-delay: .2s; } .delay-300 { transition-delay: .3s; }
