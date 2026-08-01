@@ -1,4 +1,4 @@
-* ==========================================================================
+/* ==========================================================================
    ECONOVO — sections.css  (Anthropic-style rebuild)
    No glass, no float anims. Sections defined by structure + space.
    ========================================================================== */
@@ -210,5 +210,3 @@
 .delay-100 { transition-delay: .1s; }
 .delay-200 { transition-delay: .2s; }
 .delay-300 { transition-delay: .3s; }
-CSSEOF
-echo "sections.css written"
