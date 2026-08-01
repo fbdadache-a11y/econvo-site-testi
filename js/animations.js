@@ -1,31 +1,40 @@
 /* ==========================================================================
-   ECONOVO — animations.js  (safe, GitHub Pages compatible)
-   CRITICAL FIX: Never hide elements in JS without a guaranteed show path.
-   Strategy: CSS handles the initial hidden state via .will-reveal class.
-   JS only ADDS the visible state — it never sets opacity:0 on its own.
+   ECONOVO — animations.js
+   Brand-tuned motion system. Every animation earns its place:
+   - Hero: orchestrated entrance (brand first impression)
+   - Stat counters: numerical reveal (trust + weight)
+   - Grids: staggered cascade (discovery rhythm)
+   - Timeline: spine draw + node pop (sequential narrative)
+   - Scroll sections: lift + fade (editorial pacing)
+
+   CRITICAL: Never hide elements without a guaranteed show path.
+   CSS handles initial hidden state; JS only adds visible state.
    ========================================================================== */
 
 (function () {
     'use strict';
 
-    // Safety timeout: if everything else fails, reveal all hidden elements
-    var SAFETY_MS = 800;
+    var SAFETY_MS = 900;
     var safetyTimer = setTimeout(revealAll, SAFETY_MS);
 
     function revealAll() {
         document.querySelectorAll('.will-reveal').forEach(function(el) {
             el.classList.add('revealed');
         });
-        document.querySelectorAll('.reveal').forEach(function(el) {
+        document.querySelectorAll('.reveal, .reveal-fade').forEach(function(el) {
             el.classList.add('active');
         });
+        document.querySelectorAll('.timeline-item').forEach(function(el) {
+            el.classList.add('in');
+        });
+        var timeline = document.querySelector('.timeline');
+        if (timeline) timeline.classList.add('animate-spine');
     }
 
     document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(safetyTimer);
-        heroFadeIn();
+        heroEntrance();
         initReveal();
-        // Re-set safety in case econovo:rendered never fires
         safetyTimer = setTimeout(revealAll, SAFETY_MS + 500);
     });
 
@@ -33,35 +42,55 @@
         clearTimeout(safetyTimer);
         initReveal();
         observeGrids();
+        observeTimeline();
+        safetyTimer = setTimeout(revealAll, SAFETY_MS + 500);
     });
 
-    /* ── Hero fade-in: CSS class approach (safer than inline style) ── */
-    function heroFadeIn() {
-        var selectors = [
+    /* ══════════════════════════════════════
+       HERO ENTRANCE — orchestrated sequence
+       Staggered reveal: rule → eyebrow → h1 → p → tags → actions → visual
+       ══════════════════════════════════════ */
+    function heroEntrance() {
+        var sequence = [
+            '.hero-rule',
             '.hero-content .eyebrow',
             '.hero-content h1',
-            '.hero-content p',
+            '.hero-content > p',
             '.hero-content .hero-tags',
             '.hero-content .hero-actions',
             '.hero-visual',
         ];
-        var delay = 50;
-        selectors.forEach(function(sel) {
+
+        var baseDelay = 80;
+        var step = 90;
+
+        sequence.forEach(function(sel, i) {
             var el = document.querySelector(sel);
             if (!el) return;
+
             el.classList.add('will-reveal');
+
             setTimeout(function() {
                 el.classList.add('revealed');
-            }, delay);
-            delay += 80;
+                // Special: animate hero-rule width via class
+                if (sel === '.hero-rule') el.classList.add('revealed');
+                // Special: trigger em underline draw
+                if (sel === '.hero-content h1') {
+                    setTimeout(function() {
+                        var content = document.querySelector('.hero-content');
+                        if (content) content.classList.add('animate-done');
+                    }, 400);
+                }
+            }, baseDelay + (i * step));
         });
     }
 
-    /* ── .reveal sections: IntersectionObserver ── */
+    /* ══════════════════════════════════════
+       SECTION REVEAL — fade + lift
+       ══════════════════════════════════════ */
     function initReveal() {
-        var els = document.querySelectorAll('.reveal:not(.active)');
+        var els = document.querySelectorAll('.reveal:not(.active), .reveal-fade:not(.active)');
         if (!('IntersectionObserver' in window)) {
-            // Fallback for old browsers
             els.forEach(function(el) { el.classList.add('active'); });
             return;
         }
@@ -71,12 +100,23 @@
                 entry.target.classList.add('active');
                 obs.unobserve(entry.target);
             });
-        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+        }, { threshold: 0.07, rootMargin: '0px 0px -48px 0px' });
+
         els.forEach(function(el) { obs.observe(el); });
     }
 
-    /* ── Card grids: staggered fade ── */
-    var GRIDS = ['#statsRow','#whyGrid','#pillarsGrid','#timeline','#teamGrid','#eventsGrid','#faqWrapper'];
+    /* ══════════════════════════════════════
+       GRID STAGGER — cascading card entrance
+       Each child lifts and fades in with 55ms offset
+       ══════════════════════════════════════ */
+    var GRIDS = [
+        '#statsRow',
+        '#whyGrid',
+        '#pillarsGrid',
+        '#teamGrid',
+        '#eventsGrid',
+        '#faqWrapper'
+    ];
 
     function observeGrids() {
         GRIDS.forEach(function(sel) {
@@ -84,19 +124,21 @@
             if (!container || container.dataset.revealed === 'true' || !container.children.length) return;
 
             if (!('IntersectionObserver' in window)) {
-                // Fallback: show immediately
                 animateGrid(container);
+                if (sel === '#statsRow') animateCounters();
                 return;
             }
+
             var obs = new IntersectionObserver(function(entries) {
                 entries.forEach(function(entry) {
                     if (!entry.isIntersecting) return;
                     container.dataset.revealed = 'true';
                     animateGrid(container);
-                    if (sel === '#statsRow') animateCounters();
+                    if (sel === '#statsRow') setTimeout(animateCounters, 180);
                     obs.disconnect();
                 });
-            }, { threshold: 0.06, rootMargin: '0px 0px -48px 0px' });
+            }, { threshold: 0.05, rootMargin: '0px 0px -56px 0px' });
+
             obs.observe(container);
         });
     }
@@ -107,26 +149,81 @@
             c.classList.add('will-reveal');
             setTimeout(function() {
                 c.classList.add('revealed');
-            }, i * 60);
+            }, i * 65);
         });
     }
 
-    /* ── Stat counters ── */
+    /* ══════════════════════════════════════
+       TIMELINE — spine draw + sequential item entrance
+       ══════════════════════════════════════ */
+    function observeTimeline() {
+        var timeline = document.querySelector('.timeline');
+        if (!timeline || timeline.dataset.observed) return;
+        timeline.dataset.observed = '1';
+
+        if (!('IntersectionObserver' in window)) {
+            timeline.classList.add('animate-spine');
+            revealTimelineItems(timeline);
+            return;
+        }
+
+        // Spine draw trigger
+        var spineObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                timeline.classList.add('animate-spine');
+                spineObs.disconnect();
+            });
+        }, { threshold: 0.05 });
+        spineObs.observe(timeline);
+
+        // Individual item reveal
+        var items = timeline.querySelectorAll('.timeline-item');
+        if (!items.length) return;
+
+        var itemObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('in');
+                itemObs.unobserve(entry.target);
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        items.forEach(function(item) {
+            itemObs.observe(item);
+        });
+    }
+
+    function revealTimelineItems(timeline) {
+        var items = timeline.querySelectorAll('.timeline-item');
+        items.forEach(function(item, i) {
+            setTimeout(function() { item.classList.add('in'); }, i * 120);
+        });
+    }
+
+    /* ══════════════════════════════════════
+       STAT COUNTERS — eased number roll
+       Cubic ease-out: fast start, slow finish (weight of the number)
+       ══════════════════════════════════════ */
     function animateCounters() {
         document.querySelectorAll('#statsRow .stat-value').forEach(function(el) {
             var raw   = el.getAttribute('data-raw') || el.textContent;
             var match = raw.match(/^(\d+)(.*)$/);
             if (!match) return;
+
             var target = parseInt(match[1], 10);
             var suffix = match[2] || '';
+            var dur    = 1400;
             var start  = performance.now();
-            var dur    = 1100;
+
             (function tick(now) {
                 var p = Math.min((now - start) / dur, 1);
+                // Cubic ease-out
                 var eased = 1 - Math.pow(1 - p, 3);
                 el.textContent = Math.round(eased * target) + suffix;
                 if (p < 1) requestAnimationFrame(tick);
             })(start);
         });
     }
+
 })();
