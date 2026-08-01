@@ -1,12 +1,16 @@
 /* ==========================================================================
    ECONOVO — sections.css
-   Each section defined by structure and whitespace, not decoration.
-   Signature element: the full-bleed ruled ledger stat strip.
+   Sections defined by structure and whitespace. Animation philosophy:
+   - Hero: orchestrated entrance sequence (brand statement)
+   - Stats: number counting (proof + editorial weight)
+   - Cards: staggered lift on scroll (discovery rhythm)
+   - Timeline: draw-in line + node pop (sequential narrative)
+   - CTA: presence-aware (calm until you arrive)
    ========================================================================== */
 
-/* =========================================================
-   HERO — editorial, left-aligned, text-first
-   ========================================================= */
+/* ═══════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════ */
 .hero {
     min-height: 100svh;
     display: flex;
@@ -15,12 +19,11 @@
     padding-bottom: var(--s7);
     position: relative;
     overflow: hidden;
-    /* Subtle dot field — quiet texture, not decoration */
     background-image: radial-gradient(rgba(143,184,166,.10) 1px, transparent 1px);
     background-size: 36px 36px;
 }
 
-/* Bleed shape — single, right-anchored, no animation */
+/* Animated bg orb */
 .hero-bg-shape {
     position: absolute; top: -20%; right: -8%;
     width: 560px; height: 560px;
@@ -28,8 +31,13 @@
     border-radius: 50%;
     z-index: 0;
     pointer-events: none;
+    animation: orbPulse 8s ease-in-out infinite;
 }
-.hero-bg-shape::after { display: none; }
+@keyframes orbPulse {
+    0%, 100% { transform: scale(1) translate(0, 0); opacity: .9; }
+    50% { transform: scale(1.12) translate(-20px, 15px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-bg-shape { animation: none; } }
 
 .hero-grid {
     display: grid;
@@ -40,16 +48,17 @@
     z-index: 1;
 }
 
-/* CRITICAL: hero content always visible */
 .hero-content { opacity: 1; }
 
-/* Geo rule above eyebrow */
 .hero-rule {
     display: block;
-    width: 40px; height: 2px;
+    width: 0; height: 2px;
     background: var(--sage);
     margin-bottom: var(--s2);
+    /* Animated via JS heroFadeIn; width goes from 0 to 40px */
+    transition: width .6s var(--ease-out);
 }
+.hero-rule.revealed { width: 40px; }
 [lang="ar"] .hero-rule { margin-left: auto; }
 
 .hero-content h1 {
@@ -59,12 +68,22 @@
     letter-spacing: -.04em;
     color: var(--text);
 }
-
-/* "Problem Solvers" accent word */
 .hero-content h1 em {
     font-style: normal;
     color: var(--sage);
+    position: relative;
+    display: inline-block;
 }
+/* Underline draw on em word */
+.hero-content h1 em::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; left: 0;
+    width: 0; height: 2px;
+    background: var(--sage);
+    transition: width .8s var(--ease-out) .6s;
+}
+.hero-content.animate-done h1 em::after { width: 100%; }
 
 .hero-content > p {
     font-size: clamp(1rem, 1.5vw, 1.15rem);
@@ -73,7 +92,6 @@
     line-height: 1.72;
 }
 
-/* Keyword tags — pill-less, mono, small */
 .hero-tags {
     display: flex;
     gap: var(--s1);
@@ -90,6 +108,14 @@
     color: var(--text-soft);
     letter-spacing: .05em;
     text-transform: uppercase;
+    transition: border-color var(--t-fast), color var(--t-fast),
+                background var(--t-fast), transform var(--t-fast);
+}
+.hero-tag:hover {
+    border-color: var(--sage);
+    color: var(--text);
+    background: var(--sage-dim);
+    transform: translateY(-2px);
 }
 
 .hero-actions {
@@ -110,21 +136,30 @@
     border: 1px solid var(--line);
     background: var(--bg-muted);
     position: relative;
-    /* Econovo "N" logo fills the visual elegantly */
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: border-color var(--t-slow), box-shadow var(--t-slow);
+}
+.hero-img-container:hover {
+    border-color: var(--sage);
+    box-shadow: 0 8px 32px rgba(14,42,36,.1);
 }
 .hero-img-container img {
     width: 60%;
     height: auto;
     opacity: .9;
     object-fit: contain;
+    transition: transform var(--t-slower) var(--ease-out), opacity var(--t-slow);
+}
+.hero-img-container:hover img {
+    transform: scale(1.04);
+    opacity: 1;
 }
 
-/* =========================================================
-   TRUST BAR — a ruled marquee strip
-   ========================================================= */
+/* ═══════════════════════════════════════
+   TRUST BAR
+   ═══════════════════════════════════════ */
 .trust-bar {
     padding: var(--s2) 0;
     border-top: 1px solid var(--line);
@@ -149,8 +184,8 @@
 .trust-marquee {
     flex: 1; min-width: 0;
     overflow: hidden;
-    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
 .trust-track {
     display: flex;
@@ -159,22 +194,24 @@
     width: max-content;
     animation: trustMarquee 32s linear infinite;
 }
+.trust-track:hover { animation-play-state: paused; }
 [lang="ar"] .trust-track { animation-name: trustMarqueeRtl; }
 .trust-item {
     font-weight: 600;
     color: var(--text-soft);
     font-size: .85rem;
     white-space: nowrap;
+    transition: color var(--t-fast);
 }
+.trust-item:hover { color: var(--text); }
 .trust-track .dot { color: var(--sage); font-size: .5rem; vertical-align: middle; }
 
 @keyframes trustMarquee    { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes trustMarqueeRtl { from { transform: translateX(0); } to { transform: translateX(50%); } }
 
-/* =========================================================
-   STATS LEDGER — the signature element
-   Full-width ruled grid. Numbers are the content.
-   ========================================================= */
+/* ═══════════════════════════════════════
+   STATS LEDGER — the signature section
+   ═══════════════════════════════════════ */
 .stats-section { padding: 0; }
 
 .stats-row {
@@ -188,7 +225,21 @@
     text-align: center;
     border-right: 1px solid var(--line);
     position: relative;
+    overflow: hidden;
+    cursor: default;
 }
+/* Hover fill — sage wash from bottom */
+.stat-cell::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0;
+    width: 100%; height: 0;
+    background: var(--sage-dim);
+    transition: height var(--t-base) var(--ease-out);
+    z-index: 0;
+}
+.stat-cell:hover::after { height: 100%; }
+.stat-cell > * { position: relative; z-index: 1; }
+
 .stat-cell:last-child { border-right: none; }
 [lang="ar"] .stat-cell { border-right: none; border-left: 1px solid var(--line); }
 [lang="ar"] .stat-cell:last-child { border-left: none; }
@@ -201,7 +252,9 @@
     margin-bottom: 4px;
     letter-spacing: -.04em;
     line-height: 1;
+    transition: color var(--t-fast);
 }
+.stat-cell:hover .stat-value { color: var(--obsidian); }
 [data-theme="dark"] .stat-value { color: var(--sage); }
 .stat-label {
     font-size: .7rem;
@@ -212,9 +265,9 @@
     font-family: var(--font-mono);
 }
 
-/* =========================================================
-   EMPATHY / ABOUT — full-bleed dark panel
-   ========================================================= */
+/* ═══════════════════════════════════════
+   EMPATHY / ABOUT
+   ═══════════════════════════════════════ */
 .empathy-section { padding: var(--s7) 0; }
 .empathy-box {
     background: var(--gradient-primary) !important;
@@ -225,14 +278,20 @@
     position: relative;
     overflow: hidden;
 }
-/* Quiet dot grid inside dark panel */
 .empathy-box::before {
     content: '';
     position: absolute; inset: 0;
     background-image: radial-gradient(rgba(143,184,166,.12) 1px, transparent 1px);
     background-size: 30px 30px;
     pointer-events: none;
+    animation: dotDrift 20s linear infinite;
 }
+@keyframes dotDrift {
+    from { background-position: 0 0; }
+    to   { background-position: 30px 30px; }
+}
+@media (prefers-reduced-motion: reduce) { .empathy-box::before { animation: none; } }
+
 .empathy-box > * { position: relative; z-index: 1; }
 .empathy-box h2 {
     color: var(--chalk) !important;
@@ -252,9 +311,9 @@
     line-height: 1.72;
 }
 
-/* =========================================================
-   WHY & PILLARS GRIDS
-   ========================================================= */
+/* ═══════════════════════════════════════
+   WHY & PILLARS
+   ═══════════════════════════════════════ */
 .why-grid, .pillars-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -265,12 +324,14 @@
     font-size: 1.25rem;
     margin-bottom: var(--s1);
     letter-spacing: -.02em;
+    transition: color var(--t-fast);
 }
+.why-card:hover h3, .pillar-card:hover h3 { color: var(--obsidian); }
 .why-card p, .pillar-card p { font-size: .9375rem; }
 
-/* =========================================================
+/* ═══════════════════════════════════════
    JOURNEY / TIMELINE
-   ========================================================= */
+   ═══════════════════════════════════════ */
 .journey-section { background: var(--bg-muted); }
 
 .timeline {
@@ -278,19 +339,31 @@
     max-width: 720px;
     margin: 0 auto;
 }
+/* Central spine — animated draw */
 .timeline::before {
     content: '';
     position: absolute; top: 0; left: 50%;
-    width: 1px; height: 100%;
+    width: 1px; height: 0;
     background: var(--line);
     transform: translateX(-50%);
+    transition: height 1.2s var(--ease-out);
 }
+.timeline.animate-spine::before { height: 100%; }
+
 .timeline-item {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: var(--s5);
     position: relative;
+    /* Hidden until intersection — handled by stagger system */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .6s var(--ease-out), transform .6s var(--ease-out);
+}
+.timeline-item.in {
+    opacity: 1;
+    transform: translateY(0);
 }
 .timeline-item:nth-child(even) { flex-direction: row-reverse; }
 .timeline-content {
@@ -299,8 +372,14 @@
     background: var(--bg-raised);
     border: 1px solid var(--line);
     border-radius: var(--r-lg);
+    transition: border-color var(--t-base), box-shadow var(--t-base),
+                transform var(--t-base);
 }
-.timeline-content:hover { border-color: var(--sage); }
+.timeline-content:hover {
+    border-color: var(--sage);
+    box-shadow: 0 4px 16px rgba(14,42,36,.07);
+    transform: translateY(-2px);
+}
 .timeline-content .step-num {
     font-family: var(--font-mono);
     font-size: .68rem;
@@ -312,19 +391,25 @@
     text-transform: uppercase;
 }
 .timeline-content h3 { font-size: 1rem; margin-bottom: 6px; }
+
+/* Timeline dot — pop in with spring */
 .timeline-dot {
     position: absolute; left: 50%; top: var(--s3);
-    transform: translateX(-50%);
+    transform: translateX(-50%) scale(0);
     width: 10px; height: 10px;
     background: var(--sage);
     border: 3px solid var(--bg-muted);
     border-radius: 50%;
     z-index: 2;
+    transition: transform .5s var(--ease-spring);
+}
+.timeline-item.in .timeline-dot {
+    transform: translateX(-50%) scale(1);
 }
 
-/* =========================================================
+/* ═══════════════════════════════════════
    TEAM
-   ========================================================= */
+   ═══════════════════════════════════════ */
 .team-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -333,29 +418,37 @@
 .team-card {
     padding: var(--s5) var(--s3);
     text-align: center;
+    cursor: default;
 }
 .team-card .role {
     font-size: 1rem;
     font-weight: 700;
     margin-bottom: 4px;
     letter-spacing: -.01em;
+    transition: color var(--t-fast);
 }
+.team-card:hover .role { color: var(--obsidian); }
 .team-card .name {
     font-size: .82rem;
     color: var(--text-soft);
     font-family: var(--font-mono);
 }
 
-/* =========================================================
+/* ═══════════════════════════════════════
    EVENTS
-   ========================================================= */
+   ═══════════════════════════════════════ */
 .events-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--s2);
 }
 .event-card { padding: var(--s4); }
-.event-card h3 { font-size: 1.15rem; margin-bottom: var(--s1); }
+.event-card h3 {
+    font-size: 1.15rem;
+    margin-bottom: var(--s1);
+    transition: color var(--t-fast);
+}
+.event-card:hover h3 { color: var(--obsidian); }
 .event-meta {
     display: flex;
     align-items: center;
@@ -368,14 +461,14 @@
     color: var(--text-soft);
 }
 
-/* =========================================================
+/* ═══════════════════════════════════════
    FAQ
-   ========================================================= */
+   ═══════════════════════════════════════ */
 .faq-wrapper { max-width: 680px; margin: 0 auto; }
 
-/* =========================================================
-   CTA — dark full-bleed with dot grid
-   ========================================================= */
+/* ═══════════════════════════════════════
+   CTA — dark full-bleed
+   ═══════════════════════════════════════ */
 .cta-section {
     background: var(--gradient-primary);
     color: #fff;
@@ -385,6 +478,8 @@
     margin: 0 var(--s4);
     position: relative;
     overflow: hidden;
+    /* Scale in on scroll — handled by reveal */
+    transform-origin: center bottom;
 }
 .cta-section::before {
     content: '';
@@ -393,14 +488,26 @@
     background-size: 28px 28px;
     pointer-events: none;
     z-index: 0;
+    animation: dotDriftFast 15s linear infinite;
+}
+@keyframes dotDriftFast {
+    from { background-position: 0 0; }
+    to   { background-position: 28px 28px; }
 }
 .cta-section > * { position: relative; z-index: 1; }
-.cta-section .section-title { color: var(--chalk); font-size: clamp(2rem, 4vw, 2.8rem); }
-.cta-section > p { color: rgba(244,247,242,.7); margin-bottom: var(--s5); font-size: 1.1rem; }
+.cta-section .section-title {
+    color: var(--chalk);
+    font-size: clamp(2rem, 4vw, 2.8rem);
+}
+.cta-section > p {
+    color: rgba(244,247,242,.7);
+    margin-bottom: var(--s5);
+    font-size: 1.1rem;
+}
 
-/* =========================================================
+/* ═══════════════════════════════════════
    FOOTER
-   ========================================================= */
+   ═══════════════════════════════════════ */
 .footer {
     background: var(--ink);
     color: #fff;
@@ -439,6 +546,7 @@
 .footer-links a, .footer-links li {
     color: rgba(255,255,255,.45);
     font-size: .875rem;
+    transition: color var(--t-fast);
 }
 .footer-links a:hover { color: var(--sage); }
 
@@ -459,14 +567,17 @@
     color: rgba(255,255,255,.6);
     font-weight: 600;
     font-size: .85rem;
-    transition: var(--t-fast);
+    transition: background var(--t-fast), border-color var(--t-fast),
+                color var(--t-fast), transform var(--t-fast);
     width: max-content;
 }
 .social-btn:hover {
-    background: rgba(143,184,166,.1);
+    background: rgba(143,184,166,.12);
     border-color: var(--sage);
     color: var(--sage);
+    transform: translateX(3px);
 }
+[lang="ar"] .social-btn:hover { transform: translateX(-3px); }
 .social-btn svg { width: 17px; height: 17px; }
 
 .footer-bottom {

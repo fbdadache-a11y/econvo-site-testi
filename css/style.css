@@ -1,20 +1,23 @@
 /* ==========================================================================
    ECONOVO — style.css
-   Anthropic-inspired academic minimalism. Brand book exact colours.
+   Academic → Professional. Deep forest editorial with sage precision.
    Philosophy: whitespace earns meaning, typography commands hierarchy,
-   borders replace shadows, structure is information.
+   borders replace shadows, motion serves the brand.
    ========================================================================== */
 
 :root {
     /* ── Brand palette (Brand Book exact) ── */
-    --obsidian:    #0E2A24;   /* primary dark, headings */
-    --obsidian-2:  #163a32;   /* hover dark */
-    --ink:         #1F1F1F;   /* secondary dark, footer */
-    --sage:        #8FB8A6;   /* Silver Sage — accent, dividers, hover */
+    --obsidian:    #0E2A24;
+    --obsidian-2:  #163a32;
+    --obsidian-3:  #0a1f1a;
+    --ink:         #1F1F1F;
+    --sage:        #8FB8A6;
     --sage-light:  #b8d4c8;
+    --sage-dark:   #6a9e89;
     --sage-dim:    rgba(143,184,166,.10);
-    --chalk:       #F4F7F2;   /* Chalk White 1 — main bg */
-    --chalk-2:     #F6F4F0;   /* Chalk White 2 — section alt bg */
+    --sage-glow:   rgba(143,184,166,.18);
+    --chalk:       #F4F7F2;
+    --chalk-2:     #F6F4F0;
     --white:       #FFFFFF;
 
     /* ── Semantic tokens ── */
@@ -24,13 +27,14 @@
     --bg-sunken:   var(--chalk-2);
     --text:        var(--obsidian);
     --text-soft:   rgba(14,42,36,.52);
+    --text-muted:  rgba(14,42,36,.35);
     --line:        rgba(14,42,36,.10);
     --rule:        rgba(14,42,36,.10);
     --accent:      var(--sage);
     --brand:       var(--obsidian);
     --brand-dark:  var(--obsidian);
 
-    /* Legacy aliases (auth pages + language.js) */
+    /* Legacy aliases */
     --color-obsidian:  var(--obsidian);
     --color-sage:      var(--sage);
     --color-ink:       var(--ink);
@@ -40,9 +44,9 @@
     --brand-accent:    var(--sage);
     --gradient-primary: linear-gradient(155deg, var(--obsidian) 0%, #163a32 100%);
     --gradient-sage:    linear-gradient(135deg, var(--sage) 0%, var(--sage-light) 100%);
-    --shadow-sm:  0 1px 3px rgba(14,42,36,.06);
-    --shadow-md:  0 4px 16px rgba(14,42,36,.08);
-    --shadow-hover: 0 8px 28px rgba(14,42,36,.11);
+    --shadow-sm:   0 1px 3px rgba(14,42,36,.06);
+    --shadow-md:   0 4px 16px rgba(14,42,36,.08);
+    --shadow-hover:0 8px 28px rgba(14,42,36,.11);
 
     /* ── Type ── */
     --font-sans:    'Host Grotesk', system-ui, sans-serif;
@@ -52,27 +56,30 @@
     --font-current: var(--font-sans);
 
     /* ── Spacing (8-pt grid) ── */
-    --s1:  .5rem;    /* 8  */
-    --s2:  1rem;     /* 16 */
-    --s3:  1.5rem;   /* 24 */
-    --s4:  2rem;     /* 32 */
-    --s5:  3rem;     /* 48 */
-    --s6:  4rem;     /* 64 */
-    --s7:  6rem;     /* 96 */
-    --s8:  8rem;     /* 128 */
+    --s1:  .5rem;
+    --s2:  1rem;
+    --s3:  1.5rem;
+    --s4:  2rem;
+    --s5:  3rem;
+    --s6:  4rem;
+    --s7:  6rem;
+    --s8:  8rem;
 
-    /* Legacy spacing aliases */
     --sp-4:.25rem; --sp-6:.375rem; --sp-8:var(--s1); --sp-12:.75rem;
     --sp-16:var(--s2); --sp-20:1.25rem; --sp-24:var(--s3);
     --sp-32:var(--s4); --sp-48:var(--s5); --sp-64:var(--s6);
     --sp-96:var(--s7); --sp-128:var(--s8);
 
-    /* ── Motion ── */
+    /* ── Motion — brand-tuned easing ── */
     --ease:         cubic-bezier(.4,0,.2,1);
+    --ease-out:     cubic-bezier(0,0,.2,1);
+    --ease-in:      cubic-bezier(.4,0,1,1);
     --ease-bounce:  cubic-bezier(.68,-.4,.27,1.35);
+    --ease-spring:  cubic-bezier(.175,.885,.32,1.275);
     --t-fast:       160ms var(--ease);
     --t-base:       260ms var(--ease);
     --t-slow:       500ms var(--ease);
+    --t-slower:     700ms var(--ease);
 
     /* ── Radius ── */
     --r-sm:   4px;
@@ -83,19 +90,21 @@
 
 /* ── Dark mode ── */
 [data-theme="dark"] {
-    --bg:        #111;
-    --bg-raised: #191919;
-    --bg-muted:  #161616;
-    --bg-sunken: #151515;
+    --bg:        #0d0d0d;
+    --bg-raised: #141414;
+    --bg-muted:  #111111;
+    --bg-sunken: #0f0f0f;
     --text:      #E8EFE9;
     --text-soft: rgba(232,239,233,.55);
+    --text-muted:rgba(232,239,233,.3);
     --line:      rgba(232,239,233,.09);
     --rule:      rgba(232,239,233,.09);
-    --brand:     #111;
-    --brand-dark: #111;
-    --obsidian:  #111;
-    --obsidian-2:#111;
-    --gradient-primary: linear-gradient(155deg, #0f0f0f 0%, #0E2A24 100%);
+    --brand:     #0d0d0d;
+    --brand-dark: #0d0d0d;
+    --obsidian:  #0d0d0d;
+    --obsidian-2:#0d0d0d;
+    --sage-dim:  rgba(143,184,166,.08);
+    --gradient-primary: linear-gradient(155deg, #0c0c0c 0%, #0E2A24 100%);
     --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
     --shadow-md:   0 4px 16px rgba(0,0,0,.35);
     --shadow-hover:0 8px 28px rgba(0,0,0,.4);
@@ -138,19 +147,69 @@ img { max-width: 100%; display: block; }
     font-feature-settings: "tnum" 1;
 }
 
-/* ── Reveal ── */
-.reveal { opacity: 0; transition: opacity .65s var(--ease); }
-.reveal.active { opacity: 1; }
+/* ════════════════════════════════════════════
+   REVEAL SYSTEM — scroll-triggered entrances
+   All transitions are purposeful:
+   - fade + lift: content entering from below
+   - fade only: subtle sections
+   - stagger: grids of cards/items
+   ════════════════════════════════════════════ */
+
+/* Base reveal — fade + lift */
+.reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .7s var(--ease-out), transform .7s var(--ease-out);
+}
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Section header reveal — slightly taller lift */
+.section-header.reveal {
+    transform: translateY(24px);
+    transition: opacity .65s var(--ease-out), transform .65s var(--ease-out);
+}
+
+/* Fade only — for elements that shouldn't move */
+.reveal-fade {
+    opacity: 0;
+    transition: opacity .65s var(--ease);
+}
+.reveal-fade.active { opacity: 1; }
+
 .delay-100 { transition-delay: .1s; }
 .delay-200 { transition-delay: .2s; }
 .delay-300 { transition-delay: .3s; }
-body:not(.js-ready) .reveal { animation: forceReveal 0s 2s forwards; }
-@keyframes forceReveal { to { opacity: 1; } }
+.delay-400 { transition-delay: .4s; }
 
-.will-reveal { opacity: 0; transition: opacity .5s var(--ease); }
-.will-reveal.revealed { opacity: 1; }
-.stagger-item { opacity: 0; }
-.stagger-item.in { opacity: 1; transition: opacity .5s var(--ease); }
+/* will-reveal — used by heroFadeIn and grid stagger */
+.will-reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .55s var(--ease-out), transform .55s var(--ease-out);
+}
+.will-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger items */
+.stagger-item {
+    opacity: 0;
+    transform: translateY(16px);
+}
+.stagger-item.in {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity .5s var(--ease-out), transform .5s var(--ease-out);
+}
+
+/* Safety net */
+body:not(.js-ready) .reveal,
+body:not(.js-ready) .will-reveal { animation: forceReveal 0s 2s forwards; }
+@keyframes forceReveal { to { opacity: 1; transform: none; } }
 
 /* ── Focus ── */
 a:focus-visible, button:focus-visible,
@@ -167,7 +226,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
         transition-duration: .001ms !important;
         scroll-behavior: auto !important;
     }
-    .stagger-item, .reveal, .will-reveal { opacity: 1 !important; }
+    .stagger-item, .reveal, .will-reveal, .reveal-fade { opacity: 1 !important; transform: none !important; }
 }
 
 /* ── Utilities ── */
@@ -175,4 +234,4 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .mb-16 { margin-bottom: var(--s2); }
 .mb-24 { margin-bottom: var(--s3); }
 .mb-32 { margin-bottom: var(--s4); }
-.btn:active { transform: scale(.98); }
+.btn:active { transform: scale(.97); }

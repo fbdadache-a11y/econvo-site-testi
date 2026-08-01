@@ -8,6 +8,7 @@
     .hero-content > p { margin: 0 auto var(--s5); }
     .hero-tags, .hero-actions { justify-content: center; }
     .hero-img-container { height: 340px; }
+    .hero-content h1 em::after { display: none; } /* skip on mobile */
 
     .timeline::before { left: 0; transform: none; }
     .timeline-item,
@@ -15,6 +16,7 @@
     [lang="ar"] .timeline-item { padding-left: 0; padding-right: var(--s4); }
     .timeline-content { width: 100%; }
     .timeline-dot { left: 0; transform: none; }
+    .timeline-item.in .timeline-dot { transform: none; }
     [lang="ar"] .timeline-dot { left: auto; right: 0; }
 
     .footer-grid { grid-template-columns: 1fr; gap: var(--s4); }
@@ -34,13 +36,11 @@
 @media (max-width: 768px) {
     :root { --s7: 3.5rem; --s8: 4.5rem; }
 
-    /* Nav — only logo + hamburger on mobile */
     .nav-links { display: none; }
     .nav-toggle { display: inline-flex; }
     .mobile-join { display: block; }
     body { padding-bottom: 80px; }
 
-    /* Hide Sign In + theme/lang from top bar — they live in the slide menu */
     .nav-actions .icon-btn.js-theme-toggle,
     .nav-actions .lang-btn.js-lang-toggle,
     .nav-actions .btn-outline { display: none; }
@@ -54,8 +54,10 @@
     .floating-badge { left: 8px; bottom: 10px; padding: var(--s1) var(--s2); }
 
     .container { padding: 0 var(--s2); }
-
     .section { padding: var(--s6) 0; }
+
+    /* Mobile: reduce animation complexity */
+    .stat-cell::after { display: none; }
 }
 
 @media (max-width: 480px) {
@@ -63,4 +65,6 @@
     .hero-img-container { height: 260px; }
     .btn-sm { padding: 8px 14px; font-size: .8rem; }
     .hero-content h1 { letter-spacing: -.03em; }
+    /* Faster stagger on small screens */
+    .mobile-menu.open li:nth-child(n) .nav-link { transition-delay: .05s; }
 }
