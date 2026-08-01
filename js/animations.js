@@ -1,4 +1,4 @@
-==========================================================================
+/* ==========================================================================
    ECONOVO — animations.js  (Anthropic-style: calm, purposeful)
    Hero fades in on load. Sections and card grids fade in on scroll.
    No floating, no bounce, no translateY cascades.
