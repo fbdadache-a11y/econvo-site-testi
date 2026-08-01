@@ -284,8 +284,6 @@
 
     <!-- Vendor -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <!-- App -->
     <script src="js/faq.js"></script>
@@ -293,38 +291,55 @@
     <script src="js/animations.js"></script>
     <script src="js/main.js"></script>
     <script>
-    // ── Dynamic auth navbar ──────────────────────────────────
+    // ── Auth-aware navbar & UI ───────────────────────────────
     (function() {
-        const token = localStorage.getItem('econovo-token');
+        const token   = localStorage.getItem('econovo-token');
         const userRaw = localStorage.getItem('econovo-user');
         const signinLink = document.getElementById('nav-signin-link');
-        const joinLink = document.getElementById('nav-join-link');
+        const joinLink   = document.getElementById('nav-join-link');
+        const mobileJoin = document.querySelector('.mobile-join');
+        const ctaBtn     = document.querySelector('.cta-section .btn');
 
         if (token && userRaw) {
             try {
                 const user = JSON.parse(userRaw);
                 const meta = user.user_metadata || {};
-                const name = meta.first_name || meta.full_name || user.email.split('@')[0];
+                const name = meta.first_name || (meta.full_name || '').split(' ')[0] || user.email.split('@')[0];
 
-                // Replace "Sign In" with a user greeting + sign out button
+                // Navbar: show name + Dashboard link, replace Join Now with Sign Out
                 if (signinLink) {
-                    signinLink.textContent = '👤 ' + name;
-                    signinLink.removeAttribute('href');
-                    signinLink.style.cursor = 'default';
-                    signinLink.style.pointerEvents = 'none';
+                    signinLink.textContent = name;
+                    signinLink.href = 'pages/dashboard.html';
+                    signinLink.className = 'btn btn-outline btn-sm';
                 }
                 if (joinLink) {
                     joinLink.textContent = 'Sign Out';
                     joinLink.removeAttribute('href');
-                    joinLink.classList.remove('btn-primary');
-                    joinLink.classList.add('btn-outline');
-                    joinLink.style.cursor = 'pointer';
+                    joinLink.className = 'btn btn-sm';
+                    joinLink.style.cssText = 'color:var(--text-soft);padding:8px 14px;';
                     joinLink.addEventListener('click', function(e) {
                         e.preventDefault();
                         localStorage.removeItem('econovo-token');
                         localStorage.removeItem('econovo-user');
                         window.location.reload();
                     });
+                }
+
+                // Hide all Join Now / Become a Member CTAs for logged-in members
+                document.querySelectorAll('a[href="pages/join.html"], a[href="join.html"]').forEach(el => {
+                    el.style.display = 'none';
+                });
+                if (mobileJoin) mobileJoin.style.display = 'none';
+
+                // Replace hero CTA with Dashboard button
+                const heroActions = document.querySelector('.hero-actions');
+                if (heroActions) {
+                    const dashBtn = document.createElement('a');
+                    dashBtn.href = 'pages/dashboard.html';
+                    dashBtn.className = 'btn btn-primary';
+                    dashBtn.innerHTML = 'My Dashboard <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                    heroActions.innerHTML = '';
+                    heroActions.appendChild(dashBtn);
                 }
             } catch(_) {}
         }
