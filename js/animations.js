@@ -1,102 +1,129 @@
 /* ==========================================================================
-   ECONOVO — animations.js  (Anthropic-style: calm, purposeful)
-   Hero fades in on load. Sections and card grids fade in on scroll.
-   No floating, no bounce, no translateY cascades.
-   Stats count up once — the only "active" animation, kept because it
-   communicates real data rather than just decorating space.
+   ECONOVO — animations.js  (safe, GitHub Pages compatible)
+   CRITICAL FIX: Never hide elements in JS without a guaranteed show path.
+   Strategy: CSS handles the initial hidden state via .will-reveal class.
+   JS only ADDS the visible state — it never sets opacity:0 on its own.
    ========================================================================== */
 
 (function () {
     'use strict';
 
-    const GRID_SELECTORS = ['#statsRow','#whyGrid','#pillarsGrid','#timeline','#teamGrid','#eventsGrid','#faqWrapper'];
-    let revealObserver;
+    // Safety timeout: if everything else fails, reveal all hidden elements
+    var SAFETY_MS = 800;
+    var safetyTimer = setTimeout(revealAll, SAFETY_MS);
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function revealAll() {
+        document.querySelectorAll('.will-reveal').forEach(function(el) {
+            el.classList.add('revealed');
+        });
+        document.querySelectorAll('.reveal').forEach(function(el) {
+            el.classList.add('active');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        clearTimeout(safetyTimer);
         heroFadeIn();
         initReveal();
+        // Re-set safety in case econovo:rendered never fires
+        safetyTimer = setTimeout(revealAll, SAFETY_MS + 500);
     });
 
-    // Grids rendered by language.js after DOMContentLoaded
-    document.addEventListener('econovo:rendered', () => {
-        GRID_SELECTORS.forEach(observeGrid);
-        initReveal(); // re-observe any new .reveal elements
+    document.addEventListener('econovo:rendered', function() {
+        clearTimeout(safetyTimer);
+        initReveal();
+        observeGrids();
     });
 
-    /* ── Hero: simple staggered opacity only ── */
+    /* ── Hero fade-in: CSS class approach (safer than inline style) ── */
     function heroFadeIn() {
-        const items = [
+        var selectors = [
             '.hero-content .eyebrow',
             '.hero-content h1',
             '.hero-content p',
             '.hero-content .hero-tags',
             '.hero-content .hero-actions',
             '.hero-visual',
-        ].map(s => document.querySelector(s)).filter(Boolean);
-
-        items.forEach((el, i) => {
-            el.style.opacity = '0';
-            el.style.transition = `opacity .55s ease ${i * .08 + .05}s`;
-            // requestAnimationFrame lets the browser paint the hidden state first
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                el.style.opacity = '1';
-            }));
+        ];
+        var delay = 50;
+        selectors.forEach(function(sel) {
+            var el = document.querySelector(sel);
+            if (!el) return;
+            el.classList.add('will-reveal');
+            setTimeout(function() {
+                el.classList.add('revealed');
+            }, delay);
+            delay += 80;
         });
     }
 
-    /* ── .reveal sections: fade in on scroll ── */
+    /* ── .reveal sections: IntersectionObserver ── */
     function initReveal() {
-        if (!revealObserver) {
-            revealObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (!entry.isIntersecting) return;
-                    entry.target.classList.add('active');
-                    revealObserver.unobserve(entry.target);
-                });
-            }, { threshold: .1, rootMargin: '0px 0px -48px 0px' });
+        var els = document.querySelectorAll('.reveal:not(.active)');
+        if (!('IntersectionObserver' in window)) {
+            // Fallback for old browsers
+            els.forEach(function(el) { el.classList.add('active'); });
+            return;
         }
-        document.querySelectorAll('.reveal:not(.active)').forEach(el => revealObserver.observe(el));
+        var obs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('active');
+                obs.unobserve(entry.target);
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+        els.forEach(function(el) { obs.observe(el); });
     }
 
-    /* ── Card grids: staggered fade in ── */
-    function observeGrid(selector) {
-        const container = document.querySelector(selector);
-        if (!container || container.dataset.revealed === 'true' || !container.children.length) return;
+    /* ── Card grids: staggered fade ── */
+    var GRIDS = ['#statsRow','#whyGrid','#pillarsGrid','#timeline','#teamGrid','#eventsGrid','#faqWrapper'];
 
-        const children = Array.from(container.children);
-        children.forEach(c => { c.style.opacity = '0'; });
+    function observeGrids() {
+        GRIDS.forEach(function(sel) {
+            var container = document.querySelector(sel);
+            if (!container || container.dataset.revealed === 'true' || !container.children.length) return;
 
-        const obs = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (!entry.isIntersecting) return;
-                container.dataset.revealed = 'true';
-                children.forEach((c, i) => {
-                    c.style.transition = `opacity .4s ease ${i * .06}s`;
-                    requestAnimationFrame(() => requestAnimationFrame(() => {
-                        c.style.opacity = '1';
-                    }));
+            if (!('IntersectionObserver' in window)) {
+                // Fallback: show immediately
+                animateGrid(container);
+                return;
+            }
+            var obs = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (!entry.isIntersecting) return;
+                    container.dataset.revealed = 'true';
+                    animateGrid(container);
+                    if (sel === '#statsRow') animateCounters();
+                    obs.disconnect();
                 });
-                if (selector === '#statsRow') animateCounters();
-                obs.disconnect();
-            });
-        }, { threshold: .08, rootMargin: '0px 0px -60px 0px' });
+            }, { threshold: 0.06, rootMargin: '0px 0px -48px 0px' });
+            obs.observe(container);
+        });
+    }
 
-        obs.observe(container);
+    function animateGrid(container) {
+        var children = Array.from(container.children);
+        children.forEach(function(c, i) {
+            c.classList.add('will-reveal');
+            setTimeout(function() {
+                c.classList.add('revealed');
+            }, i * 60);
+        });
     }
 
     /* ── Stat counters ── */
     function animateCounters() {
-        document.querySelectorAll('#statsRow .stat-value').forEach(el => {
-            const raw   = el.getAttribute('data-raw') || el.textContent;
-            const match = raw.match(/^(\d+)(.*)$/);
+        document.querySelectorAll('#statsRow .stat-value').forEach(function(el) {
+            var raw   = el.getAttribute('data-raw') || el.textContent;
+            var match = raw.match(/^(\d+)(.*)$/);
             if (!match) return;
-            const target = parseInt(match[1], 10);
-            const suffix = match[2] || '';
-            const start  = performance.now();
-            const dur    = 1200;
+            var target = parseInt(match[1], 10);
+            var suffix = match[2] || '';
+            var start  = performance.now();
+            var dur    = 1100;
             (function tick(now) {
-                const p = Math.min((now - start) / dur, 1);
-                const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+                var p = Math.min((now - start) / dur, 1);
+                var eased = 1 - Math.pow(1 - p, 3);
                 el.textContent = Math.round(eased * target) + suffix;
                 if (p < 1) requestAnimationFrame(tick);
             })(start);
