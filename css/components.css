@@ -7,18 +7,10 @@
 .text-center { text-align: center; }
 
 .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: .5em;
-    font-size: .8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .12em;
-    color: var(--brand-dark);
-    background: color-mix(in srgb, var(--color-sage) 18%, transparent);
-    padding: 6px 14px;
-    border-radius: var(--r-pill);
-    margin-bottom: var(--sp-16);
+    display: inline-flex; align-items: center; gap: .5em; font-size: .8rem;
+    font-weight: 600; text-transform: uppercase; letter-spacing: .12em;
+    color: var(--brand-dark); background: color-mix(in srgb, var(--color-sage) 18%, transparent);
+    padding: 6px 14px; border-radius: var(--r-pill); margin-bottom: var(--sp-16);
 }
 [data-theme="dark"] .eyebrow { color: var(--color-sage); }
 
@@ -44,7 +36,7 @@
 .btn-outline:hover { background: var(--color-sage); color: var(--color-obsidian); transform: translateY(-3px); }
 .btn-sm { padding: 10px 20px; font-size: .9rem; }
 
-/* ---- Scroll progress (thin ledger line tracking read position) ---- */
+/* ---- Scroll progress ---- */
 .scroll-progress {
     position: fixed; top: 0; left: 0; height: 3px; width: 0%;
     background: var(--color-sage); z-index: 1100; transition: width .1s linear;
@@ -70,10 +62,9 @@
 .nav-actions { display: flex; align-items: center; gap: var(--sp-16); }
 
 .icon-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 40px; height: 40px; border-radius: var(--r-pill);
-    background: var(--bg-sunken); border: 1px solid var(--line); color: var(--text);
-    transition: var(--t-base);
+    display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px;
+    border-radius: var(--r-pill); background: var(--bg-sunken); border: 1px solid var(--line);
+    color: var(--text); transition: var(--t-base);
 }
 .icon-btn:hover { background: var(--color-sage); color: var(--color-obsidian); }
 .icon-btn svg, .icon-btn i { width: 18px; height: 18px; }
@@ -101,7 +92,7 @@
 [data-theme="dark"] .icon-tile { color: var(--color-sage); }
 .card:hover .icon-tile { background: var(--brand-dark); color: var(--color-sage); transform: scale(1.08) rotate(4deg); }
 
-/* ---- Badges / floating elements (hero) ---- */
+/* ---- Badges ---- */
 .floating-badge {
     position: absolute; bottom: 30px; left: -30px; background: var(--bg-raised);
     padding: var(--sp-16) var(--sp-24); border-radius: var(--r-md); box-shadow: var(--shadow-md);
@@ -118,7 +109,7 @@
     font-size: .82rem; display: flex; align-items: center; gap: 8px; z-index: 10;
 }
 
-/* ---- Avatars (team) ---- */
+/* ---- Avatars ---- */
 .avatar-circle {
     width: 96px; height: 96px; border-radius: 50%; margin: 0 auto var(--sp-16);
     display: flex; align-items: center; justify-content: center; font-family: var(--font-mono);
@@ -134,26 +125,23 @@
 .faq-icon { flex-shrink: 0; transition: transform var(--t-base); }
 .faq-item.active .faq-icon { transform: rotate(180deg); color: var(--color-sage); }
 .faq-answer { padding: 0 var(--sp-24); height: 0; overflow: hidden; opacity: 0; transition: opacity var(--t-base), padding-bottom var(--t-base); }
-.faq-item.active .faq-answer { padding-bottom: var(--sp-24); opacity: 1; height: 500px; } /* no-JS fallback only — faq.js drives the real height */
+.faq-item.active .faq-answer { padding-bottom: var(--sp-24); opacity: 1; height: 500px; }
 
-/* ---- Status pill (events) ---- */
+/* ---- Status pill ---- */
 .pill { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; padding: 5px 12px; border-radius: var(--r-pill); }
 .pill-open { background: color-mix(in srgb, var(--color-sage) 25%, transparent); color: var(--brand-dark); }
 [data-theme="dark"] .pill-open { color: var(--color-sage); }
 .pill-open::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #4CAF7D; }
 
-/* ---- Mobile bottom join button ---- */
+/* ---- Mobile UI ---- */
 .mobile-join {
     display: none; position: fixed; left: 50%; z-index: 1200; width: calc(100% - 40px); max-width: 360px;
     bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    transform: translateX(-50%) translateY(0);
-    transition: transform var(--t-base), opacity var(--t-base);
-    opacity: 1;
+    transform: translateX(-50%) translateY(0); transition: transform var(--t-base), opacity var(--t-base); opacity: 1;
 }
 .mobile-join.is-hidden { transform: translateX(-50%) translateY(140%); opacity: 0; pointer-events: none; }
 .mobile-join .btn { width: 100%; box-shadow: var(--shadow-lg); }
 
-/* ---- Mobile side menu ---- */
 .mobile-menu-overlay {
     position: fixed; inset: 0; background: rgba(7,21,18,.55); backdrop-filter: blur(2px);
     z-index: 1300; opacity: 0; pointer-events: none; transition: opacity var(--t-base);
