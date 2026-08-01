@@ -1,4 +1,4 @@
-* ==========================================================================
+==========================================================================
    ECONOVO — style.css  (Anthropic-inspired redesign)
    Philosophy: generous whitespace, no glass, no float animations,
    typography does the heavy lifting. Colours stay faithful to brand.
@@ -163,5 +163,3 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .mb-16 { margin-bottom: var(--s2); }
 .mb-24 { margin-bottom: var(--s3); }
 .mb-32 { margin-bottom: var(--s4); }
-CSSEOF
-echo "style.css written"
