@@ -11,562 +11,1187 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../css/style.css">
     <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
-    <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/sections.css">
-    <link rel="stylesheet" href="../css/responsive.css">
 
     <style>
-        /* ── Dashboard layout ── */
-        .dash-shell {
-            min-height: 100vh;
-            padding-top: 64px; /* navbar height */
-            display: grid;
-            grid-template-columns: 240px 1fr;
-        }
+/* ════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Econovo Dashboard
+   Fuses DESIGN.md (editorial warmth, parchment surfaces,
+   bottom-corner radius, single accent) with Brand Book
+   (Obsidian #0E2A24, Silver Sage #8FB8A6, Host Grotesk)
+   ════════════════════════════════════════════════════════ */
+:root {
+    /* Brand palette */
+    --obsidian:   #0E2A24;
+    --sage:       #8FB8A6;
+    --sage-dim:   rgba(143,184,166,.12);
+    --sage-mid:   rgba(143,184,166,.28);
+    --ink:        #1F1F1F;
 
-        /* ── Sidebar ── */
-        .dash-sidebar {
-            position: sticky; top: 64px;
-            height: calc(100vh - 64px);
-            overflow-y: auto;
-            border-right: 1px solid var(--line);
-            padding: var(--s4) var(--s2);
-            display: flex; flex-direction: column; gap: var(--s1);
-            background: var(--bg-raised);
-        }
-        .sidebar-section-label {
-            font-family: var(--font-mono); font-size: .65rem;
-            text-transform: uppercase; letter-spacing: .12em;
-            color: var(--text-soft); padding: var(--s2) var(--s2) var(--s1);
-            margin-top: var(--s2);
-        }
-        .sidebar-link {
-            display: flex; align-items: center; gap: 10px;
-            padding: 9px var(--s2); border-radius: var(--r-md);
-            font-size: .875rem; font-weight: 600; color: var(--text-soft);
-            transition: background var(--t-fast), color var(--t-fast);
-            cursor: pointer; border: none; background: none; width: 100%; text-align: left;
-        }
-        [lang="ar"] .sidebar-link { text-align: right; }
-        .sidebar-link svg { width: 16px; height: 16px; flex-shrink: 0; }
-        .sidebar-link:hover { background: var(--bg-muted); color: var(--text); }
-        .sidebar-link.active { background: var(--sage-dim); color: var(--obsidian); }
-        [data-theme="dark"] .sidebar-link.active { color: var(--sage); }
+    /* DESIGN.md surfaces — warm, not cold-gray */
+    --canvas:     #F4F7F2;   /* Econovo chalk — warm page base   */
+    --card:       #FAFCF9;   /* card surface — one step lighter   */
+    --card-warm:  #EFF5F1;   /* secondary warm card               */
+    --muted:      #EAF0EA;   /* grouped panels                    */
+    --inversion:  #0E2A24;   /* footer / dark band = Obsidian     */
 
-        /* ── Main area ── */
-        .dash-main {
-            padding: var(--s5) var(--s6);
-            max-width: 860px;
-        }
+    /* Text */
+    --text:       #0E2A24;
+    --text-soft:  rgba(14,42,36,.50);
+    --text-muted: rgba(14,42,36,.35);
 
-        /* ── Page header ── */
-        .dash-page-header { margin-bottom: var(--s5); padding-bottom: var(--s4); border-bottom: 1px solid var(--line); }
-        .dash-page-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 4px; }
-        .dash-page-sub { font-size: .9rem; color: var(--text-soft); }
+    /* Borders — hair-thin only */
+    --line:       rgba(14,42,36,.09);
+    --line-mid:   rgba(14,42,36,.15);
 
-        /* ── Views (shown/hidden by JS) ── */
-        .dash-view { display: none; }
-        .dash-view.active { display: block; }
+    /* Typography */
+    --font:    'Host Grotesk', system-ui, sans-serif;
+    --mono:    'IBM Plex Mono', ui-monospace, monospace;
 
-        /* ── Welcome card ── */
-        .welcome-card {
-            border: 1px solid var(--line);
-            border-radius: var(--r-lg);
-            padding: var(--s4) var(--s5);
-            margin-bottom: var(--s4);
-            background: var(--bg-raised);
-            display: flex; align-items: center; gap: var(--s4);
-        }
-        .welcome-avatar {
-            width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
-            background: var(--gradient-sage);
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-mono); font-weight: 700; font-size: 1.2rem;
-            color: var(--obsidian);
-        }
-        .welcome-text h2 { font-size: 1.25rem; margin-bottom: 3px; }
-        .welcome-text p { font-size: .9rem; color: var(--text-soft); }
+    /* Spacing (4px base, DESIGN.md) */
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+    --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
 
-        /* ── Quick stats row ── */
-        .quick-stats {
-            display: grid; grid-template-columns: repeat(3,1fr);
-            gap: var(--s3); margin-bottom: var(--s5);
-        }
-        .qs-card {
-            border: 1px solid var(--line); border-radius: var(--r-lg);
-            padding: var(--s3) var(--s4); background: var(--bg-raised);
-        }
-        .qs-label { font-family: var(--font-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--text-soft); margin-bottom: var(--s1); }
-        .qs-value { font-size: 1.6rem; font-weight: 700; color: var(--text); }
-        .qs-sub   { font-size: .78rem; color: var(--text-soft); margin-top: 2px; }
+    /* Radius — DESIGN.md signature: bottom-corner on buttons, 24px on cards */
+    --r-card:   16px;   /* cards — generous but not bubble */
+    --r-btn:    6px;    /* buttons — standard              */
+    --r-pill:   9999px;
+    --r-sm:     6px;
 
-        /* ── Section heading inside dash ── */
-        .dash-section-title { font-size: 1rem; font-weight: 700; margin-bottom: var(--s3); letter-spacing: -.01em; }
+    /* Motion */
+    --ease: cubic-bezier(.4,0,.2,1);
+    --fast: 150ms var(--ease);
+    --base: 240ms var(--ease);
 
-        /* ── Event list ── */
-        .event-list { display: flex; flex-direction: column; gap: var(--s2); }
-        .event-row {
-            display: flex; align-items: flex-start; gap: var(--s3);
-            padding: var(--s3); border: 1px solid var(--line); border-radius: var(--r-lg);
-            background: var(--bg-raised); transition: border-color var(--t-fast);
-        }
-        .event-row:hover { border-color: var(--sage); }
-        .event-date-block {
-            flex-shrink: 0; width: 48px; text-align: center;
-            border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden;
-        }
-        .event-date-month {
-            background: var(--obsidian); color: var(--sage);
-            font-family: var(--font-mono); font-size: .62rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: .08em; padding: 3px 0;
-        }
-        .event-date-day {
-            font-size: 1.3rem; font-weight: 700; color: var(--text);
-            padding: 4px 0; background: var(--bg-raised);
-        }
-        .event-info { flex: 1; min-width: 0; }
-        .event-info h4 { font-size: .95rem; font-weight: 700; margin-bottom: 3px; }
-        .event-info p  { font-size: .82rem; color: var(--text-soft); }
-        .event-badge { font-family: var(--font-mono); font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: var(--r-pill); background: var(--sage-dim); color: var(--obsidian); white-space: nowrap; flex-shrink: 0; }
-        [data-theme="dark"] .event-badge { color: var(--sage); }
+    /* Layout */
+    --sidebar-w: 220px;
+    --nav-h:     60px;
 
-        /* ── Announcement list ── */
-        .announce-list { display: flex; flex-direction: column; gap: var(--s2); }
-        .announce-row {
-            padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--r-lg);
-            background: var(--bg-raised); transition: border-color var(--t-fast);
-            border-left: 3px solid var(--sage);
-        }
-        [lang="ar"] .announce-row { border-left: 1px solid var(--line); border-right: 3px solid var(--sage); }
-        .announce-row:hover { border-color: var(--sage); }
-        .announce-meta { font-family: var(--font-mono); font-size: .68rem; color: var(--text-soft); margin-bottom: var(--s1); text-transform: uppercase; letter-spacing: .06em; }
-        .announce-title { font-size: .95rem; font-weight: 700; margin-bottom: 4px; }
-        .announce-body  { font-size: .875rem; color: var(--text-soft); line-height: 1.55; }
+    /* Shadows — none (DESIGN.md); only tonal shift */
+    --shadow-none: none;
+}
 
-        /* ── Profile form ── */
-        .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3) var(--s4); }
-        .profile-grid .full { grid-column: 1 / -1; }
-        .field-group { display: flex; flex-direction: column; gap: 5px; }
-        .field-label {
-            font-size: .72rem; font-weight: 700; color: var(--text);
-            text-transform: uppercase; letter-spacing: .07em; font-family: var(--font-mono);
-        }
-        .field-input {
-            width: 100%; padding: 11px 14px; border-radius: var(--r-md);
-            border: 1px solid var(--line); background: var(--bg-raised);
-            color: var(--text); font-family: var(--font); font-size: .9375rem;
-            transition: border-color var(--t-fast), box-shadow var(--t-fast);
-            outline: none; -webkit-appearance: none;
-        }
-        .field-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-dim); }
-        .field-input:disabled { opacity: .5; cursor: not-allowed; }
+[data-theme="dark"] {
+    --canvas:    #111;
+    --card:      #181818;
+    --card-warm: #161b17;
+    --muted:     #151515;
+    --text:      #E8EFE9;
+    --text-soft: rgba(232,239,233,.55);
+    --text-muted:rgba(232,239,233,.32);
+    --line:      rgba(232,239,233,.09);
+    --line-mid:  rgba(232,239,233,.15);
+}
 
-        .profile-avatar-row { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s4); }
-        .profile-avatar-lg {
-            width: 72px; height: 72px; border-radius: 50%;
-            background: var(--gradient-sage);
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem;
-            color: var(--obsidian); flex-shrink: 0;
-        }
-        .profile-avatar-info h3 { font-size: 1rem; font-weight: 700; }
-        .profile-avatar-info p  { font-size: .83rem; color: var(--text-soft); }
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+    font-family: var(--font);
+    background: var(--canvas);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: var(--font); cursor: pointer; border: none; background: none; color: inherit; }
+img { display: block; max-width: 100%; }
+::selection { background: var(--sage); color: var(--obsidian); }
 
-        /* ── Alert ── */
-        .dash-alert {
-            padding: 11px 16px; border-radius: var(--r-md); font-size: .875rem; font-weight: 600;
-            margin-bottom: var(--s3); display: none;
-        }
-        .dash-alert.visible { display: block; }
-        .dash-alert.success { background: var(--sage-dim); border: 1px solid color-mix(in srgb, var(--sage) 35%, transparent); color: var(--obsidian); }
-        [data-theme="dark"] .dash-alert.success { color: var(--sage); }
-        .dash-alert.error { background: rgba(220,80,80,.08); border: 1px solid rgba(220,80,80,.25); color: #c94444; }
+/* ════════════════════════
+   TOP NAVBAR
+   flat, minimal, no blur
+   ════════════════════════ */
+.dash-nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    z-index: 200;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center;
+    padding: 0 var(--s7);
+    gap: var(--s5);
+    transition: background var(--base);
+}
+.dash-nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: .9rem;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: var(--text);
+    flex-shrink: 0;
+}
+.dash-nav-brand img { width: 28px; height: 28px; object-fit: contain; }
 
-        /* ── Save button ── */
-        .btn-save { min-width: 120px; }
-        .btn-save .spinner {
-            width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
-            border-top-color: #fff; border-radius: 50%;
-            animation: spin .7s linear infinite; display: none;
-        }
-        .btn-save.loading .btn-text { display: none; }
-        .btn-save.loading .spinner { display: block; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+.dash-nav-center {
+    flex: 1;
+    /* No center content — whitespace is deliberate */
+}
 
-        /* ── Empty state ── */
-        .empty-state {
-            text-align: center; padding: var(--s7) var(--s3);
-            border: 1px dashed var(--line); border-radius: var(--r-lg);
-        }
-        .empty-state p { font-size: .9rem; }
+.dash-nav-right {
+    display: flex; align-items: center; gap: var(--s3);
+    flex-shrink: 0;
+}
 
-        /* ── Mobile sidebar ── */
-        .dash-mobile-nav {
-            display: none; gap: var(--s1);
-            overflow-x: auto; padding: var(--s2) var(--s3);
-            border-bottom: 1px solid var(--line);
-            background: var(--bg-raised);
-            position: sticky; top: 64px; z-index: 100;
-        }
-        .dash-mobile-nav button {
-            flex-shrink: 0; padding: 8px 14px; border-radius: var(--r-pill);
-            font-size: .82rem; font-weight: 700; color: var(--text-soft);
-            border: 1px solid var(--line); background: transparent; white-space: nowrap;
-            transition: var(--t-fast);
-        }
-        .dash-mobile-nav button.active { background: var(--obsidian); color: #fff; border-color: var(--obsidian); }
-        [data-theme="dark"] .dash-mobile-nav button.active { background: var(--sage); color: var(--obsidian); }
+.nav-icon-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--line);
+    color: var(--text-soft);
+    transition: var(--fast);
+}
+.nav-icon-btn:hover { background: var(--muted); color: var(--text); }
+.nav-icon-btn svg { width: 15px; height: 15px; }
 
-        @media (max-width: 768px) {
-            .dash-shell { grid-template-columns: 1fr; }
-            .dash-sidebar { display: none; }
-            .dash-mobile-nav { display: flex; }
-            .dash-main { padding: var(--s4) var(--s3); max-width: 100%; }
-            .profile-grid { grid-template-columns: 1fr; }
-            .quick-stats { grid-template-columns: repeat(3,1fr); gap: var(--s2); }
-            .qs-value { font-size: 1.3rem; }
-            .welcome-card { flex-direction: column; text-align: center; }
-        }
-        @media (max-width: 480px) {
-            .quick-stats { grid-template-columns: 1fr 1fr; }
-        }
+/* User chip in nav */
+.nav-user-chip {
+    display: flex; align-items: center; gap: var(--s2);
+    padding: 5px var(--s3) 5px 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    font-size: .82rem; font-weight: 600;
+    color: var(--text-soft);
+    transition: var(--fast);
+}
+.nav-user-chip:hover { border-color: var(--sage); color: var(--text); }
+.nav-user-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: .6rem; font-weight: 700;
+    color: var(--obsidian);
+    flex-shrink: 0;
+}
+
+.nav-signout-btn {
+    font-size: .8rem; font-weight: 600;
+    color: var(--text-soft);
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-btn);
+    transition: var(--fast);
+}
+.nav-signout-btn:hover { border-color: rgba(180,60,60,.35); color: #c94444; }
+
+/* ════════════════════════
+   APP SHELL
+   ════════════════════════ */
+.dash-shell {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    min-height: 100vh;
+    padding-top: var(--nav-h);
+}
+
+/* ════════════════════════
+   SIDEBAR
+   ════════════════════════ */
+.dash-sidebar {
+    position: sticky; top: var(--nav-h);
+    height: calc(100vh - var(--nav-h));
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    padding: var(--s6) var(--s4);
+    display: flex; flex-direction: column;
+    background: var(--canvas);
+    gap: 2px;
+}
+
+/* Member info in sidebar top */
+.sidebar-member {
+    padding: var(--s4) var(--s3) var(--s5);
+    margin-bottom: var(--s3);
+    border-bottom: 1px solid var(--line);
+}
+.sidebar-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: .9rem; font-weight: 700;
+    color: var(--obsidian);
+    margin-bottom: var(--s3);
+}
+.sidebar-name {
+    font-size: .875rem; font-weight: 700;
+    color: var(--text); margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-role {
+    font-family: var(--mono); font-size: .66rem;
+    font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--sage);
+}
+
+/* Nav items */
+.sidebar-section {
+    font-family: var(--mono); font-size: .62rem;
+    text-transform: uppercase; letter-spacing: .13em;
+    color: var(--text-muted); font-weight: 600;
+    padding: var(--s5) var(--s3) var(--s2);
+}
+.sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px var(--s3);
+    border-radius: var(--r-sm);
+    font-size: .85rem; font-weight: 500;
+    color: var(--text-soft);
+    transition: background var(--fast), color var(--fast);
+    cursor: pointer; width: 100%; text-align: left;
+    position: relative;
+}
+.sidebar-item svg { width: 15px; height: 15px; flex-shrink: 0; stroke-width: 2; }
+.sidebar-item:hover { background: var(--muted); color: var(--text); }
+.sidebar-item.active {
+    background: var(--sage-dim);
+    color: var(--obsidian);
+    font-weight: 700;
+}
+[data-theme="dark"] .sidebar-item.active { color: var(--sage); }
+
+/* Active indicator — left rule */
+.sidebar-item.active::before {
+    content: '';
+    position: absolute; left: 0; top: 6px; bottom: 6px;
+    width: 2px; background: var(--sage);
+    border-radius: 0 2px 2px 0;
+}
+
+/* Badge on sidebar item */
+.sidebar-badge {
+    margin-left: auto;
+    background: var(--sage);
+    color: var(--obsidian);
+    font-family: var(--mono); font-size: .6rem; font-weight: 700;
+    padding: 1px 6px; border-radius: var(--r-pill);
+    min-width: 18px; text-align: center;
+}
+
+/* ════════════════════════
+   MAIN CONTENT
+   ════════════════════════ */
+.dash-main {
+    background: var(--canvas);
+    min-height: calc(100vh - var(--nav-h));
+}
+
+.dash-view { display: none; }
+.dash-view.active { display: block; }
+
+/* ── Section wrapper ── */
+.view-body {
+    max-width: 800px;
+    padding: var(--s7) var(--s7);
+}
+
+/* ── Page header — editorial ruled ── */
+.view-header {
+    padding-bottom: var(--s5);
+    margin-bottom: var(--s6);
+    border-bottom: 1px solid var(--line);
+}
+.view-eyebrow {
+    font-family: var(--mono);
+    font-size: .66rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--sage);
+    margin-bottom: var(--s2);
+}
+.view-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -.035em;
+    color: var(--text);
+    margin-bottom: 3px;
+    line-height: 1.1;
+}
+.view-sub {
+    font-size: .9rem;
+    color: var(--text-soft);
+    line-height: 1.55;
+}
+
+/* ════════════════════════
+   OVERVIEW — GREETING STRIP
+   Flat, editorial. No card.
+   ════════════════════════ */
+.greeting-strip {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--s5);
+    padding-bottom: var(--s6);
+    margin-bottom: var(--s6);
+    border-bottom: 1px solid var(--line);
+}
+.greeting-text {}
+.greeting-label {
+    font-family: var(--mono);
+    font-size: .68rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .12em;
+    color: var(--text-muted);
+    margin-bottom: var(--s2);
+}
+.greeting-name {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -.04em;
+    color: var(--text);
+    margin-bottom: var(--s2);
+    line-height: 1.1;
+}
+.greeting-meta {
+    font-size: .82rem;
+    color: var(--text-soft);
+    display: flex; align-items: center; gap: var(--s3);
+}
+.greeting-meta span {
+    display: flex; align-items: center; gap: 5px;
+}
+.greeting-meta svg { width: 13px; height: 13px; }
+
+.greeting-avatar-lg {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 700; font-size: 1.15rem;
+    color: var(--obsidian);
+    flex-shrink: 0;
+    border: 1px solid var(--line-mid);
+}
+
+/* ════════════════════════
+   STATS — Ledger grid
+   Ruled, no cards. Numbers.
+   ════════════════════════ */
+.stats-ledger {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: var(--s7);
+}
+.stat-cell {
+    padding: var(--s5) var(--s4);
+    border-right: 1px solid var(--line);
+    text-align: center;
+}
+.stat-cell:last-child { border-right: none; }
+.stat-value {
+    display: block;
+    font-size: 1.8rem; font-weight: 800;
+    letter-spacing: -.04em;
+    color: var(--text); line-height: 1;
+    margin-bottom: var(--s1);
+}
+.stat-label {
+    font-family: var(--mono); font-size: .64rem;
+    font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--text-muted);
+}
+.stat-sub {
+    font-size: .75rem; color: var(--text-soft);
+    margin-top: 2px;
+}
+
+/* ════════════════════════
+   SECTION SUBHEADER
+   ════════════════════════ */
+.section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--s4);
+}
+.section-label {
+    font-size: .9rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    color: var(--text);
+}
+.section-action {
+    font-family: var(--mono);
+    font-size: .7rem;
+    font-weight: 600;
+    color: var(--sage);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--fast);
+}
+.section-action:hover { border-color: var(--sage); }
+
+/* ════════════════════════
+   EVENT ROWS
+   Flat list, ruled
+   ════════════════════════ */
+.event-list { display: flex; flex-direction: column; }
+.event-row {
+    display: flex; align-items: flex-start;
+    gap: var(--s5);
+    padding: var(--s5) 0;
+    border-bottom: 1px solid var(--line);
+    transition: var(--fast);
+    cursor: default;
+}
+.event-row:first-child { border-top: 1px solid var(--line); }
+
+/* Date block — minimal stamp */
+.event-stamp {
+    flex-shrink: 0;
+    text-align: center;
+    width: 40px;
+}
+.stamp-month {
+    font-family: var(--mono); font-size: .58rem;
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--sage);
+    display: block; margin-bottom: 1px;
+}
+.stamp-day {
+    font-size: 1.5rem; font-weight: 800;
+    letter-spacing: -.04em; color: var(--text);
+    line-height: 1; display: block;
+}
+
+.event-body { flex: 1; min-width: 0; }
+.event-title {
+    font-size: .9rem; font-weight: 700;
+    color: var(--text); margin-bottom: 3px;
+    letter-spacing: -.01em;
+}
+.event-desc {
+    font-size: .82rem; color: var(--text-soft); line-height: 1.5;
+}
+
+.event-tag {
+    flex-shrink: 0;
+    font-family: var(--mono); font-size: .64rem; font-weight: 700;
+    padding: 3px 8px;
+    border: 1px solid var(--line-mid);
+    border-radius: var(--r-sm);
+    color: var(--text-soft);
+    text-transform: uppercase; letter-spacing: .05em;
+    white-space: nowrap; align-self: flex-start;
+    margin-top: 2px;
+}
+
+/* ════════════════════════
+   ANNOUNCEMENT ROWS
+   Paper-card treatment
+   DESIGN.md: card surface #faf9f5-ish
+   left accent rule = Sage
+   ════════════════════════ */
+.announce-list { display: flex; flex-direction: column; gap: var(--s3); }
+.announce-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-card);
+    /* Signature left rule from Brand Book */
+    border-left: 3px solid var(--sage);
+    padding: var(--s5) var(--s6);
+    position: relative;
+    transition: border-color var(--base);
+}
+[data-theme="dark"] .announce-card { background: var(--card); }
+.announce-card:hover { border-color: var(--sage); }
+
+.announce-date {
+    font-family: var(--mono);
+    font-size: .66rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .1em;
+    color: var(--text-muted);
+    margin-bottom: var(--s2);
+}
+.announce-title {
+    font-size: 1rem; font-weight: 700;
+    letter-spacing: -.02em;
+    color: var(--text);
+    margin-bottom: var(--s2);
+    line-height: 1.3;
+}
+.announce-body {
+    font-size: .875rem; color: var(--text-soft);
+    line-height: 1.65;
+}
+
+/* ════════════════════════
+   PROFILE
+   ════════════════════════ */
+.profile-header-strip {
+    display: flex; align-items: center; gap: var(--s5);
+    padding-bottom: var(--s6); margin-bottom: var(--s6);
+    border-bottom: 1px solid var(--line);
+}
+.profile-avatar-xl {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 700; font-size: 1.4rem;
+    color: var(--obsidian);
+    flex-shrink: 0;
+    border: 1px solid var(--line-mid);
+}
+.profile-header-info {}
+.profile-header-name {
+    font-size: 1.25rem; font-weight: 800;
+    letter-spacing: -.03em; margin-bottom: 3px;
+}
+.profile-header-email {
+    font-family: var(--mono); font-size: .78rem;
+    color: var(--text-soft);
+}
+.profile-header-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--mono); font-size: .64rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em;
+    background: var(--sage-dim);
+    color: var(--obsidian);
+    padding: 3px 9px;
+    border-radius: var(--r-pill);
+    margin-top: var(--s2);
+}
+[data-theme="dark"] .profile-header-badge { color: var(--sage); }
+.profile-header-badge::before {
+    content: ''; width: 5px; height: 5px;
+    border-radius: 50%; background: #5dbd7e;
+}
+
+/* Profile form */
+.profile-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s4) var(--s5);
+    margin-bottom: var(--s6);
+}
+.profile-form-grid .span-2 { grid-column: 1 / -1; }
+
+.field-block { display: flex; flex-direction: column; gap: 6px; }
+.field-label {
+    font-family: var(--mono);
+    font-size: .68rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: var(--text-soft);
+}
+.field-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--r-btn);
+    border: 1px solid var(--line-mid);
+    background: var(--card);
+    color: var(--text);
+    font-family: var(--font); font-size: .9rem;
+    outline: none; -webkit-appearance: none;
+    transition: border-color var(--fast), box-shadow var(--fast);
+}
+.field-input::placeholder { color: var(--text-muted); opacity: .7; }
+.field-input:focus {
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px var(--sage-dim);
+}
+.field-input:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Buttons */
+.btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px;
+    background: var(--obsidian); color: #fff;
+    font-family: var(--font); font-size: .875rem; font-weight: 700;
+    border-radius: var(--r-btn);
+    /* DESIGN.md signature: bottom-corner only */
+    border-bottom-left-radius: var(--r-btn);
+    border-bottom-right-radius: var(--r-btn);
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    transition: background var(--fast), box-shadow var(--fast);
+    cursor: pointer; border: none;
+}
+.btn-primary:hover { background: #163a32; box-shadow: 0 2px 12px rgba(14,42,36,.18); }
+[data-theme="dark"] .btn-primary { background: var(--sage); color: var(--obsidian); }
+[data-theme="dark"] .btn-primary:hover { background: #b8d4c8; }
+
+.btn-ghost {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px;
+    background: transparent; color: var(--text-soft);
+    font-family: var(--font); font-size: .85rem; font-weight: 600;
+    border: 1px solid var(--line-mid);
+    border-radius: var(--r-btn);
+    transition: var(--fast); cursor: pointer;
+}
+.btn-ghost:hover { border-color: var(--sage); color: var(--text); }
+
+.btn-danger {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px;
+    background: transparent; color: #c94444;
+    font-family: var(--font); font-size: .85rem; font-weight: 600;
+    border: 1px solid rgba(200,80,80,.28);
+    border-radius: var(--r-btn);
+    transition: var(--fast); cursor: pointer;
+}
+.btn-danger:hover { background: rgba(200,80,80,.07); }
+
+/* Spinner */
+.spin-wrap {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin .65s linear infinite; display: none;
+}
+.loading .btn-txt { display: none; }
+.loading .spin-wrap { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Alert */
+.form-alert {
+    padding: 10px 14px; border-radius: var(--r-sm);
+    font-size: .85rem; font-weight: 600; margin-bottom: var(--s5);
+    display: none;
+}
+.form-alert.visible { display: block; }
+.form-alert.ok {
+    background: var(--sage-dim);
+    border: 1px solid var(--sage-mid);
+    color: var(--obsidian);
+}
+[data-theme="dark"] .form-alert.ok { color: var(--sage); }
+.form-alert.err {
+    background: rgba(200,80,80,.08);
+    border: 1px solid rgba(200,80,80,.25);
+    color: #c94444;
+}
+
+/* Danger zone */
+.danger-zone {
+    margin-top: var(--s8);
+    padding-top: var(--s6);
+    border-top: 1px solid var(--line);
+}
+.danger-label {
+    font-family: var(--mono); font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .1em;
+    color: rgba(180,60,60,.6); margin-bottom: var(--s3);
+}
+.danger-desc {
+    font-size: .85rem; color: var(--text-soft);
+    margin-bottom: var(--s4); line-height: 1.55;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: var(--s8) var(--s5);
+    border: 1px dashed var(--line-mid);
+    border-radius: var(--r-card);
+}
+.empty-icon {
+    width: 40px; height: 40px; margin: 0 auto var(--s4);
+    opacity: .25;
+}
+.empty-state p {
+    font-size: .875rem; color: var(--text-soft);
+}
+
+/* ════════════════════════
+   MOBILE NAVIGATION
+   Bottom tab bar
+   ════════════════════════ */
+.mob-tab-bar {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--canvas);
+    border-top: 1px solid var(--line);
+    z-index: 300;
+    align-items: stretch;
+}
+.mob-tab {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px;
+    font-size: .64rem; font-weight: 600;
+    font-family: var(--mono); text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    transition: color var(--fast);
+    cursor: pointer;
+}
+.mob-tab svg { width: 18px; height: 18px; stroke-width: 1.8; }
+.mob-tab.active { color: var(--obsidian); }
+[data-theme="dark"] .mob-tab.active { color: var(--sage); }
+.mob-tab.active svg { stroke-width: 2.5; }
+
+/* ════════════════════════
+   RESPONSIVE
+   ════════════════════════ */
+@media (max-width: 768px) {
+    .dash-shell {
+        grid-template-columns: 1fr;
+        padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    }
+    .dash-sidebar { display: none; }
+    .mob-tab-bar { display: flex; }
+    .dash-nav { padding: 0 var(--s5); }
+    .view-body { padding: var(--s6) var(--s5); max-width: 100%; }
+    .profile-form-grid { grid-template-columns: 1fr; }
+    .profile-form-grid .span-2 { grid-column: 1; }
+    .stats-ledger { grid-template-columns: repeat(3,1fr); }
+    .stat-cell { padding: var(--s4) var(--s2); }
+    .stat-value { font-size: 1.4rem; }
+    .greeting-strip { flex-direction: row; align-items: center; }
+}
+@media (max-width: 440px) {
+    .stats-ledger { grid-template-columns: 1fr 1fr; }
+    .stat-cell:last-child { border-right: none; border-top: 1px solid var(--line); grid-column: 1 / -1; }
+    .greeting-name { font-size: 1.35rem; }
+}
     </style>
 </head>
 <body>
 
-<div class="scroll-progress" id="scrollProgress"></div>
+<!-- ════════════ NAVBAR ════════════ -->
+<nav class="dash-nav" id="dashNav">
+    <a href="../index.html" class="dash-nav-brand">
+        <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo">
+        <span>Econovo</span>
+    </a>
 
-<!-- NAVBAR -->
-<nav class="navbar" id="navbar">
-    <div class="container nav-container">
-        <a href="../index.html" class="brand">
-            <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo" class="logo-img">
-            <span>ECONOVO</span>
-        </a>
-        <div class="nav-actions">
-            <button class="icon-btn js-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-                <i class="js-theme-icon" id="themeToggleIcon" data-lucide="moon"></i>
-            </button>
-            <a href="../index.html" class="btn btn-outline btn-sm">← Home</a>
-            <button class="btn btn-sm" id="signout-btn" style="color:var(--text-soft);">Sign Out</button>
+    <div class="dash-nav-center"></div>
+
+    <div class="dash-nav-right">
+        <!-- Theme toggle -->
+        <button class="nav-icon-btn js-theme-toggle" aria-label="Toggle dark mode">
+            <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        </button>
+
+        <!-- User chip -->
+        <div class="nav-user-chip" onclick="showView('profile')">
+            <div class="nav-user-avatar" id="nav-avatar">EC</div>
+            <span id="nav-name">Member</span>
         </div>
+
+        <!-- Sign out -->
+        <button class="nav-signout-btn" id="signout-btn">Sign Out</button>
     </div>
 </nav>
 
-<!-- DASHBOARD SHELL -->
+<!-- ════════════ SHELL ════════════ -->
 <div class="dash-shell">
 
-    <!-- Sidebar (desktop) -->
-    <aside class="dash-sidebar" id="dashSidebar">
-        <span class="sidebar-section-label">Member</span>
-        <button class="sidebar-link active" data-view="overview" onclick="showView('overview', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <!-- ── Sidebar ── -->
+    <aside class="dash-sidebar">
+        <div class="sidebar-member">
+            <div class="sidebar-avatar" id="sidebar-avatar">EC</div>
+            <div class="sidebar-name" id="sidebar-name">Member</div>
+            <div class="sidebar-role">Club Member</div>
+        </div>
+
+        <span class="sidebar-section">Menu</span>
+
+        <button class="sidebar-item active" data-view="overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
             Overview
         </button>
-        <button class="sidebar-link" data-view="events" onclick="showView('events', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+
+        <button class="sidebar-item" data-view="events">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
             Events
-        </button>
-        <button class="sidebar-link" data-view="announcements" onclick="showView('announcements', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            Announcements
+            <span class="sidebar-badge" id="sb-events-count">3</span>
         </button>
 
-        <span class="sidebar-section-label">Account</span>
-        <button class="sidebar-link" data-view="profile" onclick="showView('profile', this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <button class="sidebar-item" data-view="announcements">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            Announcements
+            <span class="sidebar-badge" id="sb-ann-count">2</span>
+        </button>
+
+        <span class="sidebar-section">Account</span>
+
+        <button class="sidebar-item" data-view="profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
             Profile
         </button>
     </aside>
 
-    <!-- Mobile tab nav -->
-    <div class="dash-mobile-nav" id="dashMobileNav">
-        <button class="active" onclick="showView('overview', this)">Overview</button>
-        <button onclick="showView('events', this)">Events</button>
-        <button onclick="showView('announcements', this)">Announcements</button>
-        <button onclick="showView('profile', this)">Profile</button>
-    </div>
+    <!-- ── Main ── -->
+    <main>
 
-    <!-- Main content -->
-    <main class="dash-main">
-
-        <!-- ── OVERVIEW ── -->
+        <!-- ══════ OVERVIEW ══════ -->
         <div class="dash-view active" id="view-overview">
-            <div class="dash-page-header">
-                <div class="dash-page-title" id="welcome-title">Welcome back</div>
-                <div class="dash-page-sub">Here's what's happening at Econovo.</div>
-            </div>
+            <div class="view-body">
 
-            <div class="welcome-card">
-                <div class="welcome-avatar" id="welcome-avatar">EC</div>
-                <div class="welcome-text">
-                    <h2 id="welcome-name">Member</h2>
-                    <p id="welcome-email">member@econovo.club</p>
+                <!-- Greeting -->
+                <div class="greeting-strip">
+                    <div class="greeting-text">
+                        <div class="greeting-label">Member Dashboard</div>
+                        <div class="greeting-name" id="greeting-name">Welcome back.</div>
+                        <div class="greeting-meta">
+                            <span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                Bordj Bou Arreridj
+                            </span>
+                            <span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                <span id="greeting-joined">Member since —</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="greeting-avatar-lg" id="greeting-avatar">EC</div>
                 </div>
-            </div>
 
-            <div class="quick-stats">
-                <div class="qs-card">
-                    <div class="qs-label">Member Since</div>
-                    <div class="qs-value" id="qs-joined">—</div>
-                    <div class="qs-sub">Econovo member</div>
+                <!-- Stats ledger -->
+                <div class="stats-ledger">
+                    <div class="stat-cell">
+                        <span class="stat-value" id="stat-events">3</span>
+                        <div class="stat-label">Upcoming Events</div>
+                        <div class="stat-sub">This semester</div>
+                    </div>
+                    <div class="stat-cell">
+                        <span class="stat-value" id="stat-ann">2</span>
+                        <div class="stat-label">Announcements</div>
+                        <div class="stat-sub">Unread</div>
+                    </div>
+                    <div class="stat-cell">
+                        <span class="stat-value">4</span>
+                        <div class="stat-label">Focus Areas</div>
+                        <div class="stat-sub">Active tracks</div>
+                    </div>
                 </div>
-                <div class="qs-card">
-                    <div class="qs-label">Upcoming Events</div>
-                    <div class="qs-value" id="qs-events">3</div>
-                    <div class="qs-sub">This month</div>
-                </div>
-                <div class="qs-card">
-                    <div class="qs-label">Announcements</div>
-                    <div class="qs-value" id="qs-announce">2</div>
-                    <div class="qs-sub">Unread</div>
-                </div>
-            </div>
 
-            <div class="dash-section-title">Upcoming Events</div>
-            <div class="event-list" id="overview-events"></div>
+                <!-- Recent events -->
+                <div class="section-head">
+                    <span class="section-label">Upcoming Events</span>
+                    <span class="section-action" onclick="showView('events')">View all →</span>
+                </div>
+                <div class="event-list" id="overview-events"></div>
+
+                <!-- Recent announcements -->
+                <div class="section-head" style="margin-top: var(--s7);">
+                    <span class="section-label">Latest Announcements</span>
+                    <span class="section-action" onclick="showView('announcements')">View all →</span>
+                </div>
+                <div class="announce-list" id="overview-ann"></div>
+
+            </div>
         </div>
 
-        <!-- ── EVENTS ── -->
+        <!-- ══════ EVENTS ══════ -->
         <div class="dash-view" id="view-events">
-            <div class="dash-page-header">
-                <div class="dash-page-title">Events & Workshops</div>
-                <div class="dash-page-sub">Upcoming activities from the Econovo calendar.</div>
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">Econovo Calendar</div>
+                    <div class="view-title">Events &amp; Workshops</div>
+                    <div class="view-sub">Upcoming activities organised by the club board.</div>
+                </div>
+                <div class="event-list" id="full-events"></div>
             </div>
-            <div class="event-list" id="full-events-list"></div>
         </div>
 
-        <!-- ── ANNOUNCEMENTS ── -->
+        <!-- ══════ ANNOUNCEMENTS ══════ -->
         <div class="dash-view" id="view-announcements">
-            <div class="dash-page-header">
-                <div class="dash-page-title">Announcements</div>
-                <div class="dash-page-sub">Latest news and updates from the club board.</div>
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">From the Board</div>
+                    <div class="view-title">Announcements</div>
+                    <div class="view-sub">Latest news and updates from the Econovo club board.</div>
+                </div>
+                <div class="announce-list" id="full-ann"></div>
             </div>
-            <div class="announce-list" id="announce-list"></div>
         </div>
 
-        <!-- ── PROFILE ── -->
+        <!-- ══════ PROFILE ══════ -->
         <div class="dash-view" id="view-profile">
-            <div class="dash-page-header">
-                <div class="dash-page-title">My Profile</div>
-                <div class="dash-page-sub">Update your display name and account details.</div>
-            </div>
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">Account</div>
+                    <div class="view-title">My Profile</div>
+                    <div class="view-sub">Update your display name and membership details.</div>
+                </div>
 
-            <div class="profile-avatar-row">
-                <div class="profile-avatar-lg" id="profile-avatar-lg">EC</div>
-                <div class="profile-avatar-info">
-                    <h3 id="profile-display-name">Member</h3>
-                    <p id="profile-display-email">member@econovo.club</p>
+                <div class="profile-header-strip">
+                    <div class="profile-avatar-xl" id="profile-avatar">EC</div>
+                    <div>
+                        <div class="profile-header-name" id="profile-name">Member</div>
+                        <div class="profile-header-email" id="profile-email">member@econovo.club</div>
+                        <div class="profile-header-badge">Active Member</div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="dash-alert" id="profile-alert"></div>
+                <div class="form-alert" id="profile-alert"></div>
 
-            <div class="profile-grid">
-                <div class="field-group">
-                    <label class="field-label" for="pf-fname">First Name</label>
-                    <input class="field-input" type="text" id="pf-fname" placeholder="Ahmed">
+                <div class="profile-form-grid">
+                    <div class="field-block">
+                        <label class="field-label" for="pf-fname">First Name</label>
+                        <input class="field-input" type="text" id="pf-fname" placeholder="Ahmed" autocomplete="given-name">
+                    </div>
+                    <div class="field-block">
+                        <label class="field-label" for="pf-lname">Last Name</label>
+                        <input class="field-input" type="text" id="pf-lname" placeholder="Benali" autocomplete="family-name">
+                    </div>
+                    <div class="field-block span-2">
+                        <label class="field-label" for="pf-email">Email Address</label>
+                        <input class="field-input" type="email" id="pf-email" disabled>
+                    </div>
+                    <div class="field-block">
+                        <label class="field-label" for="pf-major">Field of Study</label>
+                        <input class="field-input" type="text" id="pf-major" placeholder="Economics">
+                    </div>
+                    <div class="field-block">
+                        <label class="field-label" for="pf-year">Year of Study</label>
+                        <input class="field-input" type="text" id="pf-year" placeholder="3rd Year (L3)">
+                    </div>
                 </div>
-                <div class="field-group">
-                    <label class="field-label" for="pf-lname">Last Name</label>
-                    <input class="field-input" type="text" id="pf-lname" placeholder="Benali">
-                </div>
-                <div class="field-group full">
-                    <label class="field-label" for="pf-email">Email</label>
-                    <input class="field-input" type="email" id="pf-email" disabled>
-                </div>
-                <div class="field-group">
-                    <label class="field-label" for="pf-major">Field of Study</label>
-                    <input class="field-input" type="text" id="pf-major" placeholder="Economics">
-                </div>
-                <div class="field-group">
-                    <label class="field-label" for="pf-year">Year of Study</label>
-                    <input class="field-input" type="text" id="pf-year" placeholder="3rd Year">
-                </div>
-            </div>
 
-            <div style="margin-top: var(--s4);">
-                <button class="btn btn-primary btn-save" id="save-profile-btn">
-                    <span class="btn-text">Save Changes</span>
-                    <div class="spinner"></div>
+                <button class="btn-primary" id="save-btn">
+                    <span class="btn-txt">Save Changes</span>
+                    <div class="spin-wrap"></div>
                 </button>
-            </div>
 
-            <div style="margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line);">
-                <div class="dash-section-title" style="color: #c94444;">Danger Zone</div>
-                <p style="font-size:.875rem; margin-bottom: var(--s3);">Sign out of your account on this device.</p>
-                <button class="btn btn-outline" id="signout-btn-2" style="border-color: rgba(200,80,80,.35); color: #c94444;">Sign Out</button>
+                <div class="danger-zone">
+                    <div class="danger-label">Danger Zone</div>
+                    <p class="danger-desc">Sign out of your Econovo account on this device. Your membership and data are not affected.</p>
+                    <button class="btn-danger" id="signout-btn-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Sign Out
+                    </button>
+                </div>
+
             </div>
         </div>
 
     </main>
 </div>
 
-<script src="https://unpkg.com/lucide@latest"></script>
+<!-- ════════════ MOBILE TAB BAR ════════════ -->
+<nav class="mob-tab-bar" aria-label="Mobile navigation">
+    <button class="mob-tab active" data-view="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Overview
+    </button>
+    <button class="mob-tab" data-view="events">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+        Events
+    </button>
+    <button class="mob-tab" data-view="announcements">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Posts
+    </button>
+    <button class="mob-tab" data-view="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        Profile
+    </button>
+</nav>
+
 <script>
 (function () {
-    'use strict';
+'use strict';
 
-    /* ── Supabase ── */
-    const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
+/* ── Supabase config ── */
+const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 
-    async function supaFetch(path, options = {}) {
-        const token = localStorage.getItem('econovo-token');
-        const res = await fetch(SUPABASE_URL + path, {
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                'apikey': SUPABASE_KEY,
-                'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
-                ...(options.headers || {}),
-            },
+async function supaFetch(path, opts = {}) {
+    const token = localStorage.getItem('econovo-token');
+    const res = await fetch(SUPABASE_URL + path, {
+        ...opts,
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
+            ...(opts.headers || {}),
+        },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error_description || data.message || 'Error');
+    return data;
+}
+
+/* ── Auth guard ── */
+const storedToken = localStorage.getItem('econovo-token');
+const storedUser  = localStorage.getItem('econovo-user');
+if (!storedToken || !storedUser) {
+    window.location.replace('login.html');
+}
+
+/* ── Data ── */
+const EVENTS = [
+    { month:'AUG', day:'12', title:'Economics Workshop: Algerian Market Analysis',    desc:'An interactive session on local market trends and economic indicators.',      tag:'Workshop'    },
+    { month:'AUG', day:'19', title:'FinTech Seminar: Digital Banking in Algeria',     desc:'Guest speaker from Algérie Poste on mobile payment adoption.',               tag:'Seminar'     },
+    { month:'SEP', day:'03', title:'Business Case Competition Kickoff',               desc:'Form your team and register for Econovo\'s annual case competition.',         tag:'Competition' },
+];
+
+const ANNOUNCEMENTS = [
+    { date:'Aug 1, 2026',  title:'Welcome to the new Econovo member portal!',           body:'We\'ve just launched our new member dashboard. You can now view upcoming events, read club announcements, and update your profile — all in one place.' },
+    { date:'Jul 28, 2026', title:'Case Competition Registration Opens August 3',         body:'The annual Econovo Business Case Competition is back! Registration opens August 3rd. Teams of 2–4 students from any major are welcome to participate.' },
+];
+
+/* ── Render helpers ── */
+function renderEvents(id, data) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!data.length) {
+        el.innerHTML = '<div class="empty-state"><svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><p>No upcoming events yet. Check back soon.</p></div>';
+        return;
+    }
+    el.innerHTML = data.map(ev => `
+        <div class="event-row">
+            <div class="event-stamp">
+                <span class="stamp-month">${ev.month}</span>
+                <span class="stamp-day">${ev.day}</span>
+            </div>
+            <div class="event-body">
+                <div class="event-title">${ev.title}</div>
+                <div class="event-desc">${ev.desc}</div>
+            </div>
+            <div class="event-tag">${ev.tag}</div>
+        </div>
+    `).join('');
+}
+
+function renderAnnouncements(id, data) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!data.length) {
+        el.innerHTML = '<div class="empty-state"><p>No announcements from the board yet.</p></div>';
+        return;
+    }
+    el.innerHTML = data.map(a => `
+        <div class="announce-card">
+            <div class="announce-date">${a.date}</div>
+            <div class="announce-title">${a.title}</div>
+            <div class="announce-body">${a.body}</div>
+        </div>
+    `).join('');
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* Parse user */
+    let user = {}, meta = {};
+    try { user = JSON.parse(storedUser); meta = user.user_metadata || {}; } catch(_) {}
+
+    const firstName = meta.first_name || '';
+    const lastName  = meta.last_name  || '';
+    const fullName  = (firstName + ' ' + lastName).trim() || meta.full_name || user.email?.split('@')[0] || 'Member';
+    const initials  = ((firstName[0]||'') + (lastName[0]||'')).toUpperCase() || fullName.slice(0,2).toUpperCase();
+    const email     = user.email || '';
+    const joinedFmt = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month:'short', year:'numeric' }) : '—';
+
+    /* Fill UI */
+    ['nav-avatar','sidebar-avatar','greeting-avatar','profile-avatar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = initials;
+    });
+    document.getElementById('nav-name').textContent       = firstName || fullName;
+    document.getElementById('sidebar-name').textContent   = fullName;
+    document.getElementById('greeting-name').textContent  = 'Welcome back, ' + (firstName || fullName) + '.';
+    document.getElementById('greeting-joined').textContent = 'Member since ' + joinedFmt;
+    document.getElementById('profile-name').textContent   = fullName;
+    document.getElementById('profile-email').textContent  = email;
+    document.getElementById('stat-events').textContent    = EVENTS.length;
+    document.getElementById('stat-ann').textContent       = ANNOUNCEMENTS.length;
+    document.getElementById('sb-events-count').textContent = EVENTS.length;
+    document.getElementById('sb-ann-count').textContent    = ANNOUNCEMENTS.length;
+
+    /* Profile form defaults */
+    document.getElementById('pf-fname').value = firstName;
+    document.getElementById('pf-lname').value = lastName;
+    document.getElementById('pf-email').value = email;
+    document.getElementById('pf-major').value = meta.major || '';
+    document.getElementById('pf-year').value  = meta.year  || '';
+
+    /* Render lists */
+    renderEvents('overview-events', EVENTS.slice(0, 2));
+    renderEvents('full-events', EVENTS);
+    renderAnnouncements('overview-ann', ANNOUNCEMENTS.slice(0, 1));
+    renderAnnouncements('full-ann', ANNOUNCEMENTS);
+
+    /* View switching — sidebar + mobile tab */
+    function setView(viewId) {
+        document.querySelectorAll('.dash-view').forEach(v => v.classList.remove('active'));
+        const el = document.getElementById('view-' + viewId);
+        if (el) el.classList.add('active');
+
+        document.querySelectorAll('.sidebar-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === viewId);
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error_description || data.msg || data.message || 'Error');
-        return data;
+        document.querySelectorAll('.mob-tab').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === viewId);
+        });
     }
 
-    /* ── Guard: redirect if not logged in ── */
-    const storedUser = localStorage.getItem('econovo-user');
-    const storedToken = localStorage.getItem('econovo-token');
-    if (!storedToken || !storedUser) {
-        window.location.href = 'login.html';
-    }
+    window.showView = setView;
 
-    /* ── Sample data (replace with real Supabase table queries later) ── */
-    const EVENTS = [
-        { month: 'AUG', day: '12', title: 'Economics Workshop: Algerian Market Analysis', desc: 'An interactive session on local market trends.', tag: 'Workshop' },
-        { month: 'AUG', day: '19', title: 'FinTech Seminar: Digital Banking in Algeria', desc: 'Guest speaker from Algérie Poste.', tag: 'Seminar' },
-        { month: 'SEP', day: '03', title: 'Business Case Competition Kickoff', desc: 'Form your team and register for Econovo\'s annual case comp.', tag: 'Competition' },
-    ];
-
-    const ANNOUNCEMENTS = [
-        { date: 'Aug 1, 2026', title: 'Welcome to the new Econovo member portal!', body: 'We\'ve just launched our new member dashboard. You can now view upcoming events, read club announcements, and update your profile — all in one place.' },
-        { date: 'Jul 28, 2026', title: 'Case Competition Registration Opens August 3', body: 'The annual Econovo Business Case Competition is back! Registration opens August 3rd. Teams of 2–4 students from any major are welcome to participate.' },
-    ];
-
-    /* ── Populate user info ── */
-    document.addEventListener('DOMContentLoaded', () => {
-        if (window.lucide) window.lucide.createIcons();
-
-        // Theme
-        const stored = localStorage.getItem('econovo-theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(stored || (prefersDark ? 'dark' : 'light'));
-
-        document.querySelectorAll('.js-theme-toggle').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                applyTheme(next);
-                localStorage.setItem('econovo-theme', next);
-            });
-        });
-
-        // Navbar scroll
-        const nav = document.getElementById('navbar');
-        window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20), { passive: true });
-
-        // Sign out
-        function doSignOut() {
-            localStorage.removeItem('econovo-token');
-            localStorage.removeItem('econovo-user');
-            window.location.href = 'login.html';
-        }
-        document.getElementById('signout-btn').addEventListener('click', doSignOut);
-        document.getElementById('signout-btn-2').addEventListener('click', doSignOut);
-
-        // User data
-        let user = {};
-        let meta = {};
-        try {
-            user = JSON.parse(storedUser);
-            meta = user.user_metadata || {};
-        } catch(_) {}
-
-        const firstName = meta.first_name || '';
-        const lastName  = meta.last_name  || '';
-        const fullName  = meta.full_name  || (firstName + ' ' + lastName).trim() || user.email?.split('@')[0] || 'Member';
-        const initials  = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || fullName.slice(0,2).toUpperCase();
-        const email     = user.email || '';
-        const joinedRaw = user.created_at || '';
-        const joinedFmt = joinedRaw ? new Date(joinedRaw).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '—';
-        const major     = meta.major || '';
-        const year      = meta.year  || '';
-
-        // Fill overview
-        document.getElementById('welcome-title').textContent  = 'Welcome back, ' + (firstName || fullName) + '.';
-        document.getElementById('welcome-avatar').textContent  = initials;
-        document.getElementById('welcome-name').textContent    = fullName;
-        document.getElementById('welcome-email').textContent   = email;
-        document.getElementById('qs-joined').textContent       = joinedFmt;
-        document.getElementById('qs-events').textContent       = EVENTS.length;
-        document.getElementById('qs-announce').textContent     = ANNOUNCEMENTS.length;
-
-        // Fill profile
-        document.getElementById('profile-avatar-lg').textContent   = initials;
-        document.getElementById('profile-display-name').textContent = fullName;
-        document.getElementById('profile-display-email').textContent = email;
-        document.getElementById('pf-fname').value  = firstName;
-        document.getElementById('pf-lname').value  = lastName;
-        document.getElementById('pf-email').value  = email;
-        document.getElementById('pf-major').value  = major;
-        document.getElementById('pf-year').value   = year;
-
-        // Render events (overview = first 2)
-        renderEvents('overview-events', EVENTS.slice(0, 2));
-        renderEvents('full-events-list', EVENTS);
-        renderAnnouncements();
-
-        // Save profile
-        document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
+    document.querySelectorAll('.sidebar-item, .mob-tab').forEach(btn => {
+        btn.addEventListener('click', () => setView(btn.dataset.view));
     });
 
-    function renderEvents(containerId, events) {
-        const el = document.getElementById(containerId);
-        if (!el) return;
-        if (!events.length) {
-            el.innerHTML = '<div class="empty-state"><p>No upcoming events scheduled yet.</p></div>';
-            return;
-        }
-        el.innerHTML = events.map(ev => `
-            <div class="event-row">
-                <div class="event-date-block">
-                    <div class="event-date-month">${ev.month}</div>
-                    <div class="event-date-day">${ev.day}</div>
-                </div>
-                <div class="event-info">
-                    <h4>${ev.title}</h4>
-                    <p>${ev.desc}</p>
-                </div>
-                <span class="event-badge">${ev.tag}</span>
-            </div>
-        `).join('');
+    /* Sign out */
+    function signOut() {
+        localStorage.removeItem('econovo-token');
+        localStorage.removeItem('econovo-user');
+        window.location.replace('login.html');
+    }
+    document.getElementById('signout-btn').addEventListener('click', signOut);
+    document.getElementById('signout-btn-2').addEventListener('click', signOut);
+
+    /* Theme toggle */
+    const root = document.documentElement;
+    const themeIcon = document.getElementById('theme-icon');
+
+    function applyTheme(t) {
+        if (t === 'dark') root.setAttribute('data-theme','dark');
+        else root.removeAttribute('data-theme');
+        localStorage.setItem('econovo-theme', t);
+        /* Moon / Sun icon */
+        themeIcon.innerHTML = t === 'dark'
+            ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+            : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
     }
 
-    function renderAnnouncements() {
-        const el = document.getElementById('announce-list');
-        if (!el) return;
-        if (!ANNOUNCEMENTS.length) {
-            el.innerHTML = '<div class="empty-state"><p>No announcements yet.</p></div>';
-            return;
-        }
-        el.innerHTML = ANNOUNCEMENTS.map(a => `
-            <div class="announce-row">
-                <div class="announce-meta">${a.date}</div>
-                <div class="announce-title">${a.title}</div>
-                <div class="announce-body">${a.body}</div>
-            </div>
-        `).join('');
-    }
+    const initialTheme = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+    applyTheme(initialTheme);
 
-    /* ── Profile save ── */
-    async function saveProfile() {
-        const btn = document.getElementById('save-profile-btn');
+    document.querySelector('.js-theme-toggle').addEventListener('click', () => {
+        applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    /* Profile save */
+    document.getElementById('save-btn').addEventListener('click', async () => {
+        const btn   = document.getElementById('save-btn');
         const alert = document.getElementById('profile-alert');
         const fname = document.getElementById('pf-fname').value.trim();
         const lname = document.getElementById('pf-lname').value.trim();
@@ -574,58 +1199,27 @@
         const year  = document.getElementById('pf-year').value.trim();
 
         btn.classList.add('loading'); btn.disabled = true;
-        alert.className = 'dash-alert';
+        alert.className = 'form-alert';
 
         try {
-            const token = localStorage.getItem('econovo-token');
             const data = await supaFetch('/auth/v1/user', {
                 method: 'PUT',
-                headers: { 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify({
-                    data: {
-                        first_name: fname, last_name: lname,
-                        full_name: (fname + ' ' + lname).trim(),
-                        major, year,
-                    }
-                }),
+                headers: { 'Authorization': 'Bearer ' + storedToken },
+                body: JSON.stringify({ data: { first_name: fname, last_name: lname, full_name: (fname+' '+lname).trim(), major, year } }),
             });
-            // Update local storage
             localStorage.setItem('econovo-user', JSON.stringify(data));
             btn.classList.remove('loading'); btn.disabled = false;
-            alert.textContent = '✓ Profile updated successfully.';
-            alert.className = 'dash-alert success visible';
+            alert.textContent = '✓ Profile saved.';
+            alert.className = 'form-alert ok visible';
             setTimeout(() => alert.classList.remove('visible'), 3500);
         } catch(err) {
             btn.classList.remove('loading'); btn.disabled = false;
-            alert.textContent = '⚠ Failed to save: ' + err.message;
-            alert.className = 'dash-alert error visible';
+            alert.textContent = '⚠ ' + err.message;
+            alert.className = 'form-alert err visible';
         }
-    }
+    });
 
-    /* ── View switching ── */
-    window.showView = function(viewId, btn) {
-        document.querySelectorAll('.dash-view').forEach(v => v.classList.remove('active'));
-        document.getElementById('view-' + viewId).classList.add('active');
-
-        // Sidebar (desktop)
-        document.querySelectorAll('#dashSidebar .sidebar-link').forEach(l => {
-            l.classList.toggle('active', l.getAttribute('data-view') === viewId);
-        });
-        // Mobile nav
-        document.querySelectorAll('#dashMobileNav button').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-    };
-
-    /* ── Theme ── */
-    function applyTheme(theme) {
-        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        else document.documentElement.removeAttribute('data-theme');
-        document.querySelectorAll('.js-theme-icon').forEach(i => i.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon'));
-        if (window.lucide) window.lucide.createIcons();
-        const meta = document.getElementById('themeColorMeta');
-        if (meta) meta.content = theme === 'dark' ? '#141414' : '#F4F7F2';
-    }
-
+});
 })();
 </script>
 </body>
