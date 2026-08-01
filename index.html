@@ -52,8 +52,11 @@
                     <i class="js-theme-icon" id="themeToggleIcon" data-lucide="moon"></i>
                 </button>
                 <button class="lang-btn js-lang-toggle" id="langBtn">العربية</button>
-                <a href="pages/login.html" class="btn btn-outline btn-sm" style="margin-right:-8px">Sign In</a>
-                <a href="pages/join.html" class="btn btn-primary btn-sm" data-i18n="nav.join">Join Now</a>
+                <div id="nav-auth-area" style="display:flex;align-items:center;gap:12px;">
+                    <!-- filled dynamically by auth check -->
+                    <a href="pages/login.html" class="btn btn-outline btn-sm" id="nav-signin-link">Sign In</a>
+                    <a href="pages/join.html" class="btn btn-primary btn-sm" id="nav-join-link" data-i18n="nav.join">Join Now</a>
+                </div>
                 <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu">
                     <i data-lucide="menu"></i>
                 </button>
@@ -289,5 +292,43 @@
     <script src="js/language.js"></script>
     <script src="js/animations.js"></script>
     <script src="js/main.js"></script>
+    <script>
+    // ── Dynamic auth navbar ──────────────────────────────────
+    (function() {
+        const token = localStorage.getItem('econovo-token');
+        const userRaw = localStorage.getItem('econovo-user');
+        const signinLink = document.getElementById('nav-signin-link');
+        const joinLink = document.getElementById('nav-join-link');
+
+        if (token && userRaw) {
+            try {
+                const user = JSON.parse(userRaw);
+                const meta = user.user_metadata || {};
+                const name = meta.first_name || meta.full_name || user.email.split('@')[0];
+
+                // Replace "Sign In" with a user greeting + sign out button
+                if (signinLink) {
+                    signinLink.textContent = '👤 ' + name;
+                    signinLink.removeAttribute('href');
+                    signinLink.style.cursor = 'default';
+                    signinLink.style.pointerEvents = 'none';
+                }
+                if (joinLink) {
+                    joinLink.textContent = 'Sign Out';
+                    joinLink.removeAttribute('href');
+                    joinLink.classList.remove('btn-primary');
+                    joinLink.classList.add('btn-outline');
+                    joinLink.style.cursor = 'pointer';
+                    joinLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        localStorage.removeItem('econovo-token');
+                        localStorage.removeItem('econovo-user');
+                        window.location.reload();
+                    });
+                }
+            } catch(_) {}
+        }
+    })();
+    </script>
 </body>
 </html>
