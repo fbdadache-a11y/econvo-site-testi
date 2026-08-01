@@ -1,132 +1,200 @@
 /* ==========================================================================
-   ECONOVO — animations.js  (safe, GitHub Pages compatible)
-   CRITICAL FIX: Never hide elements in JS without a guaranteed show path.
-   Strategy: CSS handles the initial hidden state via .will-reveal class.
-   JS only ADDS the visible state — it never sets opacity:0 on its own.
+   ECONOVO — animations.js
+   Hero entrance + scroll parallax, single-element fade-ins, and a batched
+   stagger reveal for every JS-rendered card grid.
+
+   Important: language.js fully replaces each grid's innerHTML on every
+   language switch (fresh DOM nodes, all invisible again by default via the
+   .stagger-item CSS rule). So reveal state is tracked per *observer*, not
+   with a flag stuck on the container — otherwise a container marked
+   "already revealed" from the first language would permanently skip
+   revealing the brand-new nodes injected after switching language, leaving
+   that whole section blank. See revealGrid() below.
    ========================================================================== */
 
 (function () {
     'use strict';
 
-    // Safety timeout: if everything else fails, reveal all hidden elements
-    var SAFETY_MS = 800;
-    var safetyTimer = setTimeout(revealAll, SAFETY_MS);
+    const GRID_SELECTORS = ['#statsRow', '#whyGrid', '#pillarsGrid', '#timeline', '#teamGrid', '#eventsGrid', '#faqWrapper'];
+    const EASE_OUT = 'cubic-bezier(.16,1,.3,1)';   // premium "expo-ish" deceleration
+    const EASE_SOFT = 'power2.out';
 
-    function revealAll() {
-        document.querySelectorAll('.will-reveal').forEach(function(el) {
-            el.classList.add('revealed');
-        });
-        document.querySelectorAll('.reveal').forEach(function(el) {
-            el.classList.add('active');
-        });
-    }
+    let singleObserver;
+    const gridObservers = new WeakMap(); // container -> current IntersectionObserver, so re-renders don't pile up stale observers
 
-    document.addEventListener('DOMContentLoaded', function() {
-        clearTimeout(safetyTimer);
-        heroFadeIn();
-        initReveal();
-        // Re-set safety in case econovo:rendered never fires
-        safetyTimer = setTimeout(revealAll, SAFETY_MS + 500);
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+        heroEntrance();
+        idleFloat();
+        heroParallax();
+        initSingleReveal();
+        initMagneticCards();
     });
 
-    document.addEventListener('econovo:rendered', function() {
-        clearTimeout(safetyTimer);
-        initReveal();
-        observeGrids();
+    // Grids are (re)populated by language.js on load AND on every language switch
+    document.addEventListener('econovo:rendered', () => {
+        GRID_SELECTORS.forEach(sel => revealGrid(sel));
+        initSingleReveal();
     });
 
-    /* ── Hero fade-in: CSS class approach (safer than inline style) ── */
-    function heroFadeIn() {
-        var selectors = [
+    /* ---------------- Hero ---------------- */
+
+    function heroEntrance() {
+        const items = [
             '.hero-content .eyebrow',
             '.hero-content h1',
             '.hero-content p',
             '.hero-content .hero-tags',
             '.hero-content .hero-actions',
-            '.hero-visual',
-        ];
-        var delay = 50;
-        selectors.forEach(function(sel) {
-            var el = document.querySelector(sel);
-            if (!el) return;
-            el.classList.add('will-reveal');
-            setTimeout(function() {
-                el.classList.add('revealed');
-            }, delay);
-            delay += 80;
-        });
-    }
+            '.hero-visual'
+        ].map(sel => document.querySelector(sel)).filter(Boolean);
+        if (!items.length) return;
 
-    /* ── .reveal sections: IntersectionObserver ── */
-    function initReveal() {
-        var els = document.querySelectorAll('.reveal:not(.active)');
-        if (!('IntersectionObserver' in window)) {
-            // Fallback for old browsers
-            els.forEach(function(el) { el.classList.add('active'); });
-            return;
-        }
-        var obs = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add('active');
-                obs.unobserve(entry.target);
+        if (window.gsap) {
+            gsap.set(items, { opacity: 0, y: 26 });
+            gsap.to(items, { opacity: 1, y: 0, duration: .9, stagger: .11, ease: EASE_SOFT, delay: .15 });
+        } else {
+            items.forEach((el, i) => {
+                el.style.transition = `opacity .6s ${EASE_OUT} ${i * .1}s, transform .6s ${EASE_OUT} ${i * .1}s`;
+                requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'none'; });
             });
-        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-        els.forEach(function(el) { obs.observe(el); });
+        }
     }
 
-    /* ── Card grids: staggered fade ── */
-    var GRIDS = ['#statsRow','#whyGrid','#pillarsGrid','#timeline','#teamGrid','#eventsGrid','#faqWrapper'];
+    function idleFloat() {
+        if (!window.gsap) return;
+        gsap.to('.floating-badge', { y: -10, duration: 2.6, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+        gsap.to('.floating-tag', { y: -8, rotate: -2, duration: 2.2, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: .3 });
+        gsap.to('.hero-img-container', { y: -8, duration: 3.4, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+    }
 
-    function observeGrids() {
-        GRIDS.forEach(function(sel) {
-            var container = document.querySelector(sel);
-            if (!container || container.dataset.revealed === 'true' || !container.children.length) return;
+    // A small, restrained parallax on the whole visual column — a different
+    // element than the idle float above, so the two transforms don't fight.
+    function heroParallax() {
+        if (!window.gsap || !window.ScrollTrigger || !document.querySelector('.hero-visual')) return;
+        gsap.to('.hero-visual', {
+            yPercent: 10,
+            ease: 'none',
+            scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+        });
+    }
 
-            if (!('IntersectionObserver' in window)) {
-                // Fallback: show immediately
-                animateGrid(container);
-                return;
-            }
-            var obs = new IntersectionObserver(function(entries) {
-                entries.forEach(function(entry) {
+    /* ---------------- Single-element fade-in (.reveal sections) ---------------- */
+    // These wrapper elements are never replaced by language.js (only the
+    // text inside them changes), so a persistent "seen it" observer is safe here.
+
+    function initSingleReveal() {
+        if (!singleObserver) {
+            singleObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
                     if (!entry.isIntersecting) return;
-                    container.dataset.revealed = 'true';
-                    animateGrid(container);
-                    if (sel === '#statsRow') animateCounters();
-                    obs.disconnect();
+                    animateSingle(entry.target);
+                    singleObserver.unobserve(entry.target);
                 });
-            }, { threshold: 0.06, rootMargin: '0px 0px -48px 0px' });
-            obs.observe(container);
-        });
+            }, { threshold: .12, rootMargin: '0px 0px -60px 0px' });
+        }
+        document.querySelectorAll('.reveal:not(.active)').forEach(el => singleObserver.observe(el));
     }
 
-    function animateGrid(container) {
-        var children = Array.from(container.children);
-        children.forEach(function(c, i) {
-            c.classList.add('will-reveal');
-            setTimeout(function() {
-                c.classList.add('revealed');
-            }, i * 60);
-        });
+    function animateSingle(el) {
+        el.classList.add('active');
+        if (window.gsap) gsap.fromTo(el, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .8, ease: EASE_SOFT });
     }
 
-    /* ── Stat counters ── */
+    /* ---------------- Batched grid stagger (the fixed bit) ---------------- */
+
+    function revealGrid(selector) {
+        const container = document.querySelector(selector);
+        if (!container || !container.children.length) return;
+
+        // A previous language's observer may still be attached to this same
+        // container (if it never fired because the section wasn't scrolled
+        // to yet) — drop it before attaching a fresh one for the new content.
+        const previous = gridObservers.get(container);
+        if (previous) previous.disconnect();
+
+        const children = Array.from(container.children);
+        if (window.gsap) gsap.set(children, { opacity: 0, y: 28 });
+        else children.forEach(c => { c.style.opacity = '0'; c.style.transform = 'translateY(28px)'; });
+
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                castCascade(children);
+                if (selector === '#statsRow') animateCounters();
+                obs.disconnect();
+                gridObservers.delete(container);
+            });
+        }, { threshold: .1, rootMargin: '0px 0px -80px 0px' });
+
+        gridObservers.set(container, obs);
+        obs.observe(container);
+    }
+
+    function castCascade(children) {
+        if (window.gsap) {
+            gsap.to(children, { opacity: 1, y: 0, duration: .65, stagger: .07, ease: EASE_SOFT });
+        } else {
+            children.forEach((c, i) => {
+                c.style.transition = `opacity .5s ${EASE_OUT} ${i * .06}s, transform .5s ${EASE_OUT} ${i * .06}s`;
+                requestAnimationFrame(() => { c.style.opacity = '1'; c.style.transform = 'none'; });
+            });
+        }
+    }
+
+    /* ---------------- Stat counters (ledger-style count up) ---------------- */
+
     function animateCounters() {
-        document.querySelectorAll('#statsRow .stat-value').forEach(function(el) {
-            var raw   = el.getAttribute('data-raw') || el.textContent;
-            var match = raw.match(/^(\d+)(.*)$/);
+        document.querySelectorAll('#statsRow .stat-value').forEach(el => {
+            const raw = el.getAttribute('data-raw') || el.textContent;
+            const match = raw.match(/^(\d+)(.*)$/); // leading digits + optional suffix ("%", etc). Skips "∞".
             if (!match) return;
-            var target = parseInt(match[1], 10);
-            var suffix = match[2] || '';
-            var start  = performance.now();
-            var dur    = 1100;
-            (function tick(now) {
-                var p = Math.min((now - start) / dur, 1);
-                var eased = 1 - Math.pow(1 - p, 3);
-                el.textContent = Math.round(eased * target) + suffix;
-                if (p < 1) requestAnimationFrame(tick);
-            })(start);
+            const target = parseInt(match[1], 10);
+            const suffix = match[2] || '';
+
+            if (window.gsap) {
+                const counter = { val: 0 };
+                gsap.to(counter, {
+                    val: target, duration: 1.4, ease: 'power1.out',
+                    onUpdate: () => { el.textContent = Math.round(counter.val) + suffix; },
+                    onComplete: () => { el.textContent = target + suffix; }
+                });
+            } else {
+                el.textContent = target + suffix;
+            }
+        });
+    }
+
+    /* ---------------- Magnetic card tilt (fine pointers only) ---------------- */
+    // A light 3D tilt that follows the cursor, reset with a spring on leave.
+    // Skipped entirely on touch devices (no fine pointer) and under
+    // prefers-reduced-motion — this is a "nice to have", never a requirement.
+
+    function initMagneticCards() {
+        if (!window.gsap) return;
+        if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        let activeCard = null;
+        const resetTilt = (card) => gsap.to(card, { rotateX: 0, rotateY: 0, y: 0, duration: .6, ease: 'elastic.out(1, .5)' });
+
+        document.addEventListener('pointermove', (e) => {
+            const card = e.target.closest('.card:not(.empathy-box)');
+            if (card !== activeCard) {
+                if (activeCard) resetTilt(activeCard);
+                activeCard = card;
+            }
+            if (!card) return;
+            const rect = card.getBoundingClientRect();
+            const px = (e.clientX - rect.left) / rect.width - .5;
+            const py = (e.clientY - rect.top) / rect.height - .5;
+            gsap.to(card, { rotateX: py * -4, rotateY: px * 4, y: -6, duration: .4, ease: 'power2.out', transformPerspective: 800 });
+        });
+
+        // Safety net for when the cursor leaves the window entirely without
+        // crossing any other element first (pointermove would otherwise stop firing).
+        document.addEventListener('mouseout', (e) => {
+            if (!e.relatedTarget && activeCard) { resetTilt(activeCard); activeCard = null; }
         });
     }
 })();
