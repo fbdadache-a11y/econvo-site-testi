@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#F4F7F2" id="themeColorMeta">
     <title>Econovo Club | Turning Students Into Problem Solvers</title>
     <meta name="description" content="Econovo is a university club connecting economics, business, innovation, and practical skills.">
-    <meta name="keywords" content="Econovo, university club, economics club, business club, Bordj Bou Arreridj, fintech, entrepreneurship">
+    <meta name="keywords" content="Econovo, university club, economics club, business club, Bordj Bou Arreridj, fintech, entrepreneurship, Algeria students">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
@@ -20,14 +20,15 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/sections.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <!-- Instant theme: runs before any CSS paint to prevent flicker -->
+
+    <!-- Instant theme — before CSS paint to prevent flicker -->
     <script>
     (function(){
         var t = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
@@ -39,219 +40,274 @@
 
     <div class="scroll-progress" id="scrollProgress"></div>
 
-    <!-- NAVBAR -->
-    <nav class="navbar" id="navbar">
+    <!-- ═══════════════════════════════════════════
+         NAVBAR
+    ═══════════════════════════════════════════ -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
         <div class="container nav-container">
-            <div class="brand">
-                <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo logo" class="logo-img">
-                <span>ECONOVO</span>
-            </div>
-            <ul class="nav-links">
-                <li><a href="#about" class="nav-link" data-i18n="nav.about">About Us</a></li>
+
+            <!-- Brand — 50px clear space rule from Brand Book -->
+            <a href="/" class="brand" aria-label="Econovo Club home">
+                <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png"
+                     alt="Econovo geometric logo"
+                     class="logo-img">
+                <div>
+                    <span>ECONOVO</span>
+                    <small>University Club</small>
+                </div>
+            </a>
+
+            <!-- Desktop nav links -->
+            <ul class="nav-links" role="list">
+                <li><a href="#about"   class="nav-link" data-i18n="nav.about">About Us</a></li>
                 <li><a href="#pillars" class="nav-link" data-i18n="nav.pillars">Our Focus</a></li>
                 <li><a href="#journey" class="nav-link" data-i18n="nav.journey">The Journey</a></li>
-                <li><a href="#team" class="nav-link" data-i18n="nav.team">Team</a></li>
-                <li><a href="#events" class="nav-link" data-i18n="nav.events">Events</a></li>
-                <li><a href="#faq" class="nav-link" data-i18n="nav.faq">FAQ</a></li>
+                <li><a href="#team"    class="nav-link" data-i18n="nav.team">Team</a></li>
+                <li><a href="#events"  class="nav-link" data-i18n="nav.events">Events</a></li>
+                <li><a href="#faq"     class="nav-link" data-i18n="nav.faq">FAQ</a></li>
             </ul>
+
+            <!-- Actions -->
             <div class="nav-actions">
                 <button class="icon-btn js-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
                     <i class="js-theme-icon" id="themeToggleIcon" data-lucide="moon"></i>
                 </button>
-                <button class="lang-btn js-lang-toggle" id="langBtn">العربية</button>
-                <div id="nav-auth-area" style="display:flex;align-items:center;gap:12px;">
-                    <!-- filled dynamically by auth check -->
+                <button class="lang-btn js-lang-toggle" id="langBtn" aria-label="Switch language">العربية</button>
+
+                <div id="nav-auth-area" style="display:flex;align-items:center;gap:10px;">
                     <a href="pages/login.html" class="btn btn-outline btn-sm" id="nav-signin-link">Sign In</a>
-                    <a href="pages/join.html" class="btn btn-primary btn-sm" id="nav-join-link" data-i18n="nav.join">Join Now</a>
+                    <a href="pages/join.html"  class="btn btn-primary btn-sm" id="nav-join-link" data-i18n="nav.join">Join Now</a>
                 </div>
-                <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu">
+
+                <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open navigation menu" aria-expanded="false">
                     <i data-lucide="menu"></i>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- MOBILE MENU -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
-    <aside class="mobile-menu" id="mobileMenu">
-        <button class="icon-btn mobile-menu-close" id="mobileMenuClose" aria-label="Close menu"><i data-lucide="x"></i></button>
+    <!-- ═══════════════════════════════════════════
+         MOBILE SIDE MENU
+    ═══════════════════════════════════════════ -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" aria-hidden="true"></div>
+    <aside class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation" role="dialog">
+        <button class="icon-btn mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">
+            <i data-lucide="x"></i>
+        </button>
         <div class="mobile-menu-utility">
             <button class="icon-btn js-theme-toggle" aria-label="Toggle dark mode">
                 <i class="js-theme-icon" data-lucide="moon"></i>
             </button>
-            <button class="lang-btn js-lang-toggle">العربية</button>
+            <button class="lang-btn js-lang-toggle" aria-label="Switch language">العربية</button>
         </div>
-        <ul>
-            <li><a href="#about" class="nav-link" data-i18n="nav.about">About Us</a></li>
+        <ul role="list">
+            <li><a href="#about"   class="nav-link" data-i18n="nav.about">About Us</a></li>
             <li><a href="#pillars" class="nav-link" data-i18n="nav.pillars">Our Focus</a></li>
             <li><a href="#journey" class="nav-link" data-i18n="nav.journey">The Journey</a></li>
-            <li><a href="#team" class="nav-link" data-i18n="nav.team">Team</a></li>
-            <li><a href="#events" class="nav-link" data-i18n="nav.events">Events</a></li>
-            <li><a href="#faq" class="nav-link" data-i18n="nav.faq">FAQ</a></li>
+            <li><a href="#team"    class="nav-link" data-i18n="nav.team">Team</a></li>
+            <li><a href="#events"  class="nav-link" data-i18n="nav.events">Events</a></li>
+            <li><a href="#faq"     class="nav-link" data-i18n="nav.faq">FAQ</a></li>
         </ul>
+        <!-- Sign In accessible in mobile menu -->
+        <a href="pages/login.html" class="mobile-signin-link" id="mobile-signin-link">
+            <i data-lucide="log-in" style="width:15px;height:15px;flex-shrink:0;"></i>
+            Sign In
+        </a>
         <a href="pages/join.html" class="btn btn-primary" data-i18n="nav.join">Join Now</a>
     </aside>
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-bg-shape"></div>
+    <!-- ═══════════════════════════════════════════
+         HERO
+    ═══════════════════════════════════════════ -->
+    <section class="hero" aria-labelledby="hero-heading">
+        <div class="hero-bg-shape" aria-hidden="true"></div>
         <div class="container hero-grid">
+
+            <!-- Left: editorial copy -->
             <div class="hero-content">
-                <div class="eyebrow" data-i18n="hero.eyebrow">University Club</div>
-                <h1 data-i18n="hero.title">Turning Students Into Problem Solvers.</h1>
-                <p data-i18n="hero.desc">We are a university club connecting economics, business, innovation, and practical skills.</p>
-                <div class="hero-tags" id="heroTags"></div>
+                <span class="hero-rule" aria-hidden="true"></span>
+                <div class="eyebrow" data-i18n="hero.eyebrow">University Club · Bordj Bou Arreridj</div>
+                <h1 id="hero-heading" data-i18n="hero.title">Turning Students Into Problem Solvers.</h1>
+                <p data-i18n="hero.desc">We are a university club connecting economics, business, innovation, and practical skills. Join us to bridge the gap between academic theory and real-world application.</p>
+                <div class="hero-tags" id="heroTags" role="list"></div>
                 <div class="hero-actions">
-                    <a href="pages/join.html" class="btn btn-primary">
+                    <a href="pages/join.html" class="btn btn-primary" id="hero-join-btn">
                         <span data-i18n="hero.ctaJoin">Become a Member</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </a>
                     <a href="#about" class="btn btn-outline" data-i18n="hero.ctaExplore">Explore Club</a>
                 </div>
             </div>
 
-            <div class="hero-visual">
+            <!-- Right: visual panel -->
+            <div class="hero-visual" aria-hidden="true">
                 <div class="floating-tag">
-                    <i data-lucide="sparkles" style="width:15px;height:15px"></i>
+                    <i data-lucide="sparkles" style="width:13px;height:13px"></i>
                     <span data-i18n="hero.floatingTag">Innovation Lab</span>
                 </div>
 
                 <div class="hero-img-container">
-                    <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo club showcase">
+                    <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png"
+                         alt="Econovo club — geometric N logo"
+                         loading="eager">
                 </div>
 
                 <div class="floating-badge">
-                    <div class="icon-wrap"><i data-lucide="trending-up"></i></div>
+                    <div class="icon-wrap">
+                        <i data-lucide="trending-up" style="width:16px;height:16px;"></i>
+                    </div>
                     <div>
-                        <strong style="display:block;" data-i18n="hero.badgeTitle">Practical Skills</strong>
-                        <span style="font-size:.85rem;color:var(--color-sage);" data-i18n="hero.badgeDesc">Real-world impact</span>
+                        <strong style="display:block;font-size:.85rem;" data-i18n="hero.badgeTitle">Practical Skills</strong>
+                        <span style="font-size:.78rem;color:var(--sage);" data-i18n="hero.badgeDesc">Real-world impact</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- TRUST BAR -->
-    <section class="trust-bar reveal">
+    <!-- ═══════════════════════════════════════════
+         TRUST BAR
+    ═══════════════════════════════════════════ -->
+    <section class="trust-bar reveal" aria-label="Affiliations">
         <div class="container trust-bar-inner">
             <span class="trust-label" id="trustLabel">Affiliated with</span>
-            <div class="trust-marquee">
+            <div class="trust-marquee" aria-hidden="true">
                 <div class="trust-track" id="trustTrack"></div>
             </div>
         </div>
     </section>
 
-    <!-- STATS -->
-    <section class="stats-section">
+    <!-- ═══════════════════════════════════════════
+         STATS LEDGER
+    ═══════════════════════════════════════════ -->
+    <section class="stats-section" aria-label="Club statistics">
         <div class="container">
-            <div class="stats-row" id="statsRow"></div>
+            <div class="stats-row" id="statsRow" role="list"></div>
         </div>
     </section>
 
-    <!-- ABOUT / EMPATHY -->
-    <section id="about" class="empathy-section section reveal">
+    <!-- ═══════════════════════════════════════════
+         ABOUT / EMPATHY
+    ═══════════════════════════════════════════ -->
+    <section id="about" class="empathy-section reveal" aria-labelledby="empathy-heading">
         <div class="container">
-            <div class="card empathy-box" style="background:var(--gradient-primary);padding:var(--sp-64);text-align:center;">
-                <h2 style="font-size:clamp(2rem,4vw,3rem);color:var(--color-sage);margin-bottom:var(--sp-24);" data-i18n="empathy.title">You Don't Need to Be an Expert to Start.</h2>
-                <p style="color:rgba(255,255,255,.85);max-width:800px;margin:0 auto;font-size:1.2rem;" data-i18n="empathy.desc">At Econovo, we understand that entering the world of business can feel overwhelming.</p>
+            <div class="card empathy-box">
+                <h2 id="empathy-heading" data-i18n="empathy.title">You Don't Need to Be an Expert to Start.</h2>
+                <p data-i18n="empathy.desc">At Econovo, we understand that entering the world of business and fintech can feel overwhelming.</p>
             </div>
         </div>
     </section>
 
-    <!-- WHY ECONOVO -->
-    <section class="section">
+    <!-- ═══════════════════════════════════════════
+         WHY ECONOVO
+    ═══════════════════════════════════════════ -->
+    <section class="section" aria-labelledby="why-heading">
         <div class="container">
             <div class="section-header reveal">
                 <div class="eyebrow" data-i18n="why.eyebrow">Why Econovo</div>
-                <h2 class="section-title" data-i18n="why.title">Four Reasons Students Stay</h2>
-                <p data-i18n="why.desc">This is what membership actually looks like.</p>
+                <h2 id="why-heading" class="section-title" data-i18n="why.title">Four Reasons Students Stay</h2>
+                <p data-i18n="why.desc">This is what membership actually looks like, week to week.</p>
             </div>
-            <div class="why-grid" id="whyGrid"></div>
+            <div class="why-grid" id="whyGrid" role="list"></div>
         </div>
     </section>
 
-    <!-- FOCUS AREAS -->
-    <section id="pillars" class="section">
+    <!-- ═══════════════════════════════════════════
+         FOCUS AREAS / PILLARS
+    ═══════════════════════════════════════════ -->
+    <section id="pillars" class="section" style="background:var(--bg-muted);" aria-labelledby="pillars-heading">
         <div class="container">
             <div class="section-header reveal">
                 <div class="eyebrow" data-i18n="pillars.eyebrow">What We Do</div>
-                <h2 class="section-title" data-i18n="pillars.title">Our Core Focus Areas</h2>
-                <p data-i18n="pillars.desc">Through workshops, projects, and discussions.</p>
+                <h2 id="pillars-heading" class="section-title" data-i18n="pillars.title">Our Core Focus Areas</h2>
+                <p data-i18n="pillars.desc">Through workshops, projects, and discussions, we help you master these four pillars.</p>
             </div>
-            <div class="pillars-grid" id="pillarsGrid"></div>
+            <div class="pillars-grid" id="pillarsGrid" role="list"></div>
         </div>
     </section>
 
-    <!-- JOURNEY -->
-    <section id="journey" class="section journey-section">
+    <!-- ═══════════════════════════════════════════
+         JOURNEY / TIMELINE
+    ═══════════════════════════════════════════ -->
+    <section id="journey" class="section journey-section" aria-labelledby="journey-heading">
         <div class="container">
             <div class="section-header reveal">
                 <div class="eyebrow" data-i18n="journey.eyebrow">How It Works</div>
-                <h2 class="section-title" data-i18n="journey.title">Your Journey With Us</h2>
+                <h2 id="journey-heading" class="section-title" data-i18n="journey.title">Your Journey With Us</h2>
                 <p data-i18n="journey.desc">A clear path from a curious student to a confident problem solver.</p>
             </div>
-            <div class="timeline" id="timeline"></div>
+            <div class="timeline" id="timeline" aria-label="Journey steps"></div>
         </div>
     </section>
 
-    <!-- TEAM -->
-    <section id="team" class="section">
+    <!-- ═══════════════════════════════════════════
+         TEAM
+    ═══════════════════════════════════════════ -->
+    <section id="team" class="section" aria-labelledby="team-heading">
         <div class="container">
             <div class="section-header reveal">
                 <div class="eyebrow" data-i18n="team.eyebrow">Who Runs It</div>
-                <h2 class="section-title" data-i18n="team.title">Meet the Team</h2>
-                <p data-i18n="team.desc">A small student board keeping things running.</p>
+                <h2 id="team-heading" class="section-title" data-i18n="team.title">Meet the Team</h2>
+                <p data-i18n="team.desc">A small student board keeping things running — more roles open every semester.</p>
             </div>
-            <div class="team-grid" id="teamGrid"></div>
+            <div class="team-grid" id="teamGrid" role="list"></div>
         </div>
     </section>
 
-    <!-- EVENTS -->
-    <section id="events" class="section" style="background:var(--bg-sunken);">
+    <!-- ═══════════════════════════════════════════
+         EVENTS
+    ═══════════════════════════════════════════ -->
+    <section id="events" class="section" aria-labelledby="events-heading">
         <div class="container">
             <div class="section-header reveal">
                 <div class="eyebrow" data-i18n="events.eyebrow">Upcoming</div>
-                <h2 class="section-title" data-i18n="events.title">Events & Workshops</h2>
+                <h2 id="events-heading" class="section-title" data-i18n="events.title">Events &amp; Workshops</h2>
                 <p data-i18n="events.desc">What's next on the Econovo calendar.</p>
             </div>
-            <div class="events-grid" id="eventsGrid"></div>
+            <div class="events-grid" id="eventsGrid" role="list"></div>
         </div>
     </section>
 
-    <!-- FAQ -->
-    <section id="faq" class="section">
+    <!-- ═══════════════════════════════════════════
+         FAQ
+    ═══════════════════════════════════════════ -->
+    <section id="faq" class="section" style="background:var(--bg-muted);" aria-labelledby="faq-heading">
         <div class="container">
             <div class="section-header reveal">
                 <div class="eyebrow" data-i18n="faq.eyebrow">Got Questions?</div>
-                <h2 class="section-title" data-i18n="faq.title">Frequently Asked Questions</h2>
+                <h2 id="faq-heading" class="section-title" data-i18n="faq.title">Frequently Asked Questions</h2>
             </div>
-            <div class="faq-wrapper" id="faqWrapper"></div>
+            <div class="faq-wrapper" id="faqWrapper" role="list"></div>
         </div>
     </section>
 
-    <!-- CTA -->
-    <section class="cta-section reveal">
+    <!-- ═══════════════════════════════════════════
+         CTA
+    ═══════════════════════════════════════════ -->
+    <section class="cta-section reveal" aria-labelledby="cta-heading">
         <div class="container">
-            <h2 class="section-title" data-i18n="cta.title">Ready to Transform Your University Experience?</h2>
-            <p data-i18n="cta.desc">Join a community of ambitious students.</p>
+            <h2 id="cta-heading" class="section-title" data-i18n="cta.title">Ready to Transform Your University Experience?</h2>
+            <p data-i18n="cta.desc">Join a community of ambitious students. Let's grow together.</p>
             <a href="pages/join.html" class="btn btn-secondary" data-i18n="cta.btn">Become a Member Today</a>
         </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="footer">
+    <!-- ═══════════════════════════════════════════
+         FOOTER
+    ═══════════════════════════════════════════ -->
+    <footer class="footer" role="contentinfo">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
                     <h3>ECONOVO</h3>
-                    <p data-i18n="footer.desc">A university club connecting economics, business, innovation, and practical skills.</p>
+                    <p data-i18n="footer.desc">A university club connecting economics, business, innovation, and practical skills. Turning students into problem solvers.</p>
                     <div class="social-buttons-container">
-                        <a href="https://www.instagram.com/econovo.club" target="_blank" class="social-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                        <a href="https://www.instagram.com/econovo.club" target="_blank" rel="noopener" class="social-btn" aria-label="Follow Econovo on Instagram">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
                             <span data-i18n="footer.btnInsta">Follow on Instagram</span>
                         </a>
-                        <a href="https://www.facebook.com/share/1BmnaFPMX7/" target="_blank" class="social-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                        <a href="https://www.facebook.com/share/1BmnaFPMX7/" target="_blank" rel="noopener" class="social-btn" aria-label="Like Econovo on Facebook">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                             <span data-i18n="footer.btnFb">Like our Facebook Page</span>
                         </a>
                     </div>
@@ -259,66 +315,74 @@
 
                 <div>
                     <h4 class="footer-title" data-i18n="footer.navTitle">Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="#about" data-i18n="nav.about">About Us</a></li>
+                    <ul class="footer-links" role="list">
+                        <li><a href="#about"   data-i18n="nav.about">About Us</a></li>
                         <li><a href="#pillars" data-i18n="nav.pillars">Our Focus</a></li>
                         <li><a href="#journey" data-i18n="nav.journey">The Journey</a></li>
-                        <li><a href="#team" data-i18n="nav.team">Team</a></li>
-                        <li><a href="#events" data-i18n="nav.events">Events</a></li>
-                        <li><a href="#faq" data-i18n="nav.faq">FAQ</a></li>
+                        <li><a href="#team"    data-i18n="nav.team">Team</a></li>
+                        <li><a href="#events"  data-i18n="nav.events">Events</a></li>
+                        <li><a href="#faq"     data-i18n="nav.faq">FAQ</a></li>
                     </ul>
                 </div>
 
                 <div>
                     <h4 class="footer-title" data-i18n="footer.contactTitle">Location</h4>
-                    <ul class="footer-links">
-                        <li data-i18n="footer.locStr">University Club</li>
+                    <ul class="footer-links" role="list">
+                        <li data-i18n="footer.locStr">Mohamed El Bachir El Ibrahimi University</li>
                         <li data-i18n="footer.locStr2">Bordj Bou Arreridj, Algeria</li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                &copy; <span id="currentYear"></span> ECONOVO. <span data-i18n="footer.rights">All rights reserved.</span>
+                &copy; <span id="currentYear"></span> ECONOVO.
+                <span data-i18n="footer.rights">All rights reserved.</span>
             </div>
         </div>
     </footer>
 
-    <!-- MOBILE STICKY JOIN BUTTON -->
-    <div class="mobile-join">
+    <!-- MOBILE STICKY JOIN -->
+    <div class="mobile-join" role="complementary" aria-label="Join Econovo">
         <a href="pages/join.html" class="btn btn-primary" data-i18n="nav.join">Join Now</a>
     </div>
 
-    <!-- Vendor -->
+    <!-- ═══════════════════════════════════════════
+         SCRIPTS
+    ═══════════════════════════════════════════ -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- App -->
     <script src="js/faq.js"></script>
     <script src="js/language.js"></script>
     <script src="js/animations.js"></script>
     <script src="js/main.js"></script>
+
+    <!-- Auth-aware UI -->
     <script>
-    // ── Auth-aware navbar & UI ───────────────────────────────
     (function() {
+        'use strict';
         const token   = localStorage.getItem('econovo-token');
         const userRaw = localStorage.getItem('econovo-user');
-        if (!token || !userRaw) return; // not logged in — nothing to do
+        if (!token || !userRaw) return;
 
-        let user = {}, meta = {}, name = 'Member';
+        let name = 'Member';
         try {
-            user = JSON.parse(userRaw);
-            meta = user.user_metadata || {};
-            name = meta.first_name || (meta.full_name || '').split(' ')[0] || (user.email || '').split('@')[0] || 'Member';
+            const user = JSON.parse(userRaw);
+            const meta = user.user_metadata || {};
+            name = meta.first_name || (meta.full_name || '').split(' ')[0]
+                || (user.email || '').split('@')[0] || 'Member';
         } catch(_) {}
 
         function applyAuthUI() {
-            // 1. Navbar name & dashboard link
             const signinLink = document.getElementById('nav-signin-link');
             const joinLink   = document.getElementById('nav-join-link');
+            const mobileSignin = document.getElementById('mobile-signin-link');
+
             if (signinLink) {
                 signinLink.textContent = name;
                 signinLink.href = 'pages/dashboard.html';
-                signinLink.className = 'btn btn-outline btn-sm';
+            }
+            if (mobileSignin) {
+                mobileSignin.textContent = name;
+                mobileSignin.href = 'pages/dashboard.html';
             }
             if (joinLink && !joinLink.dataset.authDone) {
                 joinLink.dataset.authDone = '1';
@@ -334,26 +398,27 @@
                 });
             }
 
-            // 2. Hide ALL join.html links anywhere on the page
-            document.querySelectorAll('a[href="pages/join.html"], a[href="join.html"], a[href="./pages/join.html"]').forEach(el => {
+            // Hide join links for logged-in users
+            document.querySelectorAll('a[href="pages/join.html"], a[href="join.html"]').forEach(el => {
                 el.style.display = 'none';
             });
-
-            // 3. Hide mobile sticky join bar
             const mobileJoin = document.querySelector('.mobile-join');
             if (mobileJoin) mobileJoin.style.display = 'none';
 
+            // Replace hero CTA
+            const heroActions = document.querySelector('.hero-actions');
+            if (heroActions && !heroActions.dataset.authDone) {
+                heroActions.dataset.authDone = '1';
+                const dashBtn = document.createElement('a');
+                dashBtn.href = 'pages/dashboard.html';
                 dashBtn.className = 'btn btn-primary';
-                dashBtn.innerHTML = 'My Dashboard <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                dashBtn.innerHTML = 'My Dashboard <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
                 heroActions.innerHTML = '';
                 heroActions.appendChild(dashBtn);
             }
         }
 
-        // Run immediately (for static elements)
         applyAuthUI();
-
-        // Run again after language.js re-renders dynamic content
         document.addEventListener('econovo:rendered', applyAuthUI);
     })();
     </script>
