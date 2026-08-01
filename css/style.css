@@ -1,130 +1,178 @@
 /* ==========================================================================
    ECONOVO — style.css
-   Design tokens, reset, base typography.
+   Anthropic-inspired academic minimalism. Brand book exact colours.
+   Philosophy: whitespace earns meaning, typography commands hierarchy,
+   borders replace shadows, structure is information.
    ========================================================================== */
 
 :root {
-    /* ---- Brand colors (light) ---- */
-    --color-obsidian: #0E2A24;
-    --color-true-black: #1F1F1F;
-    --color-sage: #8FB8A6;
-    --color-sage-dim: #a8c9bb;
-    --color-chalk-1: #F4F7F2;
-    --color-chalk-2: #F6F4F0;
-    --color-white: #FFFFFF;
-    --color-ink: #0E2A24;
-    --color-ink-soft: rgba(14, 42, 36, 0.72);
-    --color-line: rgba(14, 42, 36, 0.10);
+    /* ── Brand palette (Brand Book exact) ── */
+    --obsidian:    #0E2A24;   /* primary dark, headings */
+    --obsidian-2:  #163a32;   /* hover dark */
+    --ink:         #1F1F1F;   /* secondary dark, footer */
+    --sage:        #8FB8A6;   /* Silver Sage — accent, dividers, hover */
+    --sage-light:  #b8d4c8;
+    --sage-dim:    rgba(143,184,166,.10);
+    --chalk:       #F4F7F2;   /* Chalk White 1 — main bg */
+    --chalk-2:     #F6F4F0;   /* Chalk White 2 — section alt bg */
+    --white:       #FFFFFF;
 
-    --bg: var(--color-chalk-1);
-    --bg-raised: var(--color-white);
-    --bg-sunken: var(--color-chalk-2);
-    --text: var(--color-ink);
-    --text-soft: var(--color-ink-soft);
-    --line: var(--color-line);
-    --brand-dark: var(--color-obsidian);
-    --brand-accent: var(--color-sage);
+    /* ── Semantic tokens ── */
+    --bg:          var(--chalk);
+    --bg-raised:   var(--white);
+    --bg-muted:    var(--chalk-2);
+    --bg-sunken:   var(--chalk-2);
+    --text:        var(--obsidian);
+    --text-soft:   rgba(14,42,36,.52);
+    --line:        rgba(14,42,36,.10);
+    --rule:        rgba(14,42,36,.10);
+    --accent:      var(--sage);
+    --brand:       var(--obsidian);
+    --brand-dark:  var(--obsidian);
 
-    --gradient-primary: linear-gradient(135deg, var(--color-obsidian) 0%, #163a32 100%);
-    --gradient-sage: linear-gradient(135deg, var(--color-sage) 0%, var(--color-sage-dim) 100%);
+    /* Legacy aliases (auth pages + language.js) */
+    --color-obsidian:  var(--obsidian);
+    --color-sage:      var(--sage);
+    --color-ink:       var(--ink);
+    --color-ink-soft:  var(--text-soft);
+    --color-line:      var(--line);
+    --color-sage-dim:  var(--sage-dim);
+    --brand-accent:    var(--sage);
+    --gradient-primary: linear-gradient(155deg, var(--obsidian) 0%, #163a32 100%);
+    --gradient-sage:    linear-gradient(135deg, var(--sage) 0%, var(--sage-light) 100%);
+    --shadow-sm:  0 1px 3px rgba(14,42,36,.06);
+    --shadow-md:  0 4px 16px rgba(14,42,36,.08);
+    --shadow-hover: 0 8px 28px rgba(14,42,36,.11);
 
-    /* ---- Type ---- */
-    --font-en: 'Host Grotesk', sans-serif;
-    --font-ar: 'IBM Plex Sans Arabic', sans-serif;
-    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-    --font-current: var(--font-en);
+    /* ── Type ── */
+    --font-sans:    'Host Grotesk', system-ui, sans-serif;
+    --font-ar:      'IBM Plex Sans Arabic', system-ui, sans-serif;
+    --font-mono:    'IBM Plex Mono', ui-monospace, monospace;
+    --font:         var(--font-sans);
+    --font-current: var(--font-sans);
 
-    /* ---- Spacing ---- */
-    --sp-4: .25rem;  --sp-8: .5rem;   --sp-12: .75rem; --sp-16: 1rem;
-    --sp-24: 1.5rem; --sp-32: 2rem;   --sp-48: 3rem;   --sp-64: 4rem;
-    --sp-96: 6rem;   --sp-128: 8rem;
+    /* ── Spacing (8-pt grid) ── */
+    --s1:  .5rem;    /* 8  */
+    --s2:  1rem;     /* 16 */
+    --s3:  1.5rem;   /* 24 */
+    --s4:  2rem;     /* 32 */
+    --s5:  3rem;     /* 48 */
+    --s6:  4rem;     /* 64 */
+    --s7:  6rem;     /* 96 */
+    --s8:  8rem;     /* 128 */
 
-    /* ---- Elevation ---- */
-    --shadow-sm: 0 4px 6px -1px rgba(14, 42, 36, .05);
-    --shadow-md: 0 10px 15px -3px rgba(14, 42, 36, .08);
-    --shadow-lg: 0 20px 25px -5px rgba(14, 42, 36, .10);
-    --shadow-hover: 0 25px 40px -10px rgba(143, 184, 166, .28);
+    /* Legacy spacing aliases */
+    --sp-4:.25rem; --sp-6:.375rem; --sp-8:var(--s1); --sp-12:.75rem;
+    --sp-16:var(--s2); --sp-20:1.25rem; --sp-24:var(--s3);
+    --sp-32:var(--s4); --sp-48:var(--s5); --sp-64:var(--s6);
+    --sp-96:var(--s7); --sp-128:var(--s8);
 
-    /* ---- Motion ---- */
-    --ease: cubic-bezier(.4,0,.2,1);
-    --ease-bounce: cubic-bezier(.68,-.4,.27,1.35);
-    --t-fast: .2s var(--ease);
-    --t-base: .4s var(--ease);
-    --t-slow: .8s cubic-bezier(.22,1,.36,1);
+    /* ── Motion ── */
+    --ease:         cubic-bezier(.4,0,.2,1);
+    --ease-bounce:  cubic-bezier(.68,-.4,.27,1.35);
+    --t-fast:       160ms var(--ease);
+    --t-base:       260ms var(--ease);
+    --t-slow:       500ms var(--ease);
 
-    /* ---- Radii ---- */
-    --r-sm: 8px; --r-md: 16px; --r-lg: 24px; --r-pill: 9999px;
+    /* ── Radius ── */
+    --r-sm:   4px;
+    --r-md:   6px;
+    --r-lg:   10px;
+    --r-pill: 9999px;
 }
 
+/* ── Dark mode ── */
 [data-theme="dark"] {
-    --bg: var(--color-true-black);
-    --bg-raised: var(--color-obsidian);
-    --bg-sunken: #171717;
-    --text: #E7EFEA;
-    --text-soft: rgba(231, 239, 234, .72);
-    --line: rgba(231, 239, 234, .12);
-    --brand-dark: #141414;
-    --gradient-primary: linear-gradient(135deg, #141414 0%, #0E2A24 100%);
-    --shadow-sm: 0 4px 6px -1px rgba(0,0,0,.35);
-    --shadow-md: 0 10px 20px -3px rgba(0,0,0,.45);
-    --shadow-lg: 0 20px 30px -5px rgba(0,0,0,.5);
+    --bg:        #111;
+    --bg-raised: #191919;
+    --bg-muted:  #161616;
+    --bg-sunken: #151515;
+    --text:      #E8EFE9;
+    --text-soft: rgba(232,239,233,.55);
+    --line:      rgba(232,239,233,.09);
+    --rule:      rgba(232,239,233,.09);
+    --brand:     #111;
+    --brand-dark: #111;
+    --obsidian:  #111;
+    --obsidian-2:#111;
+    --gradient-primary: linear-gradient(155deg, #0f0f0f 0%, #0E2A24 100%);
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
+    --shadow-md:   0 4px 16px rgba(0,0,0,.35);
+    --shadow-hover:0 8px 28px rgba(0,0,0,.4);
 }
 
-[lang="en"] { --font-current: var(--font-en); direction: ltr; }
-[lang="ar"] { --font-current: var(--font-ar); direction: rtl; }
+/* ── Language ── */
+[lang="en"] { --font: var(--font-sans); --font-current: var(--font-sans); direction: ltr; }
+[lang="ar"] { --font: var(--font-ar);   --font-current: var(--font-ar);   direction: rtl; }
 
+/* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; font-size: 16px; }
-
 body {
-    font-family: var(--font-current);
-    background-color: var(--bg);
+    font-family: var(--font);
+    background: var(--bg);
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.65;
     overflow-x: hidden;
-    transition: background-color var(--t-base), color var(--t-base);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
+    transition: background var(--t-base), color var(--t-base);
 }
-
-h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 700; letter-spacing: -.02em; }
-p { font-size: 1.125rem; color: var(--text-soft); }
+h1,h2,h3,h4,h5,h6 {
+    line-height: 1.08;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: var(--text);
+}
+p { font-size: 1.0625rem; color: var(--text-soft); line-height: 1.72; }
 a { text-decoration: none; color: inherit; transition: color var(--t-fast); }
 ul, ol { list-style: none; }
 button { border: none; background: none; font-family: inherit; cursor: pointer; color: inherit; }
 img { max-width: 100%; display: block; }
-::selection { background: var(--color-sage); color: var(--color-obsidian); }
+::selection { background: var(--sage); color: var(--obsidian); }
 
+/* ── Mono ── */
 .mono, .stat-value, .eyebrow, .ledger-num {
     font-family: var(--font-mono);
-    font-feature-settings: "tnum" 1, "lnum" 1;
-    letter-spacing: -0.01em;
+    font-feature-settings: "tnum" 1;
 }
 
-.stagger-item { opacity: 0; transform: translateY(24px); }
-.stagger-item.in { opacity: 1; transform: translateY(0); transition: opacity .55s ease, transform .55s ease; }
+/* ── Reveal ── */
+.reveal { opacity: 0; transition: opacity .65s var(--ease); }
+.reveal.active { opacity: 1; }
+.delay-100 { transition-delay: .1s; }
+.delay-200 { transition-delay: .2s; }
+.delay-300 { transition-delay: .3s; }
+body:not(.js-ready) .reveal { animation: forceReveal 0s 2s forwards; }
+@keyframes forceReveal { to { opacity: 1; } }
 
-.btn:active, .card:active, .social-btn:active, .icon-btn:active, .faq-question:active { transform: scale(.97); }
+.will-reveal { opacity: 0; transition: opacity .5s var(--ease); }
+.will-reveal.revealed { opacity: 1; }
+.stagger-item { opacity: 0; }
+.stagger-item.in { opacity: 1; transition: opacity .5s var(--ease); }
 
+/* ── Focus ── */
+a:focus-visible, button:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--sage);
+    outline-offset: 3px;
+    border-radius: 3px;
+}
+
+/* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: .001ms !important;
-        animation-iteration-count: 1 !important;
         transition-duration: .001ms !important;
         scroll-behavior: auto !important;
     }
-    .stagger-item { opacity: 1 !important; transform: none !important; }
+    .stagger-item, .reveal, .will-reveal { opacity: 1 !important; }
 }
 
-.mb-8 { margin-bottom: var(--sp-8); }
-.mb-16 { margin-bottom: var(--sp-16); }
-.mb-24 { margin-bottom: var(--sp-24); }
-.mb-32 { margin-bottom: var(--sp-32); }
-
-a:focus-visible, button:focus-visible, input:focus-visible {
-    outline: 2px solid var(--color-sage);
-    outline-offset: 3px;
-    border-radius: 4px;
-}
+/* ── Utilities ── */
+.mb-8  { margin-bottom: var(--s1); }
+.mb-16 { margin-bottom: var(--s2); }
+.mb-24 { margin-bottom: var(--s3); }
+.mb-32 { margin-bottom: var(--s4); }
+.btn:active { transform: scale(.98); }
