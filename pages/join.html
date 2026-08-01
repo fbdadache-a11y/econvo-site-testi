@@ -999,5 +999,17 @@
         });
     })();
     </script>
+    <script>
+    // If already a member, redirect to dashboard
+    (function() {
+        if (localStorage.getItem('econovo-token') && localStorage.getItem('econovo-user')) {
+            // Show a message instead of a blank redirect
+            document.body.insertAdjacentHTML('afterbegin',
+                '<div style="position:fixed;top:80px;left:0;right:0;z-index:9999;background:var(--sage-dim,rgba(143,184,166,.15));border-bottom:1px solid rgba(143,184,166,.3);padding:14px 24px;text-align:center;font-weight:600;font-size:.9rem;">' +
+                'You\'re already a member! <a href="dashboard.html" style="color:var(--obsidian,#0E2A24);text-decoration:underline;font-weight:700;">Go to your Dashboard →</a></div>'
+            );
+        }
+    })();
+    </script>
 </body>
 </html>

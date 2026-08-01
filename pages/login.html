@@ -450,11 +450,11 @@
                 <li><a href="../index.html#team" class="nav-link">Team</a></li>
                 <li><a href="../index.html#events" class="nav-link">Events</a></li>
             </ul>
-            <div class="nav-actions">
+            <div class="nav-actions" id="nav-actions">
                 <button class="icon-btn js-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
                     <i class="js-theme-icon" id="themeToggleIcon" data-lucide="moon"></i>
                 </button>
-                <a href="join.html" class="btn btn-primary btn-sm">Join Now</a>
+                <a href="join.html" class="btn btn-primary btn-sm" id="nav-join-btn">Join Now</a>
                 <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu">
                     <i data-lucide="menu"></i>
                 </button>
@@ -857,7 +857,7 @@
 
             // Redirect if already logged in
             if (localStorage.getItem('econovo-token') && localStorage.getItem('econovo-user')) {
-                window.location.href = '../index.html';
+                window.location.href = 'dashboard.html';
             }
 
             // ---- Sign In ----
@@ -880,7 +880,7 @@
                     });
                     saveSession(data);
                     setAlert('signin-alert', '✓ Signed in successfully! Redirecting…', 'success');
-                    setTimeout(() => { window.location.href = '../index.html'; }, 1000);
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
                 } catch (err) {
                     stopLoading('signin-btn');
                     const msg = err.message.toLowerCase();
@@ -936,7 +936,7 @@
                     } else if (data.access_token) {
                         saveSession(data);
                         setAlert('signup-alert', '✓ Account created! Welcome to Econovo. Redirecting…', 'success');
-                        setTimeout(() => { window.location.href = '../index.html'; }, 1200);
+                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
                     } else {
                         setAlert('signup-alert', '✓ Account created! Please check your email to confirm your account before signing in.', 'success');
                         // Clear the form
