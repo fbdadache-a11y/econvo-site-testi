@@ -27,6 +27,13 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/sections.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <!-- Instant theme: runs before any CSS paint to prevent flicker -->
+    <script>
+    (function(){
+        var t = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+    })();
+    </script>
 </head>
 <body>
 
@@ -295,54 +302,59 @@
     (function() {
         const token   = localStorage.getItem('econovo-token');
         const userRaw = localStorage.getItem('econovo-user');
-        const signinLink = document.getElementById('nav-signin-link');
-        const joinLink   = document.getElementById('nav-join-link');
-        const mobileJoin = document.querySelector('.mobile-join');
-        const ctaBtn     = document.querySelector('.cta-section .btn');
+        if (!token || !userRaw) return; // not logged in — nothing to do
 
-        if (token && userRaw) {
-            try {
-                const user = JSON.parse(userRaw);
-                const meta = user.user_metadata || {};
-                const name = meta.first_name || (meta.full_name || '').split(' ')[0] || user.email.split('@')[0];
+        let user = {}, meta = {}, name = 'Member';
+        try {
+            user = JSON.parse(userRaw);
+            meta = user.user_metadata || {};
+            name = meta.first_name || (meta.full_name || '').split(' ')[0] || (user.email || '').split('@')[0] || 'Member';
+        } catch(_) {}
 
-                // Navbar: show name + Dashboard link, replace Join Now with Sign Out
-                if (signinLink) {
-                    signinLink.textContent = name;
-                    signinLink.href = 'pages/dashboard.html';
-                    signinLink.className = 'btn btn-outline btn-sm';
-                }
-                if (joinLink) {
-                    joinLink.textContent = 'Sign Out';
-                    joinLink.removeAttribute('href');
-                    joinLink.className = 'btn btn-sm';
-                    joinLink.style.cssText = 'color:var(--text-soft);padding:8px 14px;';
-                    joinLink.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        localStorage.removeItem('econovo-token');
-                        localStorage.removeItem('econovo-user');
-                        window.location.reload();
-                    });
-                }
-
-                // Hide all Join Now / Become a Member CTAs for logged-in members
-                document.querySelectorAll('a[href="pages/join.html"], a[href="join.html"]').forEach(el => {
-                    el.style.display = 'none';
+        function applyAuthUI() {
+            // 1. Navbar name & dashboard link
+            const signinLink = document.getElementById('nav-signin-link');
+            const joinLink   = document.getElementById('nav-join-link');
+            if (signinLink) {
+                signinLink.textContent = name;
+                signinLink.href = 'pages/dashboard.html';
+                signinLink.className = 'btn btn-outline btn-sm';
+            }
+            if (joinLink && !joinLink.dataset.authDone) {
+                joinLink.dataset.authDone = '1';
+                joinLink.textContent = 'Sign Out';
+                joinLink.removeAttribute('href');
+                joinLink.className = 'btn btn-sm';
+                joinLink.style.cssText = 'color:var(--text-soft);padding:8px 14px;cursor:pointer;';
+                joinLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('econovo-token');
+                    localStorage.removeItem('econovo-user');
+                    window.location.reload();
                 });
-                if (mobileJoin) mobileJoin.style.display = 'none';
+            }
 
-                // Replace hero CTA with Dashboard button
-                const heroActions = document.querySelector('.hero-actions');
-                if (heroActions) {
-                    const dashBtn = document.createElement('a');
-                    dashBtn.href = 'pages/dashboard.html';
-                    dashBtn.className = 'btn btn-primary';
-                    dashBtn.innerHTML = 'My Dashboard <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
-                    heroActions.innerHTML = '';
-                    heroActions.appendChild(dashBtn);
-                }
-            } catch(_) {}
+            // 2. Hide ALL join.html links anywhere on the page
+            document.querySelectorAll('a[href="pages/join.html"], a[href="join.html"], a[href="./pages/join.html"]').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            // 3. Hide mobile sticky join bar
+            const mobileJoin = document.querySelector('.mobile-join');
+            if (mobileJoin) mobileJoin.style.display = 'none';
+
+                dashBtn.className = 'btn btn-primary';
+                dashBtn.innerHTML = 'My Dashboard <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                heroActions.innerHTML = '';
+                heroActions.appendChild(dashBtn);
+            }
         }
+
+        // Run immediately (for static elements)
+        applyAuthUI();
+
+        // Run again after language.js re-renders dynamic content
+        document.addEventListener('econovo:rendered', applyAuthUI);
     })();
     </script>
 </body>
