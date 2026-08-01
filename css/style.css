@@ -1,111 +1,109 @@
 /* ==========================================================================
-   ECONOVO — style.css  (Anthropic-inspired redesign)
-   Philosophy: generous whitespace, no glass, no float animations,
-   typography does the heavy lifting. Colours stay faithful to brand.
+   ECONOVO — style.css
+   Anthropic-inspired academic minimalism. Brand book exact colours.
+   Philosophy: whitespace earns meaning, typography commands hierarchy,
+   borders replace shadows, structure is information.
    ========================================================================== */
 
 :root {
-    /* ── Brand palette ── */
-    --obsidian:   #0E2A24;
-    --obsidian-2: #163a32;
-    --sage:       #8FB8A6;
-    --sage-light: #b8d4c8;
-    --sage-dim:   rgba(143,184,166,.12);
-    --chalk:      #F4F7F2;
-    --chalk-2:    #EEF1EC;
-    --ink:        #0E2A24;
-    --ink-soft:   rgba(14,42,36,.58);
-    --rule:       rgba(14,42,36,.10);
-    --white:      #FFFFFF;
+    /* ── Brand palette (Brand Book exact) ── */
+    --obsidian:    #0E2A24;   /* primary dark, headings */
+    --obsidian-2:  #163a32;   /* hover dark */
+    --ink:         #1F1F1F;   /* secondary dark, footer */
+    --sage:        #8FB8A6;   /* Silver Sage — accent, dividers, hover */
+    --sage-light:  #b8d4c8;
+    --sage-dim:    rgba(143,184,166,.10);
+    --chalk:       #F4F7F2;   /* Chalk White 1 — main bg */
+    --chalk-2:     #F6F4F0;   /* Chalk White 2 — section alt bg */
+    --white:       #FFFFFF;
 
-    /* ── Semantic aliases ── */
-    --bg:         var(--chalk);
-    --bg-raised:  var(--white);
-    --bg-muted:   var(--chalk-2);
-    --text:       var(--ink);
-    --text-soft:  var(--ink-soft);
-    --line:       var(--rule);
-    --accent:     var(--sage);
-    --brand:      var(--obsidian);
+    /* ── Semantic tokens ── */
+    --bg:          var(--chalk);
+    --bg-raised:   var(--white);
+    --bg-muted:    var(--chalk-2);
+    --bg-sunken:   var(--chalk-2);
+    --text:        var(--obsidian);
+    --text-soft:   rgba(14,42,36,.52);
+    --line:        rgba(14,42,36,.10);
+    --rule:        rgba(14,42,36,.10);
+    --accent:      var(--sage);
+    --brand:       var(--obsidian);
+    --brand-dark:  var(--obsidian);
+
+    /* Legacy aliases (auth pages + language.js) */
+    --color-obsidian:  var(--obsidian);
+    --color-sage:      var(--sage);
+    --color-ink:       var(--ink);
+    --color-ink-soft:  var(--text-soft);
+    --color-line:      var(--line);
+    --color-sage-dim:  var(--sage-dim);
+    --brand-accent:    var(--sage);
+    --gradient-primary: linear-gradient(155deg, var(--obsidian) 0%, #163a32 100%);
+    --gradient-sage:    linear-gradient(135deg, var(--sage) 0%, var(--sage-light) 100%);
+    --shadow-sm:  0 1px 3px rgba(14,42,36,.06);
+    --shadow-md:  0 4px 16px rgba(14,42,36,.08);
+    --shadow-hover: 0 8px 28px rgba(14,42,36,.11);
 
     /* ── Type ── */
-    --font-sans: 'Host Grotesk', sans-serif;
-    --font-ar:   'IBM Plex Sans Arabic', sans-serif;
-    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-    --font:      var(--font-sans);
+    --font-sans:    'Host Grotesk', system-ui, sans-serif;
+    --font-ar:      'IBM Plex Sans Arabic', system-ui, sans-serif;
+    --font-mono:    'IBM Plex Mono', ui-monospace, monospace;
+    --font:         var(--font-sans);
+    --font-current: var(--font-sans);
 
     /* ── Spacing (8-pt grid) ── */
-    --s1:  .5rem;   /* 8  */
-    --s2:  1rem;    /* 16 */
-    --s3:  1.5rem;  /* 24 */
-    --s4:  2rem;    /* 32 */
-    --s5:  3rem;    /* 48 */
-    --s6:  4rem;    /* 64 */
-    --s7:  6rem;    /* 96 */
-    --s8:  8rem;    /* 128 */
+    --s1:  .5rem;    /* 8  */
+    --s2:  1rem;     /* 16 */
+    --s3:  1.5rem;   /* 24 */
+    --s4:  2rem;     /* 32 */
+    --s5:  3rem;     /* 48 */
+    --s6:  4rem;     /* 64 */
+    --s7:  6rem;     /* 96 */
+    --s8:  8rem;     /* 128 */
 
-    /* ── Legacy aliases (used by JS-rendered content) ── */
-    --sp-4:.25rem; --sp-8:var(--s1); --sp-12:.75rem; --sp-16:var(--s2);
-    --sp-24:var(--s3); --sp-32:var(--s4); --sp-48:var(--s5);
-    --sp-64:var(--s6); --sp-96:var(--s7); --sp-128:var(--s8);
-    --sp-20:1.25rem;
+    /* Legacy spacing aliases */
+    --sp-4:.25rem; --sp-6:.375rem; --sp-8:var(--s1); --sp-12:.75rem;
+    --sp-16:var(--s2); --sp-20:1.25rem; --sp-24:var(--s3);
+    --sp-32:var(--s4); --sp-48:var(--s5); --sp-64:var(--s6);
+    --sp-96:var(--s7); --sp-128:var(--s8);
 
-    /* ── Motion: calm, purposeful ── */
-    --ease:   cubic-bezier(.4,0,.2,1);
-    --t-fast: 150ms var(--ease);
-    --t-base: 250ms var(--ease);
+    /* ── Motion ── */
+    --ease:         cubic-bezier(.4,0,.2,1);
+    --ease-bounce:  cubic-bezier(.68,-.4,.27,1.35);
+    --t-fast:       160ms var(--ease);
+    --t-base:       260ms var(--ease);
+    --t-slow:       500ms var(--ease);
 
-    /* ── Radius: flat-ish, no pill everywhere ── */
-    --r-sm:  6px;
-    --r-md:  10px;
-    --r-lg:  14px;
+    /* ── Radius ── */
+    --r-sm:   4px;
+    --r-md:   6px;
+    --r-lg:   10px;
     --r-pill: 9999px;
-
-    /* ── Shadow: very subtle ── */
-    --shadow-sm: 0 1px 3px rgba(14,42,36,.07), 0 1px 2px rgba(14,42,36,.04);
-    --shadow-md: 0 4px 12px rgba(14,42,36,.08);
-    --shadow-hover: 0 8px 24px rgba(14,42,36,.12);
-
-    /* ── Gradients (kept for hero panel & footer) ── */
-    --gradient-primary: linear-gradient(160deg, var(--obsidian) 0%, var(--obsidian-2) 100%);
-    --gradient-sage:    linear-gradient(135deg, var(--sage) 0%, var(--sage-light) 100%);
-    /* legacy alias used by login/join */
-    --bg-sunken: var(--bg-muted);
-    --bg-raised: var(--white);
-    --color-obsidian: var(--obsidian);
-    --color-sage: var(--sage);
-    --color-ink: var(--ink);
-    --color-ink-soft: var(--ink-soft);
-    --color-line: var(--rule);
-    --color-sage-dim: var(--sage-dim);
-    --brand-dark: var(--obsidian);
-    --brand-accent: var(--sage);
-    --t-slow: 500ms var(--ease);
-    --ease-bounce: cubic-bezier(.68,-.4,.27,1.35);
 }
 
 /* ── Dark mode ── */
 [data-theme="dark"] {
-    --bg:        #141414;
-    --bg-raised: #1e1e1e;
-    --bg-muted:  #191919;
-    --bg-sunken: #191919;
-    --text:      #E7EFEA;
-    --text-soft: rgba(231,239,234,.6);
-    --line:      rgba(231,239,234,.10);
-    --rule:      rgba(231,239,234,.10);
-    --brand:     #141414;
-    --brand-dark: #141414;
-    --obsidian:  #141414;
-    --gradient-primary: linear-gradient(160deg, #141414 0%, #0E2A24 100%);
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
-    --shadow-md: 0 4px 12px rgba(0,0,0,.35);
-    --shadow-hover: 0 8px 24px rgba(0,0,0,.4);
+    --bg:        #111;
+    --bg-raised: #191919;
+    --bg-muted:  #161616;
+    --bg-sunken: #151515;
+    --text:      #E8EFE9;
+    --text-soft: rgba(232,239,233,.55);
+    --line:      rgba(232,239,233,.09);
+    --rule:      rgba(232,239,233,.09);
+    --brand:     #111;
+    --brand-dark: #111;
+    --obsidian:  #111;
+    --obsidian-2:#111;
+    --gradient-primary: linear-gradient(155deg, #0f0f0f 0%, #0E2A24 100%);
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
+    --shadow-md:   0 4px 16px rgba(0,0,0,.35);
+    --shadow-hover:0 8px 28px rgba(0,0,0,.4);
 }
 
 /* ── Language ── */
-[lang="en"] { --font: var(--font-sans); direction: ltr; }
-[lang="ar"] { --font: var(--font-ar);   direction: rtl; }
+[lang="en"] { --font: var(--font-sans); --font-current: var(--font-sans); direction: ltr; }
+[lang="ar"] { --font: var(--font-ar);   --font-current: var(--font-ar);   direction: rtl; }
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -121,36 +119,45 @@ body {
     -webkit-tap-highlight-color: transparent;
     transition: background var(--t-base), color var(--t-base);
 }
-h1,h2,h3,h4,h5,h6 { line-height: 1.1; font-weight: 700; letter-spacing: -.025em; }
-p { font-size: 1.0625rem; color: var(--text-soft); }
+h1,h2,h3,h4,h5,h6 {
+    line-height: 1.08;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: var(--text);
+}
+p { font-size: 1.0625rem; color: var(--text-soft); line-height: 1.72; }
 a { text-decoration: none; color: inherit; transition: color var(--t-fast); }
-ul,ol { list-style: none; }
+ul, ol { list-style: none; }
 button { border: none; background: none; font-family: inherit; cursor: pointer; color: inherit; }
 img { max-width: 100%; display: block; }
 ::selection { background: var(--sage); color: var(--obsidian); }
 
-/* ── Mono numbers ── */
+/* ── Mono ── */
 .mono, .stat-value, .eyebrow, .ledger-num {
     font-family: var(--font-mono);
     font-feature-settings: "tnum" 1;
 }
 
-/* ── Scroll / hero fade-in ── */
-/* will-reveal: JS adds this class then immediately schedules .revealed */
-/* So elements are NEVER stuck invisible if JS is slow or fetch fails   */
+/* ── Reveal ── */
+.reveal { opacity: 0; transition: opacity .65s var(--ease); }
+.reveal.active { opacity: 1; }
+.delay-100 { transition-delay: .1s; }
+.delay-200 { transition-delay: .2s; }
+.delay-300 { transition-delay: .3s; }
+body:not(.js-ready) .reveal { animation: forceReveal 0s 2s forwards; }
+@keyframes forceReveal { to { opacity: 1; } }
+
 .will-reveal { opacity: 0; transition: opacity .5s var(--ease); }
 .will-reveal.revealed { opacity: 1; }
-/* Legacy stagger-item kept for compatibility */
 .stagger-item { opacity: 0; }
 .stagger-item.in { opacity: 1; transition: opacity .5s var(--ease); }
 
-.btn:active { transform: scale(.98); }
-
 /* ── Focus ── */
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+a:focus-visible, button:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
     outline: 2px solid var(--sage);
     outline-offset: 3px;
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 /* ── Reduced motion ── */
@@ -160,7 +167,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
         transition-duration: .001ms !important;
         scroll-behavior: auto !important;
     }
-    .stagger-item { opacity: 1 !important; }
+    .stagger-item, .reveal, .will-reveal { opacity: 1 !important; }
 }
 
 /* ── Utilities ── */
@@ -168,3 +175,4 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .mb-16 { margin-bottom: var(--s2); }
 .mb-24 { margin-bottom: var(--s3); }
 .mb-32 { margin-bottom: var(--s4); }
+.btn:active { transform: scale(.98); }
