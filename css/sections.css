@@ -9,32 +9,32 @@
     display: flex; align-items: center;
     padding-top: var(--s7);
     position: relative; overflow: hidden;
-    /* subtle dot grid — very faint, Anthropic.com uses this motif */
-    background-image: radial-gradient(var(--sage-dim) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(143,184,166,.12) 1px, transparent 1px);
     background-size: 32px 32px;
 }
-/* single large radial wash top-right */
 .hero-bg-shape {
     position: absolute; top: -20%; right: -10%;
-    width: 560px; height: 560px;
-    background: radial-gradient(circle, color-mix(in srgb, var(--sage) 14%, transparent) 0%, transparent 65%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(143,184,166,.12) 0%, transparent 65%);
     border-radius: 50%; z-index: 0; pointer-events: none;
 }
-.hero-bg-shape::after { display: none; } /* remove second blob */
+.hero-bg-shape::after { display: none; }
 
 .hero-grid {
     display: grid; grid-template-columns: 1fr 1fr;
     gap: var(--s6); align-items: center;
     position: relative; z-index: 1;
 }
+
+/* CRITICAL: hero content must always be visible — opacity only set by JS on specific children */
+.hero-content { opacity: 1; }
+
 .hero-content h1 {
-    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
     margin-bottom: var(--s3); line-height: 1.05;
     color: var(--text);
     letter-spacing: -.03em;
 }
-[data-theme="dark"] .hero-content h1 { color: var(--text); }
-
 .hero-content p { font-size: clamp(1rem, 1.6vw, 1.15rem); margin-bottom: var(--s4); max-width: 500px; }
 .hero-tags { display: flex; gap: var(--s1); flex-wrap: wrap; margin-bottom: var(--s3); }
 .hero-tag {
@@ -204,9 +204,15 @@
 .social-btn svg { width: 18px; height: 18px; }
 .footer-bottom { text-align: center; padding-top: var(--s3); border-top: 1px solid rgba(255,255,255,.08); color: rgba(255,255,255,.3); font-size: .8rem; }
 
-/* ── Reveal — opacity only (no Y movement) ── */
+/* ── Reveal on scroll — opacity only ── */
+/* IMPORTANT: also add a noscript/no-JS fallback via the safety timer in animations.js */
 .reveal { opacity: 0; transition: opacity .6s var(--ease); }
 .reveal.active { opacity: 1; }
 .delay-100 { transition-delay: .1s; }
 .delay-200 { transition-delay: .2s; }
 .delay-300 { transition-delay: .3s; }
+
+/* Nuclear fallback: if body gets a .js-ready class within 2s, keep reveals.
+   Otherwise force everything visible. Applied by safety timer. */
+body:not(.js-ready) .reveal { animation: forceReveal 0s 2s forwards; }
+@keyframes forceReveal { to { opacity: 1; } }

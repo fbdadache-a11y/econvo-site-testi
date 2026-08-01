@@ -135,7 +135,12 @@ img { max-width: 100%; display: block; }
     font-feature-settings: "tnum" 1;
 }
 
-/* ── Scroll fade-in (replaces translateY bounce) ── */
+/* ── Scroll / hero fade-in ── */
+/* will-reveal: JS adds this class then immediately schedules .revealed */
+/* So elements are NEVER stuck invisible if JS is slow or fetch fails   */
+.will-reveal { opacity: 0; transition: opacity .5s var(--ease); }
+.will-reveal.revealed { opacity: 1; }
+/* Legacy stagger-item kept for compatibility */
 .stagger-item { opacity: 0; }
 .stagger-item.in { opacity: 1; transition: opacity .5s var(--ease); }
 
