@@ -432,6 +432,64 @@
             .auth-panel { display: none; }
             .auth-form-panel { padding: var(--sp-32) var(--sp-24); }
         }
+
+        /* ══ Page entrance animations ══ */
+        .auth-panel-content {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: authPanelIn .7s var(--ease-out) .1s forwards;
+        }
+        .auth-form-inner {
+            opacity: 0;
+            transform: translateY(18px);
+            animation: authPanelIn .65s var(--ease-out) .2s forwards;
+        }
+        @keyframes authPanelIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Animated dot grid on panel */
+        .auth-panel .dot-grid {
+            animation: dotDrift 20s linear infinite;
+        }
+        @keyframes dotDrift {
+            from { background-position: 0 0; }
+            to   { background-position: 28px 28px; }
+        }
+        /* Panel orbs pulse */
+        .auth-panel::before {
+            animation: orbPulse 8s ease-in-out infinite;
+        }
+        .auth-panel::after {
+            animation: orbPulse 8s ease-in-out infinite;
+            animation-delay: -4s;
+        }
+        @keyframes orbPulse {
+            0%, 100% { transform: scale(1); opacity: .9; }
+            50% { transform: scale(1.15); opacity: 1; }
+        }
+        /* Input focus enhancement */
+        .form-input:focus {
+            border-color: var(--sage) !important;
+            box-shadow: 0 0 0 3px var(--sage-dim) !important;
+        }
+        /* Auth tab active underline animation */
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 2px;
+            background: var(--sage);
+            border-radius: 1px;
+            animation: tabUnderlineIn .25s var(--ease-spring);
+        }
+        @keyframes tabUnderlineIn {
+            from { transform: scaleX(0); transform-origin: left; }
+            to   { transform: scaleX(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .auth-panel-content, .auth-form-inner { animation: none; opacity: 1; transform: none; }
+            .auth-panel .dot-grid, .auth-panel::before, .auth-panel::after { animation: none; }
+        }
     </style>
 </head>
 <body>

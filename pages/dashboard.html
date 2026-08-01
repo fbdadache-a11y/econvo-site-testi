@@ -757,6 +757,33 @@ img { display: block; max-width: 100%; }
     .stat-cell:last-child { border-right: none; border-top: 1px solid var(--line); grid-column: 1 / -1; }
     .greeting-name { font-size: 1.35rem; }
 }
+
+        /* ══ Dashboard entrance animations ══ */
+        .dash-header {
+            opacity: 0;
+            transform: translateY(14px);
+            animation: dashIn .6s var(--ease-out) .1s forwards;
+        }
+        .dash-grid > * {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        .dash-grid > *:nth-child(1) { animation: dashIn .55s var(--ease-out) .15s forwards; }
+        .dash-grid > *:nth-child(2) { animation: dashIn .55s var(--ease-out) .22s forwards; }
+        .dash-grid > *:nth-child(3) { animation: dashIn .55s var(--ease-out) .29s forwards; }
+        .dash-grid > *:nth-child(4) { animation: dashIn .55s var(--ease-out) .36s forwards; }
+        .dash-grid > *:nth-child(5) { animation: dashIn .55s var(--ease-out) .43s forwards; }
+        .dash-grid > *:nth-child(6) { animation: dashIn .55s var(--ease-out) .50s forwards; }
+        @keyframes dashIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dash-stat-value {
+            transition: color var(--t-fast);
+        }
+        .dash-stat:hover .dash-stat-value { color: var(--obsidian); }
+        @media (prefers-reduced-motion: reduce) {
+            .dash-header, .dash-grid > * { animation: none; opacity: 1; transform: none; }
+        }
     </style>
 </head>
 <body>

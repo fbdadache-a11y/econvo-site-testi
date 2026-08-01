@@ -449,6 +449,47 @@
 
         /* Navbar tweak: no Join Now button on auth pages */
         .nav-join-hide { display: none !important; }
+
+        /* ══ Page entrance animations ══ */
+        .auth-panel-content {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: authPanelIn .7s var(--ease-out) .1s forwards;
+        }
+        .auth-form-inner {
+            opacity: 0;
+            transform: translateY(18px);
+            animation: authPanelIn .65s var(--ease-out) .2s forwards;
+        }
+        @keyframes authPanelIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .auth-panel .dot-grid {
+            animation: dotDrift 20s linear infinite;
+        }
+        @keyframes dotDrift {
+            from { background-position: 0 0; }
+            to   { background-position: 28px 28px; }
+        }
+        .auth-panel::before {
+            animation: orbPulse 8s ease-in-out infinite;
+        }
+        .auth-panel::after {
+            animation: orbPulse 8s ease-in-out infinite;
+            animation-delay: -4s;
+        }
+        @keyframes orbPulse {
+            0%, 100% { transform: scale(1); opacity: .9; }
+            50% { transform: scale(1.15); opacity: 1; }
+        }
+        .form-input:focus {
+            border-color: var(--sage) !important;
+            box-shadow: 0 0 0 3px var(--sage-dim) !important;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .auth-panel-content, .auth-form-inner { animation: none; opacity: 1; transform: none; }
+            .auth-panel .dot-grid, .auth-panel::before, .auth-panel::after { animation: none; }
+        }
     </style>
 </head>
 <body>
