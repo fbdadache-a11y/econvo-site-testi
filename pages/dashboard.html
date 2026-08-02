@@ -661,7 +661,7 @@ img { display: block; max-width: 100%; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
-        Posts
+        Announcements
     </button>
     <button class="mob-tab" data-view="feed">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -799,6 +799,21 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAnnouncements('overview-ann', ANNOUNCEMENTS.slice(0, 1));
     renderAnnouncements('full-ann', ANNOUNCEMENTS);
 
+    /* Feed initialisation — wired directly here to avoid race conditions with posts-init script */
+    let postsInited = false;
+    function maybeInitPosts() {
+        if (postsInited) return;
+        const token   = localStorage.getItem('econovo-token');
+        const userRaw = localStorage.getItem('econovo-user');
+        if (!token || !userRaw) return;
+        let userId = null;
+        try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
+        postsInited = true;
+        if (typeof window.initPostsFeed === 'function') {
+            window.initPostsFeed(token, userId);
+        }
+    }
+
     /* View switching — sidebar + mobile tab */
     function setView(viewId) {
         document.querySelectorAll('.dash-view').forEach(v => v.classList.remove('active'));
@@ -811,6 +826,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.mob-tab').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.view === viewId);
         });
+
+        if (viewId === 'feed') maybeInitPosts();
     }
 
     window.showView = setView;
@@ -884,39 +901,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
     <!-- Posts feed -->
     <script src="../js/posts.js"></script>
-    <script>
-    // Initialize posts feed when the feed view is activated OR immediately if on feed view
-    (function() {
-        var postsInited = false;
-        function maybeInitPosts() {
-            if (postsInited) return;
-            var token = localStorage.getItem('econovo-token');
-            var userRaw = localStorage.getItem('econovo-user');
-            if (!token || !userRaw) return;
-            var userId = null;
-            try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
-            postsInited = true;
-            if (typeof window.initPostsFeed === 'function') {
-                window.initPostsFeed(token, userId);
-            }
-        }
-        // Hook into showView
-        var _originalShowView = window.showView;
-        window.showView = function(view) {
-            if (typeof _originalShowView === 'function') _originalShowView(view);
-            if (view === 'feed') maybeInitPosts();
-        };
-        // Also init if user navigates directly or feed is shown by default
-        document.addEventListener('DOMContentLoaded', function() {
-            // Small delay to let auth UI apply first
-            setTimeout(function() {
-                var feedView = document.getElementById('view-feed');
-                if (feedView && feedView.classList.contains('active')) {
-                    maybeInitPosts();
-                }
-            }, 300);
-        });
-    })();
-    </script>
+
 </body>
 </html>
