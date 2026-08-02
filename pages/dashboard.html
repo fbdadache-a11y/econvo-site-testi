@@ -20,42 +20,51 @@
    DESIGN SYSTEM — Econovo Dashboard
    ════════════════════════════════════════════════════════ */
 :root {
-    var(--obsidian):   #0E2A24;
-    var(--sage):       #8FB8A6;
-    var(--sage-dim):   rgba(143,184,166,.12);
-    var(--sage-mid):   rgba(143,184,166,.28);
-    var(--ink):        #1F1F1F;
+    --obsidian:   #0E2A24;
+    --obsidian-2: #1a3d34;
+    --sage:       #8FB8A6;
+    --sage-dim:   rgba(143,184,166,.12);
+    --sage-mid:   rgba(143,184,166,.28);
+    --sage-light: #b8d4c8;
+    --ink:        #1F1F1F;
 
-    var(--canvas):     #F4F7F2;
-    var(--card):       #FAFCF9;
-    var(--card-warm):  #EFF5F1;
-    var(--muted):      #EAF0EA;
-    var(--inversion):  #0E2A24;
+    --canvas:     #F4F7F2;
+    --card:       #FAFCF9;
+    --card-warm:  #EFF5F1;
+    --muted:      #EAF0EA;
+    --inversion:  #0E2A24;
 
-    var(--text):       #0E2A24;
-    var(--text-soft):  rgba(14,42,36,.50);
-    var(--text-muted): rgba(14,42,36,.35);
+    /* aliases for posts.css */
+    --bg-raised:  #FAFCF9;
+    --bg-muted:   #EAF0EA;
 
-    var(--line):       rgba(14,42,36,.09);
-    var(--line-mid):   rgba(14,42,36,.15);
+    --text:       #0E2A24;
+    --text-soft:  rgba(14,42,36,.50);
+    --text-muted: rgba(14,42,36,.35);
 
-    var(--font):    'Host Grotesk', system-ui, sans-serif;
-    var(--mono):    'IBM Plex Mono', ui-monospace, monospace;
+    --line:       rgba(14,42,36,.09);
+    --line-mid:   rgba(14,42,36,.15);
 
-    var(--s1): 4px; var(--s2): 8px; var(--s3): 12px; var(--s4): 16px;
-    var(--s5): 24px; var(--s6): 32px; var(--s7): 48px; var(--s8): 64px;
+    --font:    'Host Grotesk', system-ui, sans-serif;
+    --mono:    'IBM Plex Mono', ui-monospace, monospace;
 
-    var(--r-card):   16px;
-    var(--r-btn):    6px;
-    var(--r-pill):   9999px;
-    var(--r-sm):     6px;
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+    --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
 
-    var(--ease): cubic-bezier(.4,0,.2,1);
-    var(--fast): 150ms var(--ease);
-    var(--base): 240ms var(--ease);
+    --r-card:   16px;
+    --r-btn:    6px;
+    --r-pill:   9999px;
+    --r-sm:     6px;
 
-    var(--sidebar-w): 220px;
-    var(--nav-h):     60px;
+    --ease: cubic-bezier(.4,0,.2,1);
+    --fast: 150ms var(--ease);
+    --base: 240ms var(--ease);
+
+    --shadow-sm: 0 1px 4px rgba(14,42,36,.07);
+    --shadow-md: 0 4px 16px rgba(14,42,36,.11);
+
+    --sidebar-w: 220px;
+    --nav-h:     60px;
 }
 
 [data-theme="dark"] {
@@ -68,6 +77,13 @@
     --text-muted:rgba(232,239,233,.32);
     --line:      rgba(232,239,233,.09);
     --line-mid:  rgba(232,239,233,.15);
+    /* dark aliases for posts.css */
+    --bg-raised:  #181818;
+    --bg-muted:   #151515;
+    --obsidian-2: #2a5246;
+    --sage-light: #b8d4c8;
+    --shadow-sm: 0 1px 4px rgba(0,0,0,.25);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.35);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -879,23 +895,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!token || !userRaw) return;
             var userId = null;
             try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
-            // Set avatar initials in composer
-            var compAvatar = document.getElementById('create-post-avatar');
-            if (compAvatar) {
-                var name = '';
-                try { name = JSON.parse(userRaw).user_metadata && (JSON.parse(userRaw).user_metadata.full_name || JSON.parse(userRaw).user_metadata.first_name) || ''; } catch(e) {}
-                if (name) {
-                    compAvatar.textContent = name.trim().split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
-                }
-            }
-            // Show image preview wrap when file is chosen (CSS-driven, but make sure wrapper shows)
-            var imgInput = document.getElementById('post-image');
-            var imgWrap  = document.getElementById('create-post-image-wrap');
-            if (imgInput && imgWrap) {
-                imgInput.addEventListener('change', function() {
-                    imgWrap.style.display = imgInput.files && imgInput.files[0] ? 'block' : 'none';
-                });
-            }
             postsInited = true;
             if (typeof window.initPostsFeed === 'function') {
                 window.initPostsFeed(token, userId);
