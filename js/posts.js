@@ -1,135 +1,87 @@
 /* ==========================================================================
-   ECONOVO — posts.js  v4  (definitive fix)
+   ECONOVO — posts.js  (Social Feed v2)
+   Modern feed: post cards, emoji reactions, avatar-bubbled comments,
+   emoji picker in composer, all wired to Supabase via raw REST/PostgREST.
+   ========================================================================== */
 
-   ROOT CAUSES fixed here:
-   A) RLS policy: WITH CHECK (auth.uid() = user_id)
-      → user_id MUST be in INSERT body, equal to the authenticated uid.
-      Previous "fix" that removed user_id actually BROKE insertion.
-
-   B) pgPost used 'Prefer: return=representation' which causes Supabase
-      to do a SELECT after INSERT — that SELECT hits RLS and can fail
-      if the profile join isn't perfect. Changed to 'return=minimal'.
-
-   C) uploadImage: Supabase Storage accepts both POST and PUT for new files,
-      but requires the correct Content-Type and no extra Prefer header.
-
-   D) comments INSERT also needs user_id in body (same RLS pattern).
-
-   E) The reactions table likely doesn't exist — fully isolated in try/catch
-      so it never blocks the rest of the feed.
-========================================================================== */
 'use strict';
 
+/* ══════════════════════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════════════════════ */
 const POSTS_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const POSTS_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 const BUCKET    = 'post-images';
 
+/* Emoji reactions available */
 const REACTIONS = [
-    { emoji: '👍', label: 'Like'     },
-    { emoji: '🔥', label: 'Fire'     },
-    { emoji: '💡', label: 'Idea'     },
-    { emoji: '🎉', label: 'Congrats' },
-    { emoji: '❤️', label: 'Love'     },
-    { emoji: '🤝', label: 'Support'  },
+  { emoji: '👍', label: 'Like'     },
+  { emoji: '🔥', label: 'Fire'     },
+  { emoji: '💡', label: 'Idea'     },
+  { emoji: '🎉', label: 'Congrats' },
+  { emoji: '❤️', label: 'Love'     },
+  { emoji: '🤝', label: 'Support'  },
 ];
 
+/* Emoji palette for the composer */
 const EMOJI_PALETTE = [
-    '😀','😂','🥲','😎','🤩','😍','🥳','😅',
-    '👋','👍','🙌','🤝','💪','🙏','✌️','🫡',
-    '🔥','💡','🚀','🎯','📈','💰','🏆','⚡',
-    '🎉','🥂','🎊','✨','💫','🌟','💎','🔑',
-    '❤️','🧡','💚','💙','🫶','💯','👀','🤔',
+  '😀','😂','🥲','😎','🤩','😍','🥳','😅',
+  '👋','👍','🙌','🤝','💪','🙏','✌️','🫡',
+  '🔥','💡','🚀','🎯','📈','💰','🏆','⚡',
+  '🎉','🥂','🎊','✨','💫','🌟','💎','🔑',
+  '❤️','🧡','💚','💙','🫶','💯','👀','🤔',
 ];
 
 /* ══════════════════════════════════════════════════════
    REST HELPERS
    ══════════════════════════════════════════════════════ */
-
-/** Headers for PostgREST reads — no Prefer needed */
-function readHeaders(token) {
-    return {
-        'apikey': POSTS_KEY,
-        'Authorization': 'Bearer ' + (token || POSTS_KEY),
-    };
-}
-
-/** Headers for PostgREST writes — return=minimal avoids SELECT after INSERT */
-function writeHeaders(token) {
+function authHeaders(token) {
     return {
         'Content-Type': 'application/json',
         'apikey': POSTS_KEY,
         'Authorization': 'Bearer ' + (token || POSTS_KEY),
-        'Prefer': 'return=minimal',
+        'Prefer': 'return=representation',
     };
 }
+function storageHeaders(token) {
+    return { 'apikey': POSTS_KEY, 'Authorization': 'Bearer ' + (token || POSTS_KEY) };
+}
 
-/** GET */
 async function pgGet(path, token) {
     const r = await fetch(POSTS_URL + '/rest/v1/' + path, {
-        headers: readHeaders(token),
+        headers: { ...authHeaders(token), 'Prefer': '' },
     });
-    if (!r.ok) {
-        const txt = await r.text();
-        throw new Error('GET ' + path + ' → ' + r.status + ': ' + txt);
-    }
+    if (!r.ok) throw new Error(await r.text());
     return r.json();
 }
-
-/** INSERT — returns nothing (204), throws on error */
-async function pgInsert(table, body, token) {
-    const r = await fetch(POSTS_URL + '/rest/v1/' + table, {
-        method: 'POST',
-        headers: writeHeaders(token),
-        body: JSON.stringify(body),
+async function pgPost(path, body, token) {
+    const r = await fetch(POSTS_URL + '/rest/v1/' + path, {
+        method: 'POST', headers: authHeaders(token), body: JSON.stringify(body),
     });
-    if (!r.ok) {
-        const txt = await r.text();
-        throw new Error('INSERT ' + table + ' → ' + r.status + ': ' + txt);
-    }
-    // 201 or 204 — both are success
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
 }
-
-/** DELETE */
 async function pgDelete(path, token) {
     const r = await fetch(POSTS_URL + '/rest/v1/' + path, {
-        method: 'DELETE',
-        headers: writeHeaders(token),
+        method: 'DELETE', headers: { ...authHeaders(token), 'Prefer': '' },
     });
-    if (!r.ok) {
-        const txt = await r.text();
-        throw new Error('DELETE ' + path + ' → ' + r.status + ': ' + txt);
-    }
+    if (!r.ok) throw new Error(await r.text());
 }
 
 /* ══════════════════════════════════════════════════════
    IMAGE UPLOAD
-   Supabase Storage: POST to /storage/v1/object/<bucket>/<path>
-   Content-Type must match file type.
-   Authorization must be a valid user JWT (not anon key).
    ══════════════════════════════════════════════════════ */
 async function uploadImage(file, token) {
-    const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
-    const safe = Date.now() + '_' + Math.random().toString(36).slice(2) + '.' + ext;
-    const path = 'public/' + safe;
-
-    const r = await fetch(POSTS_URL + '/storage/v1/object/' + BUCKET + '/' + path, {
+    const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
+    const name = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const path = `public/${name}`;
+    const r = await fetch(`${POSTS_URL}/storage/v1/object/${BUCKET}/${path}`, {
         method: 'POST',
-        headers: {
-            'apikey': POSTS_KEY,
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': file.type || 'image/jpeg',
-            'Cache-Control': '3600',
-            'x-upsert': 'false',
-        },
+        headers: { ...storageHeaders(token), 'Content-Type': file.type || 'image/jpeg', 'Cache-Control': 'max-age=3600' },
         body: file,
     });
-
-    if (!r.ok) {
-        const txt = await r.text();
-        throw new Error('Storage upload → ' + r.status + ': ' + txt);
-    }
-
-    return POSTS_URL + '/storage/v1/object/public/' + BUCKET + '/' + path;
+    if (!r.ok) throw new Error('Image upload failed: ' + await r.text());
+    return `${POSTS_URL}/storage/v1/object/public/${BUCKET}/${path}`;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -145,37 +97,40 @@ function timeAgo(iso) {
 
 function initials(name) {
     if (!name) return '??';
-    return name.trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || '??';
+    return name.trim().split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
 
 function escHtml(str) {
-    if (str == null) return '';
+    if (!str) return '';
     return String(str)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\n/g, '<br>');
 }
 
-function toast(msg, type) {
+function toast(msg, type = 'ok') {
     let el = document.getElementById('posts-toast');
     if (!el) {
         el = document.createElement('div');
         el.id = 'posts-toast';
-        el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);'
-            + 'padding:10px 22px;border-radius:24px;font-size:.85rem;font-weight:600;'
-            + 'z-index:9999;opacity:0;transition:opacity .25s,transform .25s;'
-            + 'pointer-events:none;max-width:340px;text-align:center;';
+        el.style.cssText = [
+            'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px)',
+            'padding:10px 22px;border-radius:24px;font-size:.85rem;font-weight:600',
+            'z-index:9999;opacity:0;transition:opacity .25s,transform .25s',
+            'pointer-events:none;max-width:340px;text-align:center;',
+            'backdrop-filter:blur(8px);',
+        ].join(';');
         document.body.appendChild(el);
     }
     el.textContent = msg;
-    el.style.background = (type === 'err') ? 'rgba(180,50,50,.92)' : 'rgba(14,42,36,.92)';
+    el.style.background = type === 'ok' ? 'rgba(14,42,36,.92)' : 'rgba(180,50,50,.92)';
     el.style.color = '#fff';
     el.style.opacity = '1';
     el.style.transform = 'translateX(-50%) translateY(0)';
-    clearTimeout(el._t);
-    el._t = setTimeout(() => {
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => {
         el.style.opacity = '0';
         el.style.transform = 'translateX(-50%) translateY(20px)';
-    }, 3500);
+    }, 3200);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -189,111 +144,146 @@ function buildEmojiPicker(onPick) {
         btn.type = 'button';
         btn.className = 'emoji-picker-btn';
         btn.textContent = em;
-        btn.addEventListener('click', e => { e.stopPropagation(); onPick(em); });
+        btn.title = em;
+        btn.addEventListener('click', (e) => { e.stopPropagation(); onPick(em); });
         popup.appendChild(btn);
     });
     return popup;
 }
 
 /* ══════════════════════════════════════════════════════
-   REACTIONS — fully isolated, never blocks feed
+   REACTIONS — load & render
    ══════════════════════════════════════════════════════ */
-async function loadReactionsForCard(postId, btns, token, currentUserId) {
+async function loadReactions(postId, token, currentUserId) {
     try {
         const rows = await pgGet(
-            'reactions?post_id=eq.' + postId + '&select=emoji,user_id',
+            `reactions?post_id=eq.${postId}&select=emoji,user_id`,
             token
         );
+        // Group by emoji
         const counts = {};
-        const mine   = new Set();
+        const myEmojis = new Set();
         rows.forEach(r => {
             counts[r.emoji] = (counts[r.emoji] || 0) + 1;
-            if (r.user_id === currentUserId) mine.add(r.emoji);
+            if (r.user_id === currentUserId) myEmojis.add(r.emoji);
         });
-        btns.forEach(btn => {
-            const emoji  = btn.dataset.emoji;
-            const count  = counts[emoji] || 0;
-            const active = mine.has(emoji);
-            btn.className = 'reaction-btn' + (active ? ' active' : '');
-            btn.innerHTML  = '<span class="reaction-emoji">' + emoji + '</span>'
-                + (count > 0 ? '<span class="reaction-count">' + count + '</span>' : '');
-            btn.addEventListener('click', () => toggleReaction(postId, emoji, btn, token, currentUserId));
-        });
+        return { counts, myEmojis };
     } catch (_) {
-        // reactions table may not exist — silently ignore, just wire click handlers
-        btns.forEach(btn => {
-            btn.addEventListener('click', () => toggleReaction(postId, btn.dataset.emoji, btn, token, currentUserId));
-        });
+        return { counts: {}, myEmojis: new Set() };
     }
 }
 
-async function toggleReaction(postId, emoji, btn, token, currentUserId) {
+function renderReactionRow(postId, counts, myEmojis, token, currentUserId) {
+    const row = document.createElement('div');
+    row.className = 'reaction-row';
+    row.id = `reaction-row-${postId}`;
+
+    REACTIONS.forEach(({ emoji, label }) => {
+        const count = counts[emoji] || 0;
+        const active = myEmojis.has(emoji);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'reaction-btn' + (active ? ' active' : '');
+        btn.title = label;
+        btn.dataset.emoji = emoji;
+        btn.innerHTML = `<span class="reaction-emoji">${emoji}</span>`
+            + (count > 0 ? `<span class="reaction-count">${count}</span>` : '');
+
+        btn.addEventListener('click', () => toggleReaction(postId, emoji, btn, token, currentUserId, row));
+        row.appendChild(btn);
+    });
+
+    return row;
+}
+
+async function toggleReaction(postId, emoji, btn, token, currentUserId, row) {
     const isActive = btn.classList.contains('active');
-    const countEl  = btn.querySelector('.reaction-count');
-    const count    = parseInt(countEl ? countEl.textContent : '0', 10) || 0;
-    const newCount = isActive ? Math.max(0, count - 1) : count + 1;
+    // Optimistic UI
+    const countEl = btn.querySelector('.reaction-count');
+    let count = parseInt(countEl?.textContent || '0', 10);
 
-    // Optimistic update
-    btn.classList.toggle('active', !isActive);
-    btn.innerHTML = '<span class="reaction-emoji">' + emoji + '</span>'
-        + (newCount > 0 ? '<span class="reaction-count">' + newCount + '</span>' : '');
-
-    try {
-        if (isActive) {
+    if (isActive) {
+        // Remove reaction
+        btn.classList.remove('active');
+        count = Math.max(0, count - 1);
+        if (count === 0) {
+            btn.innerHTML = `<span class="reaction-emoji">${emoji}</span>`;
+        } else {
+            btn.innerHTML = `<span class="reaction-emoji">${emoji}</span><span class="reaction-count">${count}</span>`;
+        }
+        try {
             await pgDelete(
-                'reactions?post_id=eq.' + postId
-                + '&user_id=eq.' + currentUserId
-                + '&emoji=eq.' + encodeURIComponent(emoji),
+                `reactions?post_id=eq.${postId}&user_id=eq.${currentUserId}&emoji=eq.${encodeURIComponent(emoji)}`,
                 token
             );
-        } else {
-            // reactions RLS: user_id must equal auth.uid() → include it
-            await pgInsert('reactions', { post_id: postId, user_id: currentUserId, emoji }, token);
+        } catch (_) {
+            // Revert optimistic update
+            btn.classList.add('active');
+            btn.innerHTML = `<span class="reaction-emoji">${emoji}</span><span class="reaction-count">${count + 1}</span>`;
         }
-    } catch (_) {
-        // Revert optimistic update on failure
-        btn.classList.toggle('active', isActive);
-        btn.innerHTML = '<span class="reaction-emoji">' + emoji + '</span>'
-            + (count > 0 ? '<span class="reaction-count">' + count + '</span>' : '');
+    } else {
+        // Add reaction
+        btn.classList.add('active');
+        count = count + 1;
+        btn.innerHTML = `<span class="reaction-emoji">${emoji}</span><span class="reaction-count">${count}</span>`;
+        try {
+            await pgPost('reactions', {
+                post_id: postId,
+                user_id: currentUserId,
+                emoji: emoji,
+            }, token);
+        } catch (_) {
+            // Revert
+            btn.classList.remove('active');
+            const newCount = count - 1;
+            btn.innerHTML = newCount > 0
+                ? `<span class="reaction-emoji">${emoji}</span><span class="reaction-count">${newCount}</span>`
+                : `<span class="reaction-emoji">${emoji}</span>`;
+        }
     }
 }
 
 /* ══════════════════════════════════════════════════════
-   COMMENTS — load
+   COMMENTS
    ══════════════════════════════════════════════════════ */
-async function loadComments(postId, token, userInitials) {
+async function loadComments(postId, token, currentUserInitials) {
     const listEl = document.getElementById('comments-list-' + postId);
     if (!listEl) return;
+
     try {
         const rows = await pgGet(
-            'comments?post_id=eq.' + postId
-            + '&order=created_at.asc'
-            + '&select=id,content,created_at,user_id,profiles(full_name)',
+            `comments?post_id=eq.${postId}&order=created_at.asc&select=id,content,created_at,user_id,profiles(full_name)`,
             token
         );
+
         listEl.innerHTML = '';
+
         if (!rows.length) {
             listEl.innerHTML = '<p class="no-comments">No comments yet. Be the first!</p>';
-        } else {
-            rows.forEach(c => {
-                const name = (c.profiles && c.profiles.full_name) || 'Member';
-                const div  = document.createElement('div');
-                div.className = 'comment-item';
-                div.innerHTML =
-                    '<div class="comment-avatar">' + initials(name) + '</div>'
-                    + '<div class="comment-bubble">'
-                    +   '<span class="comment-author">' + escHtml(name) + '</span>'
-                    +   '<span class="comment-body">'   + escHtml(c.content) + '</span>'
-                    +   '<span class="comment-time">'   + timeAgo(c.created_at) + '</span>'
-                    + '</div>';
-                listEl.appendChild(div);
-            });
+            return;
         }
-        const lbl = document.querySelector('.comment-count-label[data-id="' + postId + '"]');
-        if (lbl) lbl.textContent = rows.length + (rows.length === 1 ? ' Comment' : ' Comments');
-    } catch (e) {
-        listEl.innerHTML = '<p class="no-comments" style="color:#c84444;">Could not load comments.</p>';
-        console.error('[posts] loadComments:', e);
+
+        rows.forEach(c => {
+            const authorName = c.profiles?.full_name || 'Member';
+            const ini = initials(authorName);
+            const div = document.createElement('div');
+            div.className = 'comment-item';
+            div.innerHTML = `
+                <div class="comment-avatar">${ini}</div>
+                <div class="comment-bubble">
+                    <span class="comment-author">${escHtml(authorName)}</span>
+                    <span class="comment-body">${escHtml(c.content)}</span>
+                    <span class="comment-time">${timeAgo(c.created_at)}</span>
+                </div>`;
+            listEl.appendChild(div);
+        });
+
+        // Update count label
+        const countEl = document.querySelector(`.comment-count-label[data-id="${postId}"]`);
+        if (countEl) countEl.textContent = rows.length + (rows.length === 1 ? ' Comment' : ' Comments');
+
+    } catch (_) {
+        listEl.innerHTML = '<p class="no-comments" style="color:#c94444;">Could not load comments.</p>';
     }
 }
 
@@ -301,62 +291,64 @@ async function loadComments(postId, token, userInitials) {
    RENDER — single post card
    ══════════════════════════════════════════════════════ */
 function renderPost(post, currentUserId) {
-    const isOwner = post.user_id === currentUserId;
-    const name    = post.author_name || 'Member';
-    const ini     = initials(name);
+    const isOwner    = post.user_id === currentUserId;
+    const authorName = post.author_name || 'Member';
+    const ini        = initials(authorName);
 
     const imgHtml = post.image_url
-        ? '<div class="post-img-wrap"><img src="' + escHtml(post.image_url) + '" alt="" class="post-img" loading="lazy"></div>'
+        ? `<div class="post-img-wrap"><img src="${escHtml(post.image_url)}" alt="Post image" class="post-img" loading="lazy"></div>`
         : '';
 
-    const delBtn = isOwner
-        ? '<button class="post-delete-btn" title="Delete">'
-          + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">'
-          + '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>'
-          + '<path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>'
-          + '</svg></button>'
+    const deleteBtn = isOwner
+        ? `<button class="post-delete-btn" data-id="${post.id}" aria-label="Delete post" title="Delete post">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                   <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+               </svg>
+           </button>`
         : '';
-
-    const rxHtml = REACTIONS.map(r =>
-        '<button type="button" class="reaction-btn" title="' + r.label + '" data-emoji="' + r.emoji + '">'
-        + '<span class="reaction-emoji">' + r.emoji + '</span>'
-        + '</button>'
-    ).join('');
 
     const card = document.createElement('article');
     card.className = 'post-card';
     card.dataset.postId = post.id;
-    card.innerHTML =
-        '<div class="post-header">'
-        +   '<div class="post-avatar">' + ini + '</div>'
-        +   '<div class="post-meta">'
-        +     '<span class="post-author">' + escHtml(name) + '</span>'
-        +     '<span class="post-time">'   + timeAgo(post.created_at) + '</span>'
-        +   '</div>'
-        +   delBtn
-        + '</div>'
-        + (post.content ? '<p class="post-body">' + escHtml(post.content) + '</p>' : '')
-        + imgHtml
-        + '<div class="post-footer">'
-        +   '<div class="reaction-row">' + rxHtml + '</div>'
-        +   '<button class="post-comment-toggle">'
-        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">'
-        +     '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
-        +     '<span class="comment-count-label" data-id="' + post.id + '">Comment</span>'
-        +   '</button>'
-        + '</div>'
-        + '<div class="post-comments" id="comments-' + post.id + '" style="display:none;">'
-        +   '<div class="comments-list" id="comments-list-' + post.id + '"><div class="comments-loading">Loading…</div></div>'
-        +   '<form class="comment-form">'
-        +     '<div class="comment-form-avatar" id="cmt-av-' + post.id + '">??</div>'
-        +     '<input class="comment-input" type="text" placeholder="Write a comment…" maxlength="400" required autocomplete="off">'
-        +     '<button type="submit" class="comment-submit" title="Send">'
-        +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" stroke-linecap="round" stroke-linejoin="round">'
-        +       '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>'
-        +       '</svg>'
-        +     '</button>'
-        +   '</form>'
-        + '</div>';
+    card.innerHTML = `
+        <div class="post-header">
+            <div class="post-avatar">${ini}</div>
+            <div class="post-meta">
+                <span class="post-author">${escHtml(authorName)}</span>
+                <span class="post-time">${timeAgo(post.created_at)}</span>
+            </div>
+            ${deleteBtn}
+        </div>
+        ${post.content ? `<p class="post-body">${escHtml(post.content)}</p>` : ''}
+        ${imgHtml}
+        <div class="post-footer" id="post-footer-${post.id}">
+            <div class="reaction-row" id="reaction-row-${post.id}">
+                ${REACTIONS.map(r => `
+                    <button type="button" class="reaction-btn" title="${r.label}" data-emoji="${r.emoji}">
+                        <span class="reaction-emoji">${r.emoji}</span>
+                    </button>`).join('')}
+            </div>
+            <button class="post-comment-toggle" data-id="${post.id}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span class="comment-count-label" data-id="${post.id}">Comment</span>
+            </button>
+        </div>
+        <div class="post-comments" id="comments-${post.id}" style="display:none;">
+            <div class="comments-list" id="comments-list-${post.id}">
+                <div class="comments-loading">Loading…</div>
+            </div>
+            <form class="comment-form" data-post-id="${post.id}">
+                <div class="comment-form-avatar" id="cmt-avatar-${post.id}"></div>
+                <input class="comment-input" type="text" placeholder="Write a comment…" maxlength="400" required autocomplete="off">
+                <button type="submit" class="comment-submit" title="Send">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                </button>
+            </form>
+        </div>`;
 
     return card;
 }
@@ -366,118 +358,131 @@ function renderPost(post, currentUserId) {
    ══════════════════════════════════════════════════════ */
 async function loadPosts(container, token, currentUserId, userInitials) {
     container.innerHTML = '<div class="posts-loading"><span class="posts-spinner"></span> Loading feed…</div>';
+
     try {
         const rows = await pgGet(
-            'posts?order=created_at.desc'
-            + '&select=id,content,image_url,created_at,user_id,profiles(full_name)',
+            'posts?order=created_at.desc&select=id,content,image_url,created_at,user_id,profiles(full_name)',
             token
         );
 
         container.innerHTML = '';
 
         if (!rows.length) {
-            container.innerHTML = '<div class="posts-empty"><p>No posts yet — be the first to share something!</p></div>';
+            container.innerHTML = `
+                <div class="posts-empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="opacity:.2;margin:0 auto 12px;display:block">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <p>No posts yet. Be the first to share something!</p>
+                </div>`;
             return;
         }
 
-        rows.forEach(row => {
-            const name = (row.profiles && row.profiles.full_name) || 'Member';
-            const card = renderPost(Object.assign({}, row, { author_name: name }), currentUserId);
+        for (const row of rows) {
+            const authorName = row.profiles?.full_name || 'Member';
+            const card = renderPost({ ...row, author_name: authorName }, currentUserId);
             container.appendChild(card);
 
-            // Comment avatar initials
-            const cmtAv = card.querySelector('#cmt-av-' + row.id);
-            if (cmtAv) cmtAv.textContent = userInitials;
+            // Set comment form avatar initials
+            const cmtAvatar = card.querySelector(`#cmt-avatar-${row.id}`);
+            if (cmtAvatar) cmtAvatar.textContent = userInitials || '??';
 
-            // Delete
+            // Wire delete button
             const delBtn = card.querySelector('.post-delete-btn');
             if (delBtn) delBtn.addEventListener('click', () => deletePost(row.id, card, token));
 
-            // Reactions (non-blocking)
-            const rxBtns = Array.from(card.querySelectorAll('.reaction-btn'));
-            loadReactionsForCard(row.id, rxBtns, token, currentUserId);
+            // Wire reactions
+            const reactionBtns = card.querySelectorAll('.reaction-btn');
+            // Load real counts async
+            loadReactionsForCard(row.id, reactionBtns, token, currentUserId);
 
-            // Comments toggle + form
-            const toggleBtn  = card.querySelector('.post-comment-toggle');
-            const commentsEl = card.querySelector('#comments-' + row.id);
-            const form       = card.querySelector('.comment-form');
+            // Wire comment toggle
+            const toggleBtn = card.querySelector('.post-comment-toggle');
+            const commentsEl = card.querySelector('.post-comments');
             let loaded = false;
-
             toggleBtn.addEventListener('click', () => {
                 const open = commentsEl.style.display === 'block';
                 commentsEl.style.display = open ? 'none' : 'block';
                 if (!open && !loaded) { loaded = true; loadComments(row.id, token, userInitials); }
             });
 
-            form.addEventListener('submit', async e => {
+            // Wire comment form
+            const form = card.querySelector('.comment-form');
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const input   = form.querySelector('.comment-input');
-                const sendBtn = form.querySelector('.comment-submit');
-                const text    = input.value.trim();
+                const input = form.querySelector('.comment-input');
+                const text  = input.value.trim();
                 if (!text) return;
-                sendBtn.disabled = true;
+                const submitBtn = form.querySelector('.comment-submit');
+                submitBtn.disabled = true;
                 try {
-                    // ✅ MUST send user_id — RLS: auth.uid() = user_id
-                    await pgInsert('comments', {
-                        post_id: row.id,
-                        user_id: currentUserId,
-                        content: text,
-                    }, token);
+                    await pgPost('comments', { post_id: row.id, user_id: currentUserId, content: text }, token);
                     input.value = '';
                     loaded = true;
                     await loadComments(row.id, token, userInitials);
-                } catch (err) {
+                } catch (_) {
                     toast('Could not post comment.', 'err');
-                    console.error('[posts] comment:', err);
                 } finally {
-                    sendBtn.disabled = false;
+                    submitBtn.disabled = false;
                 }
             });
-        });
+        }
 
     } catch (e) {
-        container.innerHTML = '<div class="posts-empty"><p style="color:#c84444;">Could not load posts. Check console for details.</p></div>';
-        console.error('[posts] loadPosts:', e);
+        container.innerHTML = `<div class="posts-empty" style="border-color:rgba(200,80,80,.3);">
+            <p style="color:#c94444;">Could not load posts. Please refresh.</p>
+        </div>`;
+        console.error('loadPosts:', e);
     }
 }
 
+async function loadReactionsForCard(postId, btns, token, currentUserId) {
+    const { counts, myEmojis } = await loadReactions(postId, token, currentUserId);
+    btns.forEach(btn => {
+        const emoji = btn.dataset.emoji;
+        const count = counts[emoji] || 0;
+        const active = myEmojis.has(emoji);
+        btn.className = 'reaction-btn' + (active ? ' active' : '');
+        btn.innerHTML = `<span class="reaction-emoji">${emoji}</span>`
+            + (count > 0 ? `<span class="reaction-count">${count}</span>` : '');
+        btn.addEventListener('click', () => toggleReaction(postId, emoji, btn, token, currentUserId, btn.parentElement));
+    });
+}
+
 /* ══════════════════════════════════════════════════════
-   DELETE
+   DELETE POST
    ══════════════════════════════════════════════════════ */
 async function deletePost(postId, cardEl, token) {
     if (!confirm('Delete this post? This cannot be undone.')) return;
     try {
-        await pgDelete('posts?id=eq.' + postId, token);
+        await pgDelete(`posts?id=eq.${postId}`, token);
         cardEl.style.transition = 'opacity .3s, transform .3s';
-        cardEl.style.opacity    = '0';
-        cardEl.style.transform  = 'translateX(-8px)';
+        cardEl.style.opacity = '0';
+        cardEl.style.transform = 'translateX(-8px)';
         setTimeout(() => cardEl.remove(), 320);
         toast('Post deleted.');
-    } catch (err) {
+    } catch (_) {
         toast('Could not delete post.', 'err');
-        console.error('[posts] delete:', err);
     }
 }
 
 /* ══════════════════════════════════════════════════════
    CREATE POST
    ══════════════════════════════════════════════════════ */
-async function handleCreatePost(form, container, token, currentUserId, userInitials) {
-    const textarea  = form.querySelector('#post-content');
-    const fileInput = form.querySelector('#post-image');
-    const submitBtn = form.querySelector('#post-submit-btn');
-    const preview   = form.querySelector('#post-image-preview');
-    const imgWrap   = form.querySelector('#create-post-image-wrap');
-    const charEl    = form.querySelector('#post-char-count');
-    const alertEl   = form.querySelector('#post-alert');
+async function handleCreatePost(form, feedContainer, token, currentUserId, userInitials) {
+    const textarea   = form.querySelector('#post-content');
+    const imageInput = form.querySelector('#post-image');
+    const submitBtn  = form.querySelector('#post-submit-btn');
+    const preview    = form.querySelector('#post-image-preview');
+    const charEl     = form.querySelector('#post-char-count');
+    const alertEl    = form.querySelector('#post-alert');
+    const imgWrap    = form.querySelector('#create-post-image-wrap');
 
     const content = textarea.value.trim();
-    const hasFile = fileInput.files && fileInput.files[0];
-
     if (alertEl) { alertEl.textContent = ''; alertEl.style.display = 'none'; }
 
-    if (!content && !hasFile) {
-        if (alertEl) { alertEl.textContent = 'Write something or attach an image.'; alertEl.style.display = 'block'; }
+    if (!content && (!imageInput.files || !imageInput.files[0])) {
+        if (alertEl) { alertEl.textContent = 'Write something before posting.'; alertEl.style.display = 'block'; }
         textarea.focus();
         return;
     }
@@ -487,37 +492,28 @@ async function handleCreatePost(form, container, token, currentUserId, userIniti
 
     try {
         let imageUrl = null;
-        if (hasFile) {
-            imageUrl = await uploadImage(fileInput.files[0], token);
-        }
+        if (imageInput.files && imageInput.files[0]) imageUrl = await uploadImage(imageInput.files[0], token);
 
-        // ✅ MUST include user_id — RLS policy: auth.uid() = user_id
-        await pgInsert('posts', {
-            user_id:   currentUserId,
-            content:   content,
-            image_url: imageUrl,
-        }, token);
+        await pgPost('posts', { user_id: currentUserId, content: content || '', image_url: imageUrl }, token);
 
-        // Reset form
-        textarea.value   = '';
-        fileInput.value  = '';
+        textarea.value = '';
+        imageInput.value = '';
         if (preview)  { preview.src = ''; preview.style.display = 'none'; }
         if (imgWrap)  imgWrap.style.display = 'none';
         if (charEl)   charEl.textContent = '0 / 1000';
 
         toast('Post published! 🎉');
-        await loadPosts(container, token, currentUserId, userInitials);
+        await loadPosts(feedContainer, token, currentUserId, userInitials);
 
-    } catch (err) {
-        const msg = err.message || 'Unknown error';
-        if (alertEl) { alertEl.textContent = 'Failed: ' + msg; alertEl.style.display = 'block'; }
-        console.error('[posts] createPost:', err);
+    } catch (_) {
+        if (alertEl) { alertEl.textContent = 'Failed to post. Please try again.'; alertEl.style.display = 'block'; }
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML =
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15" stroke-linecap="round" stroke-linejoin="round">'
-            + '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>'
-            + '</svg> Publish';
+        submitBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            Publish`;
     }
 }
 
@@ -525,101 +521,105 @@ async function handleCreatePost(form, container, token, currentUserId, userIniti
    INIT
    ══════════════════════════════════════════════════════ */
 window.initPostsFeed = function(token, currentUserId) {
-    if (!token || !currentUserId) {
-        console.warn('[posts] initPostsFeed called without token or userId');
-        return;
-    }
+    const feedContainer = document.getElementById('posts-feed');
+    const createForm    = document.getElementById('create-post-form');
+    if (!feedContainer) return;
 
-    const container = document.getElementById('posts-feed');
-    const form      = document.getElementById('create-post-form');
-    if (!container) return;
-
-    // Resolve user initials for avatars
+    // Resolve user display name
     let userInitials = '??';
     try {
-        const raw  = localStorage.getItem('econovo-user');
-        const user = raw ? JSON.parse(raw) : {};
-        const meta = user.user_metadata || {};
-        const name = meta.full_name
-            || ((meta.first_name || '') + ' ' + (meta.last_name || '')).trim()
-            || user.email || '';
-        if (name) userInitials = initials(name);
-        const av = document.getElementById('create-post-avatar');
-        if (av) av.textContent = userInitials;
-    } catch (_) {}
+        const userRaw = localStorage.getItem('econovo-user');
+        const userObj = userRaw ? JSON.parse(userRaw) : {};
+        const meta    = userObj.user_metadata || {};
+        const name    = meta.full_name || meta.first_name || userObj.email || '';
+        if (name) {
+            userInitials = name.trim().split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+        }
+        const avatarEl = document.getElementById('create-post-avatar');
+        if (avatarEl) avatarEl.textContent = userInitials;
+    } catch(_) {}
 
-    // Load feed
-    loadPosts(container, token, currentUserId, userInitials);
+    loadPosts(feedContainer, token, currentUserId, userInitials);
 
-    if (!form) return;
+    if (!createForm) return;
 
-    // Emoji picker
-    const emojiBtn = form.querySelector('#emoji-trigger-btn');
+    /* ── Emoji picker in composer ── */
+    const emojiTrigger = createForm.querySelector('#emoji-trigger-btn');
     let emojiPopup = null;
-    if (emojiBtn) {
-        emojiBtn.addEventListener('click', e => {
+
+    if (emojiTrigger) {
+        emojiTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
             if (emojiPopup) { emojiPopup.remove(); emojiPopup = null; return; }
-            const ta = form.querySelector('#post-content');
-            emojiPopup = buildEmojiPicker(em => {
-                const pos = ta.selectionStart || ta.value.length;
-                ta.value  = ta.value.slice(0, pos) + em + ta.value.slice(pos);
-                ta.focus();
-                const ce = form.querySelector('#post-char-count');
-                if (ce) ce.textContent = ta.value.length + ' / 1000';
+            const textarea = createForm.querySelector('#post-content');
+            emojiPopup = buildEmojiPicker((em) => {
+                const pos = textarea.selectionStart || textarea.value.length;
+                const val = textarea.value;
+                textarea.value = val.slice(0, pos) + em + val.slice(pos);
+                textarea.focus();
+                // Update char count
+                const charEl = createForm.querySelector('#post-char-count');
+                if (charEl) charEl.textContent = textarea.value.length + ' / 1000';
                 emojiPopup.remove(); emojiPopup = null;
             });
-            form.style.position  = 'relative';
             emojiPopup.style.position = 'absolute';
-            const br = emojiBtn.getBoundingClientRect();
-            const fr = form.getBoundingClientRect();
-            emojiPopup.style.bottom = (fr.bottom - br.top + 6) + 'px';
-            emojiPopup.style.left   = Math.max(0, br.left - fr.left) + 'px';
-            form.appendChild(emojiPopup);
+            emojiTrigger.style.position = 'relative';
+
+            // Position below button
+            const btnRect = emojiTrigger.getBoundingClientRect();
+            const formRect = createForm.getBoundingClientRect();
+            emojiPopup.style.top = (btnRect.bottom - formRect.top + 4) + 'px';
+            emojiPopup.style.left = (btnRect.left - formRect.left) + 'px';
+            createForm.style.position = 'relative';
+            createForm.appendChild(emojiPopup);
         });
+
         document.addEventListener('click', () => {
             if (emojiPopup) { emojiPopup.remove(); emojiPopup = null; }
         });
     }
 
-    // Image preview
-    const fileInput = form.querySelector('#post-image');
-    const preview   = form.querySelector('#post-image-preview');
-    const imgWrap   = form.querySelector('#create-post-image-wrap');
-    const removeBtn = form.querySelector('#remove-image-btn');
+    /* ── Image preview ── */
+    const imgWrap    = createForm.querySelector('#create-post-image-wrap');
+    const preview    = createForm.querySelector('#post-image-preview');
+    const removeBtn  = createForm.querySelector('#remove-image-btn');
+    const freshInput = createForm.querySelector('#post-image');
 
-    if (fileInput) {
-        fileInput.addEventListener('change', () => {
-            const file = fileInput.files[0];
+    if (freshInput && preview) {
+        freshInput.addEventListener('change', () => {
+            const file = freshInput.files[0];
             if (!file) { if (imgWrap) imgWrap.style.display = 'none'; return; }
             const reader = new FileReader();
-            reader.onload = ev => {
-                if (preview) { preview.src = ev.target.result; preview.style.display = 'block'; }
+            reader.onload = e2 => {
+                preview.src = e2.target.result;
+                preview.style.display = 'block';
                 if (imgWrap) imgWrap.style.display = 'block';
             };
             reader.readAsDataURL(file);
         });
     }
+
     if (removeBtn) {
         removeBtn.addEventListener('click', () => {
-            if (fileInput) fileInput.value = '';
-            if (preview)   { preview.src = ''; preview.style.display = 'none'; }
-            if (imgWrap)   imgWrap.style.display = 'none';
+            const inp = createForm.querySelector('#post-image');
+            if (inp) inp.value = '';
+            if (preview) { preview.src = ''; preview.style.display = 'none'; }
+            if (imgWrap) imgWrap.style.display = 'none';
         });
     }
 
-    // Char counter
-    const textarea = form.querySelector('#post-content');
-    const charEl   = form.querySelector('#post-char-count');
+    /* ── Char counter ── */
+    const textarea = createForm.querySelector('#post-content');
+    const charEl   = createForm.querySelector('#post-char-count');
     if (textarea && charEl) {
         textarea.addEventListener('input', () => {
             charEl.textContent = textarea.value.length + ' / 1000';
         });
     }
 
-    // Submit
-    form.addEventListener('submit', async e => {
+    /* ── Form submit ── */
+    createForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        await handleCreatePost(form, container, token, currentUserId, userInitials);
+        await handleCreatePost(createForm, feedContainer, token, currentUserId, userInitials);
     });
 };
