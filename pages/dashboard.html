@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -20,42 +20,42 @@
    DESIGN SYSTEM — Econovo Dashboard
    ════════════════════════════════════════════════════════ */
 :root {
-    --obsidian:   #0E2A24;
-    --sage:       #8FB8A6;
-    --sage-dim:   rgba(143,184,166,.12);
-    --sage-mid:   rgba(143,184,166,.28);
-    --ink:        #1F1F1F;
+    var(--obsidian):   #0E2A24;
+    var(--sage):       #8FB8A6;
+    var(--sage-dim):   rgba(143,184,166,.12);
+    var(--sage-mid):   rgba(143,184,166,.28);
+    var(--ink):        #1F1F1F;
 
-    --canvas:     #F4F7F2;
-    --card:       #FAFCF9;
-    --card-warm:  #EFF5F1;
-    --muted:      #EAF0EA;
-    --inversion:  #0E2A24;
+    var(--canvas):     #F4F7F2;
+    var(--card):       #FAFCF9;
+    var(--card-warm):  #EFF5F1;
+    var(--muted):      #EAF0EA;
+    var(--inversion):  #0E2A24;
 
-    --text:       #0E2A24;
-    --text-soft:  rgba(14,42,36,.50);
-    --text-muted: rgba(14,42,36,.35);
+    var(--text):       #0E2A24;
+    var(--text-soft):  rgba(14,42,36,.50);
+    var(--text-muted): rgba(14,42,36,.35);
 
-    --line:       rgba(14,42,36,.09);
-    --line-mid:   rgba(14,42,36,.15);
+    var(--line):       rgba(14,42,36,.09);
+    var(--line-mid):   rgba(14,42,36,.15);
 
-    --font:    'Host Grotesk', system-ui, sans-serif;
-    --mono:    'IBM Plex Mono', ui-monospace, monospace;
+    var(--font):    'Host Grotesk', system-ui, sans-serif;
+    var(--mono):    'IBM Plex Mono', ui-monospace, monospace;
 
-    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
-    --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+    var(--s1): 4px; var(--s2): 8px; var(--s3): 12px; var(--s4): 16px;
+    var(--s5): 24px; var(--s6): 32px; var(--s7): 48px; var(--s8): 64px;
 
-    --r-card:   16px;
-    --r-btn:    6px;
-    --r-pill:   9999px;
-    --r-sm:     6px;
+    var(--r-card):   16px;
+    var(--r-btn):    6px;
+    var(--r-pill):   9999px;
+    var(--r-sm):     6px;
 
-    --ease: cubic-bezier(.4,0,.2,1);
-    --fast: 150ms var(--ease);
-    --base: 240ms var(--ease);
+    var(--ease): cubic-bezier(.4,0,.2,1);
+    var(--fast): 150ms var(--ease);
+    var(--base): 240ms var(--ease);
 
-    --sidebar-w: 220px;
-    --nav-h:     60px;
+    var(--sidebar-w): 220px;
+    var(--nav-h):     60px;
 }
 
 [data-theme="dark"] {
@@ -85,7 +85,7 @@ button { font-family: var(--font); cursor: pointer; border: none; background: no
 img { display: block; max-width: 100%; }
 ::selection { background: var(--sage); color: var(--obsidian); }
 
-/* TOP NAVBAR */
+/* NAVBAR */
 .dash-nav {
     position: fixed; top: 0; left: 0; right: 0;
     height: var(--nav-h);
@@ -138,7 +138,6 @@ img { display: block; max-width: 100%; }
     color: var(--obsidian);
     flex-shrink: 0;
 }
-
 .nav-signout-btn {
     font-size: .8rem; font-weight: 600;
     color: var(--text-soft);
@@ -149,15 +148,13 @@ img { display: block; max-width: 100%; }
 }
 .nav-signout-btn:hover { border-color: rgba(180,60,60,.35); color: #c94444; }
 
-/* APP SHELL */
+/* APP SHELL & SIDEBAR */
 .dash-shell {
     display: grid;
     grid-template-columns: var(--sidebar-w) 1fr;
     min-height: 100vh;
     padding-top: var(--nav-h);
 }
-
-/* SIDEBAR */
 .dash-sidebar {
     position: sticky; top: var(--nav-h);
     height: calc(100vh - var(--nav-h));
@@ -192,7 +189,6 @@ img { display: block; max-width: 100%; }
     font-weight: 600; text-transform: uppercase;
     letter-spacing: .1em; color: var(--sage);
 }
-
 .sidebar-section {
     font-family: var(--mono); font-size: .62rem;
     text-transform: uppercase; letter-spacing: .13em;
@@ -211,325 +207,143 @@ img { display: block; max-width: 100%; }
 }
 .sidebar-item svg { width: 15px; height: 15px; flex-shrink: 0; stroke-width: 2; }
 .sidebar-item:hover { background: var(--muted); color: var(--text); }
-.sidebar-item.active {
-    background: var(--sage-dim);
-    color: var(--obsidian);
-    font-weight: 700;
-}
+.sidebar-item.active { background: var(--sage-dim); color: var(--obsidian); font-weight: 700; }
 [data-theme="dark"] .sidebar-item.active { color: var(--sage); }
-
 .sidebar-item.active::before {
-    content: '';
-    position: absolute; left: 0; top: 6px; bottom: 6px;
-    width: 2px; background: var(--sage);
-    border-radius: 0 2px 2px 0;
+    content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
+    width: 2px; background: var(--sage); border-radius: 0 2px 2px 0;
 }
 .sidebar-badge {
-    margin-left: auto;
-    background: var(--sage);
-    color: var(--obsidian);
+    margin-left: auto; background: var(--sage); color: var(--obsidian);
     font-family: var(--mono); font-size: .6rem; font-weight: 700;
     padding: 1px 6px; border-radius: var(--r-pill);
     min-width: 18px; text-align: center;
 }
 
 /* MAIN CONTENT */
-.dash-main {
-    background: var(--canvas);
-    min-height: calc(100vh - var(--nav-h));
-}
-
+.dash-main { background: var(--canvas); min-height: calc(100vh - var(--nav-h)); }
 .dash-view { display: none; }
 .dash-view.active { display: block; }
-
-.view-body {
-    max-width: 800px;
-    padding: var(--s7) var(--s7);
-}
-
+.view-body { max-width: 800px; padding: var(--s7) var(--s7); }
 .view-header {
-    padding-bottom: var(--s5);
-    margin-bottom: var(--s6);
+    padding-bottom: var(--s5); margin-bottom: var(--s6);
     border-bottom: 1px solid var(--line);
 }
 .view-eyebrow {
-    font-family: var(--mono);
-    font-size: .66rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .14em;
-    color: var(--sage); margin-bottom: var(--s2);
+    font-family: var(--mono); font-size: .66rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .14em; color: var(--sage);
+    margin-bottom: var(--s2);
 }
-.view-title {
-    font-size: 1.75rem; font-weight: 800;
-    letter-spacing: -.035em; color: var(--text);
-    margin-bottom: 3px; line-height: 1.1;
-}
-.view-sub {
-    font-size: .9rem; color: var(--text-soft); line-height: 1.55;
-}
+.view-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -.035em; color: var(--text); margin-bottom: 3px; line-height: 1.1; }
+.view-sub { font-size: .9rem; color: var(--text-soft); line-height: 1.55; }
 
-/* OVERVIEW STRIP & LEDGER */
+/* OVERVIEW */
 .greeting-strip {
-    display: flex; align-items: flex-start;
-    justify-content: space-between; gap: var(--s5);
-    padding-bottom: var(--s6); margin-bottom: var(--s6);
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: var(--s5); padding-bottom: var(--s6); margin-bottom: var(--s6);
     border-bottom: 1px solid var(--line);
 }
 .greeting-label {
     font-family: var(--mono); font-size: .68rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .12em;
-    color: var(--text-muted); margin-bottom: var(--s2);
+    text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted);
+    margin-bottom: var(--s2);
 }
-.greeting-name {
-    font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800;
-    letter-spacing: -.04em; color: var(--text);
-    margin-bottom: var(--s2); line-height: 1.1;
-}
-.greeting-meta {
-    font-size: .82rem; color: var(--text-soft);
-    display: flex; align-items: center; gap: var(--s3);
-}
+.greeting-name { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: var(--s2); line-height: 1.1; }
+.greeting-meta { font-size: .82rem; color: var(--text-soft); display: flex; align-items: center; gap: var(--s3); }
 .greeting-meta span { display: flex; align-items: center; gap: 5px; }
 .greeting-meta svg { width: 13px; height: 13px; }
-
 .greeting-avatar-lg {
-    width: 56px; height: 56px;
-    border-radius: 50%;
+    width: 56px; height: 56px; border-radius: 50%;
     background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%);
     display: flex; align-items: center; justify-content: center;
     font-family: var(--mono); font-weight: 700; font-size: 1.15rem;
-    color: var(--obsidian); flex-shrink: 0;
-    border: 1px solid var(--line-mid);
+    color: var(--obsidian); flex-shrink: 0; border: 1px solid var(--line-mid);
 }
-
 .stats-ledger {
     display: grid; grid-template-columns: repeat(3, 1fr);
     border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
     margin-bottom: var(--s7);
 }
-.stat-cell {
-    padding: var(--s5) var(--s4);
-    border-right: 1px solid var(--line); text-align: center;
-}
+.stat-cell { padding: var(--s5) var(--s4); border-right: 1px solid var(--line); text-align: center; }
 .stat-cell:last-child { border-right: none; }
-.stat-value {
-    display: block; font-size: 1.8rem; font-weight: 800;
-    letter-spacing: -.04em; color: var(--text); line-height: 1;
-    margin-bottom: var(--s1);
-}
-.stat-label {
-    font-family: var(--mono); font-size: .64rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted);
-}
+.stat-value { display: block; font-size: 1.8rem; font-weight: 800; letter-spacing: -.04em; color: var(--text); line-height: 1; margin-bottom: var(--s1); }
+.stat-label { font-family: var(--mono); font-size: .64rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
 .stat-sub { font-size: .75rem; color: var(--text-soft); margin-top: 2px; }
 
-.section-head {
-    display: flex; align-items: baseline; justify-content: space-between;
-    margin-bottom: var(--s4);
-}
+.section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s4); }
 .section-label { font-size: .9rem; font-weight: 700; letter-spacing: -.01em; color: var(--text); }
-.section-action {
-    font-family: var(--mono); font-size: .7rem; font-weight: 600;
-    color: var(--sage); text-transform: uppercase; letter-spacing: .06em;
-    cursor: pointer; border-bottom: 1px solid transparent; transition: border-color var(--fast);
-}
+.section-action { font-family: var(--mono); font-size: .7rem; font-weight: 600; color: var(--sage); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; border-bottom: 1px solid transparent; transition: border-color var(--fast); }
 .section-action:hover { border-color: var(--sage); }
 
-/* LISTS */
+/* EVENT & ANNOUNCEMENTS STYLES */
 .event-list { display: flex; flex-direction: column; }
-.event-row {
-    display: flex; align-items: flex-start; gap: var(--s5);
-    padding: var(--s5) 0; border-bottom: 1px solid var(--line);
-    transition: var(--fast); cursor: default;
-}
+.event-row { display: flex; align-items: flex-start; gap: var(--s5); padding: var(--s5) 0; border-bottom: 1px solid var(--line); transition: var(--fast); cursor: default; }
 .event-row:first-child { border-top: 1px solid var(--line); }
 .event-stamp { flex-shrink: 0; text-align: center; width: 40px; }
-.stamp-month {
-    font-family: var(--mono); font-size: .58rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .1em; color: var(--sage);
-    display: block; margin-bottom: 1px;
-}
-.stamp-day {
-    font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em;
-    color: var(--text); line-height: 1; display: block;
-}
+.stamp-month { font-family: var(--mono); font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--sage); display: block; margin-bottom: 1px; }
+.stamp-day { font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; color: var(--text); line-height: 1; display: block; }
 .event-body { flex: 1; min-width: 0; }
 .event-title { font-size: .9rem; font-weight: 700; color: var(--text); margin-bottom: 3px; letter-spacing: -.01em; }
 .event-desc { font-size: .82rem; color: var(--text-soft); line-height: 1.5; }
-.event-tag {
-    flex-shrink: 0; font-family: var(--mono); font-size: .64rem; font-weight: 700;
-    padding: 3px 8px; border: 1px solid var(--line-mid); border-radius: var(--r-sm);
-    color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em;
-    white-space: nowrap; align-self: flex-start; margin-top: 2px;
-}
+.event-tag { flex-shrink: 0; font-family: var(--mono); font-size: .64rem; font-weight: 700; padding: 3px 8px; border: 1px solid var(--line-mid); border-radius: var(--r-sm); color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; align-self: flex-start; margin-top: 2px; }
 
 .announce-list { display: flex; flex-direction: column; gap: var(--s3); }
-.announce-card {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: var(--r-card); border-left: 3px solid var(--sage);
-    padding: var(--s5) var(--s6); position: relative; transition: border-color var(--base);
-}
+.announce-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); border-left: 3px solid var(--sage); padding: var(--s5) var(--s6); position: relative; transition: border-color var(--base); }
 .announce-card:hover { border-color: var(--sage); }
-.announce-date {
-    font-family: var(--mono); font-size: .66rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: var(--s2);
-}
+.announce-date { font-family: var(--mono); font-size: .66rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: var(--s2); }
 .announce-title { font-size: 1rem; font-weight: 700; letter-spacing: -.02em; color: var(--text); margin-bottom: var(--s2); line-height: 1.3; }
 .announce-body { font-size: .875rem; color: var(--text-soft); line-height: 1.65; }
 
-/* PROFILE FORM & BUTTONS */
-.profile-header-strip {
-    display: flex; align-items: center; gap: var(--s5);
-    padding-bottom: var(--s6); margin-bottom: var(--s6); border-bottom: 1px solid var(--line);
-}
-.profile-avatar-xl {
-    width: 64px; height: 64px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-weight: 700; font-size: 1.4rem;
-    color: var(--obsidian); flex-shrink: 0; border: 1px solid var(--line-mid);
-}
+/* PROFILE */
+.profile-header-strip { display: flex; align-items: center; gap: var(--s5); padding-bottom: var(--s6); margin-bottom: var(--s6); border-bottom: 1px solid var(--line); }
+.profile-avatar-xl { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: 1.4rem; color: var(--obsidian); flex-shrink: 0; border: 1px solid var(--line-mid); }
 .profile-header-name { font-size: 1.25rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 3px; }
 .profile-header-email { font-family: var(--mono); font-size: .78rem; color: var(--text-soft); }
-.profile-header-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-family: var(--mono); font-size: .64rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .08em; background: var(--sage-dim);
-    color: var(--obsidian); padding: 3px 9px; border-radius: var(--r-pill); margin-top: var(--s2);
-}
-[data-theme="dark"] .profile-header-badge { color: var(--sage); }
+.profile-header-badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; background: var(--sage-dim); color: var(--obsidian); padding: 3px 9px; border-radius: var(--r-pill); margin-top: var(--s2); }
 .profile-header-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #5dbd7e; }
 
-.profile-form-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4) var(--s5); margin-bottom: var(--s6);
-}
+.profile-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4) var(--s5); margin-bottom: var(--s6); }
 .profile-form-grid .span-2 { grid-column: 1 / -1; }
 .field-block { display: flex; flex-direction: column; gap: 6px; }
-.field-label {
-    font-family: var(--mono); font-size: .68rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .08em; color: var(--text-soft);
-}
-.field-input {
-    width: 100%; padding: 10px 14px; border-radius: var(--r-btn);
-    border: 1px solid var(--line-mid); background: var(--card); color: var(--text);
-    font-family: var(--font); font-size: .9rem; outline: none; transition: border-color var(--fast), box-shadow var(--fast);
-}
+.field-label { font-family: var(--mono); font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text-soft); }
+.field-input { width: 100%; padding: 10px 14px; border-radius: var(--r-btn); border: 1px solid var(--line-mid); background: var(--card); color: var(--text); font-family: var(--font); font-size: .9rem; outline: none; -webkit-appearance: none; transition: border-color var(--fast), box-shadow var(--fast); }
 .field-input::placeholder { color: var(--text-muted); opacity: .7; }
 .field-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-dim); }
 .field-input:disabled { opacity: .45; cursor: not-allowed; }
 
-.btn-primary {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px;
-    background: var(--obsidian); color: #fff; font-family: var(--font);
-    font-size: .875rem; font-weight: 700; border-radius: var(--r-btn);
-    border-bottom-left-radius: var(--r-btn); border-bottom-right-radius: var(--r-btn);
-    border-top-left-radius: 2px; border-top-right-radius: 2px;
-    transition: background var(--fast), box-shadow var(--fast); cursor: pointer; border: none;
-}
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--obsidian); color: #fff; font-family: var(--font); font-size: .875rem; font-weight: 700; border-radius: var(--r-btn); border-bottom-left-radius: var(--r-btn); border-bottom-right-radius: var(--r-btn); border-top-left-radius: 2px; border-top-right-radius: 2px; transition: background var(--fast), box-shadow var(--fast); cursor: pointer; border: none; }
 .btn-primary:hover { background: #163a32; box-shadow: 0 2px 12px rgba(14,42,36,.18); }
 [data-theme="dark"] .btn-primary { background: var(--sage); color: var(--obsidian); }
 [data-theme="dark"] .btn-primary:hover { background: #b8d4c8; }
 
-.btn-danger {
-    display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px;
-    background: transparent; color: #c94444; font-family: var(--font);
-    font-size: .85rem; font-weight: 600; border: 1px solid rgba(200,80,80,.28);
-    border-radius: var(--r-btn); transition: var(--fast); cursor: pointer;
-}
+.btn-danger { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; background: transparent; color: #c94444; font-family: var(--font); font-size: .85rem; font-weight: 600; border: 1px solid rgba(200,80,80,.28); border-radius: var(--r-btn); transition: var(--fast); cursor: pointer; }
 .btn-danger:hover { background: rgba(200,80,80,.07); }
 
-.spin-wrap {
-    width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3);
-    border-top-color: #fff; border-radius: 50%;
-    animation: spin .65s linear infinite; display: none;
-}
+.spin-wrap { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .65s linear infinite; display: none; }
 .loading .btn-txt { display: none; }
 .loading .spin-wrap { display: block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.form-alert {
-    padding: 10px 14px; border-radius: var(--r-sm);
-    font-size: .85rem; font-weight: 600; margin-bottom: var(--s5); display: none;
-}
+.form-alert { padding: 10px 14px; border-radius: var(--r-sm); font-size: .85rem; font-weight: 600; margin-bottom: var(--s5); display: none; }
 .form-alert.visible { display: block; }
 .form-alert.ok { background: var(--sage-dim); border: 1px solid var(--sage-mid); color: var(--obsidian); }
 [data-theme="dark"] .form-alert.ok { color: var(--sage); }
 .form-alert.err { background: rgba(200,80,80,.08); border: 1px solid rgba(200,80,80,.25); color: #c94444; }
 
 .danger-zone { margin-top: var(--s8); padding-top: var(--s6); border-top: 1px solid var(--line); }
-.danger-label {
-    font-family: var(--mono); font-size: .68rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .1em; color: rgba(180,60,60,.6); margin-bottom: var(--s3);
-}
+.danger-label { font-family: var(--mono); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(180,60,60,.6); margin-bottom: var(--s3); }
 .danger-desc { font-size: .85rem; color: var(--text-soft); margin-bottom: var(--s4); line-height: 1.55; }
 
 .empty-state { text-align: center; padding: var(--s8) var(--s5); border: 1px dashed var(--line-mid); border-radius: var(--r-card); }
 .empty-icon { width: 40px; height: 40px; margin: 0 auto var(--s4); opacity: .25; }
 .empty-state p { font-size: .875rem; color: var(--text-soft); }
 
-/* MOBILE NAVIGATION */
-.mob-tab-bar {
-    display: none; position: fixed; bottom: 0; left: 0; right: 0;
-    height: calc(56px + env(safe-area-inset-bottom, 0px));
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    background: var(--canvas); border-top: 1px solid var(--line);
-    z-index: 300; align-items: stretch;
-}
-.mob-tab {
-    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 3px; font-size: .64rem; font-weight: 600; font-family: var(--mono);
-    text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); transition: color var(--fast);
-}
+.mob-tab-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--canvas); border-top: 1px solid var(--line); z-index: 300; align-items: stretch; }
+.mob-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: .64rem; font-weight: 600; font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); transition: color var(--fast); cursor: pointer; }
 .mob-tab svg { width: 18px; height: 18px; stroke-width: 1.8; }
 .mob-tab.active { color: var(--obsidian); }
 [data-theme="dark"] .mob-tab.active { color: var(--sage); }
-
-/* COMMUNITY FEED — STRUCTURE FOR posts.js */
-.create-post-card {
-    background: var(--card); border: 1px solid var(--line-mid);
-    border-radius: var(--r-card); padding: var(--s6); margin-bottom: var(--s5);
-}
-.create-post-top { display: flex; gap: var(--s4); margin-bottom: var(--s4); }
-.create-post-avatar {
-    width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%;
-    background: linear-gradient(135deg, #8FB8A6 0%, #b8d4c8 100%);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: .75rem; font-weight: 700; color: var(--obsidian);
-}
-.create-post-textarea {
-    flex: 1; resize: none; border: none; background: transparent;
-    color: var(--text); font-family: var(--font); font-size: .9rem;
-    line-height: 1.6; outline: none; min-height: 72px;
-}
-.create-post-textarea::placeholder { color: var(--text-muted); }
-
-.create-post-image-wrap { position: relative; margin-bottom: var(--s4); }
-.create-post-preview {
-    width: 100%; max-height: 280px; object-fit: cover;
-    border-radius: 8px; border: 1px solid var(--line); display: block;
-}
-.remove-img-btn {
-    position: absolute; top: 8px; right: 8px; width: 26px; height: 26px;
-    background: rgba(14,42,36,.72); color: #fff; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-}
-.post-alert {
-    padding: 8px 12px; background: rgba(200,80,80,.09);
-    border: 1px solid rgba(200,80,80,.25); border-radius: 6px;
-    color: #c94444; font-size: .82rem; font-weight: 600; margin-bottom: var(--s4);
-}
-.create-post-footer {
-    display: flex; align-items: center; justify-content: space-between;
-    padding-top: var(--s4); border-top: 1px solid var(--line);
-}
-.post-char-count { font-family: var(--mono); font-size: .68rem; color: var(--text-muted); }
-.create-post-actions { display: flex; align-items: center; gap: var(--s3); }
-.attach-img-btn {
-    display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
-    border: 1px solid var(--line-mid); border-radius: var(--r-btn);
-    font-size: .82rem; font-weight: 600; color: var(--text-soft); cursor: pointer;
-}
-
-.posts-feed { display: flex; flex-direction: column; gap: var(--s4); }
+.mob-tab.active svg { stroke-width: 2.5; }
 
 @media (max-width: 768px) {
     .dash-shell { grid-template-columns: 1fr; padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
@@ -550,72 +364,63 @@ img { display: block; max-width: 100%; }
     .greeting-name { font-size: 1.35rem; }
 }
     </style>
+    <!-- Posts styles dynamically handled or in posts.css -->
+    <link rel="stylesheet" href="../css/posts.css" id="posts-stylesheet">
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="dash-nav" id="dashNav">
     <a href="../index.html" class="dash-nav-brand">
         <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo">
         <span>Econovo</span>
     </a>
-
     <div class="dash-nav-center"></div>
-
     <div class="dash-nav-right">
         <button class="nav-icon-btn js-theme-toggle" aria-label="Toggle dark mode">
             <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
             </svg>
         </button>
-
         <div class="nav-user-chip" onclick="showView('profile')">
-            <div class="nav-user-avatar" id="nav-avatar">EC</div>
-            <span id="nav-name">Member</span>
+            <div class="nav-user-avatar" id="nav-avatar"></div>
+            <span id="nav-name"></span>
         </div>
-
         <button class="nav-signout-btn" id="signout-btn">Sign Out</button>
     </div>
 </nav>
 
-<!-- SHELL -->
 <div class="dash-shell">
 
-    <!-- Sidebar -->
     <aside class="dash-sidebar">
         <div class="sidebar-member">
-            <div class="sidebar-avatar" id="sidebar-avatar">EC</div>
-            <div class="sidebar-name" id="sidebar-name">Member</div>
+            <div class="sidebar-avatar" id="sidebar-avatar"></div>
+            <div class="sidebar-name" id="sidebar-name"></div>
             <div class="sidebar-role">Club Member</div>
         </div>
 
         <span class="sidebar-section">Menu</span>
-
-        <button type="button" class="sidebar-item active" data-view="overview">
+        <button class="sidebar-item active" data-view="overview">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
                 <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
             </svg>
             Overview
         </button>
-
-        <button type="button" class="sidebar-item" data-view="events">
+        <button class="sidebar-item" data-view="events">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
             </svg>
             Events
-            <span class="sidebar-badge" id="sb-events-count">3</span>
+            <span class="sidebar-badge" id="sb-events-count">0</span>
         </button>
-
-        <button type="button" class="sidebar-item" data-view="announcements">
+        <button class="sidebar-item" data-view="announcements">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
             Announcements
-            <span class="sidebar-badge" id="sb-ann-count">2</span>
+            <span class="sidebar-badge" id="sb-ann-count">0</span>
         </button>
-
-        <button type="button" class="sidebar-item" data-view="feed">
+        <button class="sidebar-item" data-view="feed">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
@@ -623,8 +428,7 @@ img { display: block; max-width: 100%; }
         </button>
 
         <span class="sidebar-section">Account</span>
-
-        <button type="button" class="sidebar-item" data-view="profile">
+        <button class="sidebar-item" data-view="profile">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
             </svg>
@@ -632,17 +436,14 @@ img { display: block; max-width: 100%; }
         </button>
     </aside>
 
-    <!-- Main Views -->
     <main>
-
         <!-- OVERVIEW -->
         <div class="dash-view active" id="view-overview">
             <div class="view-body">
-
                 <div class="greeting-strip">
                     <div class="greeting-text">
                         <div class="greeting-label">Member Dashboard</div>
-                        <div class="greeting-name" id="greeting-name">Welcome back.</div>
+                        <div class="greeting-name" id="greeting-name"></div>
                         <div class="greeting-meta">
                             <span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -650,21 +451,21 @@ img { display: block; max-width: 100%; }
                             </span>
                             <span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                                <span id="greeting-joined">Member since —</span>
+                                <span id="greeting-joined"></span>
                             </span>
                         </div>
                     </div>
-                    <div class="greeting-avatar-lg" id="greeting-avatar">EC</div>
+                    <div class="greeting-avatar-lg" id="greeting-avatar"></div>
                 </div>
 
                 <div class="stats-ledger">
                     <div class="stat-cell">
-                        <span class="stat-value" id="stat-events">3</span>
+                        <span class="stat-value" id="stat-events">0</span>
                         <div class="stat-label">Upcoming Events</div>
                         <div class="stat-sub">This semester</div>
                     </div>
                     <div class="stat-cell">
-                        <span class="stat-value" id="stat-ann">2</span>
+                        <span class="stat-value" id="stat-ann">0</span>
                         <div class="stat-label">Announcements</div>
                         <div class="stat-sub">Unread</div>
                     </div>
@@ -686,7 +487,6 @@ img { display: block; max-width: 100%; }
                     <span class="section-action" onclick="showView('announcements')">View all →</span>
                 </div>
                 <div class="announce-list" id="overview-ann"></div>
-
             </div>
         </div>
 
@@ -723,16 +523,10 @@ img { display: block; max-width: 100%; }
                     <div class="view-sub">Share updates, ideas, and resources with fellow members.</div>
                 </div>
 
-                <!-- Form handled entirely by posts.js -->
-                <form id="create-post-form" class="create-post-card">
+                <form id="create-post-form" class="create-post-card" novalidate>
                     <div class="create-post-top">
-                        <div class="create-post-avatar" id="create-post-avatar">EC</div>
-                        <textarea
-                            id="post-content"
-                            class="create-post-textarea"
-                            placeholder="Share something with the club…"
-                            rows="3"
-                            maxlength="1000"></textarea>
+                        <div class="create-post-avatar" id="create-post-avatar"></div>
+                        <textarea id="post-content" class="create-post-textarea" placeholder="Share something with the club…" rows="3" maxlength="1000"></textarea>
                     </div>
 
                     <div class="create-post-image-wrap" id="create-post-image-wrap" style="display:none;">
@@ -748,17 +542,20 @@ img { display: block; max-width: 100%; }
                         <span class="post-char-count" id="post-char-count">0 / 1000</span>
                         <div class="create-post-actions">
                             <label class="attach-img-btn" for="post-image" title="Attach image">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
                                     <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                                 </svg>
                                 Image
                                 <input type="file" id="post-image" accept="image/*" style="display:none;">
                             </label>
+                            <button type="button" id="emoji-trigger-btn" class="emoji-trigger-btn" title="Add emoji">
+                                😊 Emoji
+                            </button>
                             <button type="submit" id="post-submit-btn" class="btn-primary">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                                 </svg>
-                                Publish Post
+                                Publish
                             </button>
                         </div>
                     </div>
@@ -778,10 +575,10 @@ img { display: block; max-width: 100%; }
                 </div>
 
                 <div class="profile-header-strip">
-                    <div class="profile-avatar-xl" id="profile-avatar">EC</div>
+                    <div class="profile-avatar-xl" id="profile-avatar"></div>
                     <div>
-                        <div class="profile-header-name" id="profile-name">Member</div>
-                        <div class="profile-header-email" id="profile-email">member@econovo.club</div>
+                        <div class="profile-header-name" id="profile-name"></div>
+                        <div class="profile-header-email" id="profile-email"></div>
                         <div class="profile-header-badge">Active Member</div>
                     </div>
                 </div>
@@ -791,11 +588,11 @@ img { display: block; max-width: 100%; }
                 <div class="profile-form-grid">
                     <div class="field-block">
                         <label class="field-label" for="pf-fname">First Name</label>
-                        <input class="field-input" id="pf-fname" placeholder="Ahmed" autocomplete="given-name">
+                        <input class="field-input" type="text" id="pf-fname" autocomplete="given-name">
                     </div>
                     <div class="field-block">
                         <label class="field-label" for="pf-lname">Last Name</label>
-                        <input class="field-input" id="pf-lname" placeholder="Benali" autocomplete="family-name">
+                        <input class="field-input" type="text" id="pf-lname" autocomplete="family-name">
                     </div>
                     <div class="field-block span-2">
                         <label class="field-label" for="pf-email">Email Address</label>
@@ -803,15 +600,15 @@ img { display: block; max-width: 100%; }
                     </div>
                     <div class="field-block">
                         <label class="field-label" for="pf-major">Field of Study</label>
-                        <input class="field-input" id="pf-major" placeholder="Economics">
+                        <input class="field-input" type="text" id="pf-major">
                     </div>
                     <div class="field-block">
                         <label class="field-label" for="pf-year">Year of Study</label>
-                        <input class="field-input" id="pf-year" placeholder="3rd Year (L3)">
+                        <input class="field-input" type="text" id="pf-year">
                     </div>
                 </div>
 
-                <button type="button" class="btn-primary" id="save-btn">
+                <button class="btn-primary" id="save-btn">
                     <span class="btn-txt">Save Changes</span>
                     <div class="spin-wrap"></div>
                 </button>
@@ -819,44 +616,42 @@ img { display: block; max-width: 100%; }
                 <div class="danger-zone">
                     <div class="danger-label">Danger Zone</div>
                     <p class="danger-desc">Sign out of your Econovo account on this device. Your membership and data are not affected.</p>
-                    <button type="button" class="btn-danger" id="signout-btn-2">
+                    <button class="btn-danger" id="signout-btn-2">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                         Sign Out
                     </button>
                 </div>
-
             </div>
         </div>
 
     </main>
 </div>
 
-<!-- MOBILE TAB BAR -->
 <nav class="mob-tab-bar" aria-label="Mobile navigation">
-    <button type="button" class="mob-tab active" data-view="overview">
+    <button class="mob-tab active" data-view="overview">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
             <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
         Overview
     </button>
-    <button type="button" class="mob-tab" data-view="events">
+    <button class="mob-tab" data-view="events">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
         </svg>
         Events
     </button>
-    <button type="button" class="mob-tab" data-view="announcements">
+    <button class="mob-tab" data-view="announcements">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
         Posts
     </button>
-    <button type="button" class="mob-tab" data-view="feed">
+    <button class="mob-tab" data-view="feed">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Feed
     </button>
-    <button type="button" class="mob-tab" data-view="profile">
+    <button class="mob-tab" data-view="profile">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
         </svg>
@@ -893,62 +688,13 @@ if (!storedToken || !storedUser) {
     window.location.replace('login.html');
 }
 
-const EVENTS = [
-    { month:'AUG', day:'12', title:'Economics Workshop: Algerian Market Analysis', desc:'An interactive session on local market trends and economic indicators.', tag:'Workshop' },
-    { month:'AUG', day:'19', title:'FinTech Seminar: Digital Banking in Algeria', desc:'Guest speaker from Algérie Poste on mobile payment adoption.', tag:'Seminar' },
-    { month:'SEP', day:'03', title:'Business Case Competition Kickoff', desc:'Form your team and register for Econovo\'s annual case competition.', tag:'Competition' },
-];
-
-const ANNOUNCEMENTS = [
-    { date:'Aug 1, 2026', title:'Welcome to the new Econovo member portal!', body:'We\'ve just launched our new member dashboard. You can now view upcoming events, read club announcements, and update your profile — all in one place.' },
-    { date:'Jul 28, 2026', title:'Case Competition Registration Opens August 3', body:'The annual Econovo Business Case Competition is back! Registration opens August 3rd. Teams of 2–4 students from any major are welcome to participate.' },
-];
-
-function renderEvents(id, data) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (!data.length) {
-        el.innerHTML = '<div class="empty-state"><p>No upcoming events yet. Check back soon.</p></div>';
-        return;
-    }
-    el.innerHTML = data.map(ev => `
-        <div class="event-row">
-            <div class="event-stamp">
-                <span class="stamp-month">${ev.month}</span>
-                <span class="stamp-day">${ev.day}</span>
-            </div>
-            <div class="event-body">
-                <div class="event-title">${ev.title}</div>
-                <div class="event-desc">${ev.desc}</div>
-            </div>
-            <div class="event-tag">${ev.tag}</div>
-        </div>
-    `).join('');
-}
-
-function renderAnnouncements(id, data) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (!data.length) {
-        el.innerHTML = '<div class="empty-state"><p>No announcements from the board yet.</p></div>';
-        return;
-    }
-    el.innerHTML = data.map(a => `
-        <div class="announce-card">
-            <div class="announce-date">${a.date}</div>
-            <div class="announce-title">${a.title}</div>
-            <div class="announce-body">${a.body}</div>
-        </div>
-    `).join('');
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     let user = {}, meta = {};
     try { user = JSON.parse(storedUser); meta = user.user_metadata || {}; } catch(_) {}
 
     const firstName = meta.first_name || '';
     const lastName  = meta.last_name  || '';
-    const fullName  = (firstName + ' ' + lastName).trim() || meta.full_name || user.email?.split('@')[0] || 'Member';
+    const fullName  = (firstName + ' ' + lastName).trim() || meta.full_name || user.email?.split('@')[0] || '';
     const initials  = ((firstName[0]||'') + (lastName[0]||'')).toUpperCase() || fullName.slice(0,2).toUpperCase();
     const email     = user.email || '';
     const joinedFmt = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month:'short', year:'numeric' }) : '—';
@@ -957,29 +703,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = document.getElementById(id);
         if (el) el.textContent = initials;
     });
-    document.getElementById('nav-name').textContent        = firstName || fullName;
-    document.getElementById('sidebar-name').textContent    = fullName;
-    document.getElementById('greeting-name').textContent   = 'Welcome back, ' + (firstName || fullName) + '.';
+    
+    document.getElementById('nav-name').textContent       = firstName || fullName;
+    document.getElementById('sidebar-name').textContent   = fullName;
+    document.getElementById('greeting-name').textContent  = 'Welcome back, ' + (firstName || fullName) + '.';
     document.getElementById('greeting-joined').textContent = 'Member since ' + joinedFmt;
-    document.getElementById('profile-name').textContent    = fullName;
-    document.getElementById('profile-email').textContent   = email;
-    document.getElementById('stat-events').textContent     = EVENTS.length;
-    document.getElementById('stat-ann').textContent        = ANNOUNCEMENTS.length;
-    document.getElementById('sb-events-count').textContent = EVENTS.length;
-    document.getElementById('sb-ann-count').textContent     = ANNOUNCEMENTS.length;
+    document.getElementById('profile-name').textContent   = fullName;
+    document.getElementById('profile-email').textContent  = email;
 
     document.getElementById('pf-fname').value = firstName;
     document.getElementById('pf-lname').value = lastName;
     document.getElementById('pf-email').value = email;
     document.getElementById('pf-major').value = meta.major || '';
     document.getElementById('pf-year').value  = meta.year  || '';
-
-    renderEvents('overview-events', EVENTS.slice(0, 2));
-    renderEvents('full-events', EVENTS);
-    renderAnnouncements('overview-ann', ANNOUNCEMENTS.slice(0, 1));
-    renderAnnouncements('full-ann', ANNOUNCEMENTS);
-
-    let feedInitialized = false;
 
     function setView(viewId) {
         document.querySelectorAll('.dash-view').forEach(v => v.classList.remove('active'));
@@ -992,12 +728,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.mob-tab').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.view === viewId);
         });
-
-        /* Clean integration with posts.js */
-        if (viewId === 'feed' && !feedInitialized && typeof window.initPostsFeed === 'function') {
-            feedInitialized = true;
-            window.initPostsFeed(storedToken, user.id || null);
-        }
     }
 
     window.showView = setView;
@@ -1026,7 +756,8 @@ document.addEventListener('DOMContentLoaded', () => {
             : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
     }
 
-    applyTheme(localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light'));
+    const initialTheme = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+    applyTheme(initialTheme);
 
     document.querySelector('.js-theme-toggle').addEventListener('click', () => {
         applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
@@ -1060,11 +791,462 @@ document.addEventListener('DOMContentLoaded', () => {
             alert.className = 'form-alert err visible';
         }
     });
+
 });
 })();
 </script>
 
-<!-- Posts external script -->
 <script src="../js/posts.js"></script>
+<script>
+    (function() {
+        var postsInited = false;
+        function maybeInitPosts() {
+            if (postsInited) return;
+            var token   = localStorage.getItem('econovo-token');
+            var userRaw = localStorage.getItem('econovo-user');
+            if (!token || !userRaw) return;
+            var userId = null;
+            try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
+            postsInited = true;
+            if (typeof window.initPostsFeed === 'function') {
+                window.initPostsFeed(token, userId);
+            }
+        }
+        var _originalShowView = window.showView;
+        window.showView = function(view) {
+            if (typeof _originalShowView === 'function') _originalShowView(view);
+            if (view === 'feed') maybeInitPosts();
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                var feedView = document.getElementById('view-feed');
+                if (feedView && feedView.classList.contains('active')) {
+                    maybeInitPosts();
+                }
+            }, 100);
+        });
+    })();
+</script>
+</body>
+</html>
+   </div>
+        </div>
+
+        <!-- ══════ COMMUNITY FEED ══════ -->
+        <div class="dash-view" id="view-feed">
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">Econovo Community</div>
+                    <div class="view-title">Community Feed</div>
+                    <div class="view-sub">Share updates, ideas, and resources with fellow members.</div>
+                </div>
+
+                <!-- Create Post Form -->
+                <form id="create-post-form" class="create-post-card" novalidate>
+                    <div class="create-post-top">
+                        <div class="create-post-avatar" id="create-post-avatar">EC</div>
+                        <textarea
+                            id="post-content"
+                            class="create-post-textarea"
+                            placeholder="Share something with the club…"
+                            rows="3"
+                            maxlength="1000"></textarea>
+                    </div>
+
+                    <!-- Image preview -->
+                    <div class="create-post-image-wrap" id="create-post-image-wrap" style="display:none;">
+                        <img id="post-image-preview" src="" alt="Preview" class="create-post-preview">
+                        <button type="button" id="remove-image-btn" class="remove-img-btn" title="Remove image">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+
+                    <div id="post-alert" class="post-alert" style="display:none;"></div>
+
+                    <div class="create-post-footer">
+                        <span class="post-char-count" id="post-char-count">0 / 1000</span>
+                        <div class="create-post-actions">
+                            <label class="attach-img-btn" for="post-image" title="Attach image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                Image
+                                <input type="file" id="post-image" accept="image/*" style="display:none;">
+                            </label>
+                            <button type="button" id="emoji-trigger-btn" class="emoji-trigger-btn" title="Add emoji">
+                                😊 Emoji
+                            </button>
+                            <button type="submit" id="post-submit-btn" class="btn-primary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                                Publish
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Feed -->
+                <div id="posts-feed" class="posts-feed"></div>
+            </div>
+        </div>
+
+        <!-- ══════ PROFILE ══════ -->
+        <div class="dash-view" id="view-profile">
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">Account</div>
+                    <div class="view-title">My Profile</div>
+                    <div class="view-sub">Update your display name and membership details.</div>
+                </div>
+
+                <div class="profile-header-strip">
+                    <div class="profile-avatar-xl" id="profile-avatar">EC</div>
+                    <div>
+                        <div class="profile-header-name" id="profile-name">Member</div>
+                        <div class="profile-header-email" id="profile-email">member@econovo.club</div>
+                        <div class="profile-header-badge">Active Member</div>
+                    </div>
+                </div>
+
+                <div class="form-alert" id="profile-alert"></div>
+
+                <div class="profile-form-grid">
+                    <div class="field-block">
+                        <label class="field-label" for="pf-fname">First Name</label>
+                        <input class="field-input" type="text" id="pf-fname" placeholder="Ahmed" autocomplete="given-name">
+                    </div>
+                    <div class="field-block">
+                        <label class="field-label" for="pf-lname">Last Name</label>
+                        <input class="field-input" type="text" id="pf-lname" placeholder="Benali" autocomplete="family-name">
+                    </div>
+                    <div class="field-block span-2">
+                        <label class="field-label" for="pf-email">Email Address</label>
+                        <input class="field-input" type="email" id="pf-email" disabled>
+                    </div>
+                    <div class="field-block">
+                        <label class="field-label" for="pf-major">Field of Study</label>
+                        <input class="field-input" type="text" id="pf-major" placeholder="Economics">
+                    </div>
+                    <div class="field-block">
+                        <label class="field-label" for="pf-year">Year of Study</label>
+                        <input class="field-input" type="text" id="pf-year" placeholder="3rd Year (L3)">
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="save-btn">
+                    <span class="btn-txt">Save Changes</span>
+                    <div class="spin-wrap"></div>
+                </button>
+
+                <div class="danger-zone">
+                    <div class="danger-label">Danger Zone</div>
+                    <p class="danger-desc">Sign out of your Econovo account on this device. Your membership and data are not affected.</p>
+                    <button class="btn-danger" id="signout-btn-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Sign Out
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ════════════ MOBILE TAB BAR ════════════ -->
+<nav class="mob-tab-bar" aria-label="Mobile navigation">
+    <button class="mob-tab active" data-view="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Overview
+    </button>
+    <button class="mob-tab" data-view="events">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+        Events
+    </button>
+    <button class="mob-tab" data-view="announcements">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Posts
+    </button>
+    <button class="mob-tab" data-view="feed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Feed
+    </button>
+    <button class="mob-tab" data-view="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        Profile
+    </button>
+</nav>
+
+<script>
+(function () {
+'use strict';
+
+/* ── Supabase config ── */
+const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
+
+async function supaFetch(path, opts = {}) {
+    const token = localStorage.getItem('econovo-token');
+    const res = await fetch(SUPABASE_URL + path, {
+        ...opts,
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
+            ...(opts.headers || {}),
+        },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error_description || data.message || 'Error');
+    return data;
+}
+
+/* ── Auth guard ── */
+const storedToken = localStorage.getItem('econovo-token');
+const storedUser  = localStorage.getItem('econovo-user');
+if (!storedToken || !storedUser) {
+    window.location.replace('login.html');
+}
+
+/* ── Data ── */
+const EVENTS = [
+    { month:'AUG', day:'12', title:'Economics Workshop: Algerian Market Analysis',    desc:'An interactive session on local market trends and economic indicators.',      tag:'Workshop'    },
+    { month:'AUG', day:'19', title:'FinTech Seminar: Digital Banking in Algeria',     desc:'Guest speaker from Algérie Poste on mobile payment adoption.',               tag:'Seminar'     },
+    { month:'SEP', day:'03', title:'Business Case Competition Kickoff',               desc:'Form your team and register for Econovo\'s annual case competition.',         tag:'Competition' },
+];
+
+const ANNOUNCEMENTS = [
+    { date:'Aug 1, 2026',  title:'Welcome to the new Econovo member portal!',           body:'We\'ve just launched our new member dashboard. You can now view upcoming events, read club announcements, and update your profile — all in one place.' },
+    { date:'Jul 28, 2026', title:'Case Competition Registration Opens August 3',         body:'The annual Econovo Business Case Competition is back! Registration opens August 3rd. Teams of 2–4 students from any major are welcome to participate.' },
+];
+
+/* ── Render helpers ── */
+function renderEvents(id, data) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!data.length) {
+        el.innerHTML = '<div class="empty-state"><svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><p>No upcoming events yet. Check back soon.</p></div>';
+        return;
+    }
+    el.innerHTML = data.map(ev => `
+        <div class="event-row">
+            <div class="event-stamp">
+                <span class="stamp-month">${ev.month}</span>
+                <span class="stamp-day">${ev.day}</span>
+            </div>
+            <div class="event-body">
+                <div class="event-title">${ev.title}</div>
+                <div class="event-desc">${ev.desc}</div>
+            </div>
+            <div class="event-tag">${ev.tag}</div>
+        </div>
+    `).join('');
+}
+
+function renderAnnouncements(id, data) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!data.length) {
+        el.innerHTML = '<div class="empty-state"><p>No announcements from the board yet.</p></div>';
+        return;
+    }
+    el.innerHTML = data.map(a => `
+        <div class="announce-card">
+            <div class="announce-date">${a.date}</div>
+            <div class="announce-title">${a.title}</div>
+            <div class="announce-body">${a.body}</div>
+        </div>
+    `).join('');
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* Parse user */
+    let user = {}, meta = {};
+    try { user = JSON.parse(storedUser); meta = user.user_metadata || {}; } catch(_) {}
+
+    const firstName = meta.first_name || '';
+    const lastName  = meta.last_name  || '';
+    const fullName  = (firstName + ' ' + lastName).trim() || meta.full_name || user.email?.split('@')[0] || 'Member';
+    const initials  = ((firstName[0]||'') + (lastName[0]||'')).toUpperCase() || fullName.slice(0,2).toUpperCase();
+    const email     = user.email || '';
+    const joinedFmt = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month:'short', year:'numeric' }) : '—';
+
+    /* Fill UI */
+    ['nav-avatar','sidebar-avatar','greeting-avatar','profile-avatar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = initials;
+    });
+    document.getElementById('nav-name').textContent       = firstName || fullName;
+    document.getElementById('sidebar-name').textContent   = fullName;
+    document.getElementById('greeting-name').textContent  = 'Welcome back, ' + (firstName || fullName) + '.';
+    document.getElementById('greeting-joined').textContent = 'Member since ' + joinedFmt;
+    document.getElementById('profile-name').textContent   = fullName;
+    document.getElementById('profile-email').textContent  = email;
+    document.getElementById('stat-events').textContent    = EVENTS.length;
+    document.getElementById('stat-ann').textContent       = ANNOUNCEMENTS.length;
+    document.getElementById('sb-events-count').textContent = EVENTS.length;
+    document.getElementById('sb-ann-count').textContent    = ANNOUNCEMENTS.length;
+
+    /* Profile form defaults */
+    document.getElementById('pf-fname').value = firstName;
+    document.getElementById('pf-lname').value = lastName;
+    document.getElementById('pf-email').value = email;
+    document.getElementById('pf-major').value = meta.major || '';
+    document.getElementById('pf-year').value  = meta.year  || '';
+
+    /* Render lists */
+    renderEvents('overview-events', EVENTS.slice(0, 2));
+    renderEvents('full-events', EVENTS);
+    renderAnnouncements('overview-ann', ANNOUNCEMENTS.slice(0, 1));
+    renderAnnouncements('full-ann', ANNOUNCEMENTS);
+
+    /* View switching — sidebar + mobile tab */
+    function setView(viewId) {
+        document.querySelectorAll('.dash-view').forEach(v => v.classList.remove('active'));
+        const el = document.getElementById('view-' + viewId);
+        if (el) el.classList.add('active');
+
+        document.querySelectorAll('.sidebar-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === viewId);
+        });
+        document.querySelectorAll('.mob-tab').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === viewId);
+        });
+    }
+
+    window.showView = setView;
+
+    document.querySelectorAll('.sidebar-item, .mob-tab').forEach(btn => {
+        btn.addEventListener('click', () => setView(btn.dataset.view));
+    });
+
+    /* Sign out */
+    function signOut() {
+        localStorage.removeItem('econovo-token');
+        localStorage.removeItem('econovo-user');
+        window.location.replace('login.html');
+    }
+    document.getElementById('signout-btn').addEventListener('click', signOut);
+    document.getElementById('signout-btn-2').addEventListener('click', signOut);
+
+    /* Theme toggle */
+    const root = document.documentElement;
+    const themeIcon = document.getElementById('theme-icon');
+
+    function applyTheme(t) {
+        if (t === 'dark') root.setAttribute('data-theme','dark');
+        else root.removeAttribute('data-theme');
+        localStorage.setItem('econovo-theme', t);
+        /* Moon / Sun icon */
+        themeIcon.innerHTML = t === 'dark'
+            ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+            : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    }
+
+    const initialTheme = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+    applyTheme(initialTheme);
+
+    document.querySelector('.js-theme-toggle').addEventListener('click', () => {
+        applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    /* Profile save */
+    document.getElementById('save-btn').addEventListener('click', async () => {
+        const btn   = document.getElementById('save-btn');
+        const alert = document.getElementById('profile-alert');
+        const fname = document.getElementById('pf-fname').value.trim();
+        const lname = document.getElementById('pf-lname').value.trim();
+        const major = document.getElementById('pf-major').value.trim();
+        const year  = document.getElementById('pf-year').value.trim();
+
+        btn.classList.add('loading'); btn.disabled = true;
+        alert.className = 'form-alert';
+
+        try {
+            const data = await supaFetch('/auth/v1/user', {
+                method: 'PUT',
+                headers: { 'Authorization': 'Bearer ' + storedToken },
+                body: JSON.stringify({ data: { first_name: fname, last_name: lname, full_name: (fname+' '+lname).trim(), major, year } }),
+            });
+            localStorage.setItem('econovo-user', JSON.stringify(data));
+            btn.classList.remove('loading'); btn.disabled = false;
+            alert.textContent = '✓ Profile saved.';
+            alert.className = 'form-alert ok visible';
+            setTimeout(() => alert.classList.remove('visible'), 3500);
+        } catch(err) {
+            btn.classList.remove('loading'); btn.disabled = false;
+            alert.textContent = '⚠ ' + err.message;
+            alert.className = 'form-alert err visible';
+        }
+    });
+
+});
+})();
+</script>
+    <!-- Posts feed -->
+    <script src="../js/posts.js"></script>
+    <script>
+    // Initialize posts feed when the feed view is activated OR immediately if on feed view
+    (function() {
+        var postsInited = false;
+        function maybeInitPosts() {
+            if (postsInited) return;
+            var token = localStorage.getItem('econovo-token');
+            var userRaw = localStorage.getItem('econovo-user');
+            if (!token || !userRaw) return;
+            var userId = null;
+            try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
+            // Set avatar initials in composer
+            var compAvatar = document.getElementById('create-post-avatar');
+            if (compAvatar) {
+                var name = '';
+                try { name = JSON.parse(userRaw).user_metadata && (JSON.parse(userRaw).user_metadata.full_name || JSON.parse(userRaw).user_metadata.first_name) || ''; } catch(e) {}
+                if (name) {
+                    compAvatar.textContent = name.trim().split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+                }
+            }
+            // Show image preview wrap when file is chosen (CSS-driven, but make sure wrapper shows)
+            var imgInput = document.getElementById('post-image');
+            var imgWrap  = document.getElementById('create-post-image-wrap');
+            if (imgInput && imgWrap) {
+                imgInput.addEventListener('change', function() {
+                    imgWrap.style.display = imgInput.files && imgInput.files[0] ? 'block' : 'none';
+                });
+            }
+            postsInited = true;
+            if (typeof window.initPostsFeed === 'function') {
+                window.initPostsFeed(token, userId);
+            }
+        }
+        // Hook into showView
+        var _originalShowView = window.showView;
+        window.showView = function(view) {
+            if (typeof _originalShowView === 'function') _originalShowView(view);
+            if (view === 'feed') maybeInitPosts();
+        };
+        // Also init if user navigates directly or feed is shown by default
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to let auth UI apply first
+            setTimeout(function() {
+                var feedView = document.getElementById('view-feed');
+                if (feedView && feedView.classList.contains('active')) {
+                    maybeInitPosts();
+                }
+            }, 300);
+        });
+    })();
+    </script>
 </body>
 </html>
