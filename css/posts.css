@@ -528,3 +528,20 @@
     .create-post-card { padding: 12px; }
     .post-comments { padding: 10px 12px; }
 }
+
+/* ── Missing utility classes ── */
+.btn-spinner {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.comment-count-label {
+    font-size: .78rem;
+}
