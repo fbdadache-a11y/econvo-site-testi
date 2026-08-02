@@ -733,6 +733,325 @@ img { display: block; max-width: 100%; }
 [data-theme="dark"] .mob-tab.active { color: var(--sage); }
 .mob-tab.active svg { stroke-width: 2.5; }
 
+
+/* ════════════════════════════════════════════
+   COMMUNITY FEED — posts, comments, composer
+   ════════════════════════════════════════════ */
+
+/* ── Create Post Card ── */
+.create-post-card {
+    background: var(--card);
+    border: 1px solid var(--line-mid);
+    border-radius: var(--r-card);
+    padding: var(--s6);
+    margin-bottom: var(--s5);
+    transition: border-color 240ms ease;
+}
+.create-post-card:focus-within { border-color: rgba(143,184,166,.45); }
+
+.create-post-top {
+    display: flex;
+    gap: var(--s4);
+    margin-bottom: var(--s4);
+}
+.create-post-avatar {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8FB8A6 0%, #b8d4c8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: .75rem; font-weight: 700;
+    color: var(--obsidian);
+}
+.create-post-textarea {
+    flex: 1;
+    resize: none;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font); font-size: .9rem;
+    line-height: 1.6;
+    outline: none;
+    min-height: 72px;
+    padding: 0;
+}
+.create-post-textarea::placeholder { color: var(--text-muted); }
+
+/* Image preview inside composer */
+.create-post-image-wrap {
+    position: relative;
+    margin-bottom: var(--s4);
+}
+.create-post-preview {
+    width: 100%; max-height: 280px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    display: block;
+}
+.remove-img-btn {
+    position: absolute; top: 8px; right: 8px;
+    width: 26px; height: 26px;
+    background: rgba(14,42,36,.72); color: #fff;
+    border: none; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 150ms;
+}
+.remove-img-btn:hover { background: rgba(14,42,36,.9); }
+
+.post-alert {
+    padding: 8px 12px;
+    background: rgba(200,80,80,.09);
+    border: 1px solid rgba(200,80,80,.25);
+    border-radius: 6px;
+    color: #c94444;
+    font-size: .82rem; font-weight: 600;
+    margin-bottom: var(--s4);
+}
+
+.create-post-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--s4);
+    border-top: 1px solid var(--line);
+}
+.post-char-count {
+    font-family: var(--mono); font-size: .68rem;
+    color: var(--text-muted);
+}
+.create-post-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+}
+.attach-img-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--line-mid);
+    border-radius: var(--r-btn);
+    font-size: .82rem; font-weight: 600;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: border-color 150ms, color 150ms;
+}
+.attach-img-btn:hover { border-color: rgba(143,184,166,.6); color: var(--text); }
+
+/* ── Loading / Empty ── */
+.posts-loading {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--text-muted); font-size: .88rem;
+    padding: var(--s6) 0;
+    justify-content: center;
+}
+.posts-spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--line-mid);
+    border-top-color: var(--sage);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    flex-shrink: 0;
+}
+.posts-empty {
+    text-align: center;
+    padding: var(--s8) var(--s5);
+    border: 1px dashed var(--line-mid);
+    border-radius: var(--r-card);
+    color: var(--text-muted);
+    font-size: .9rem;
+}
+.posts-feed {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s4);
+}
+
+/* ── Post Card ── */
+.post-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-card);
+    padding: var(--s6);
+    transition: border-color 240ms ease;
+    animation: postIn .4s ease-out both;
+}
+@keyframes postIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.post-card:hover { border-color: rgba(143,184,166,.35); }
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    margin-bottom: var(--s4);
+}
+.post-avatar {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8FB8A6 0%, #b8d4c8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: .72rem; font-weight: 700;
+    color: var(--obsidian);
+}
+.post-meta { flex: 1; }
+.post-author {
+    display: block;
+    font-size: .88rem; font-weight: 700;
+    color: var(--text); letter-spacing: -.01em;
+}
+.post-time {
+    font-family: var(--mono); font-size: .65rem;
+    color: var(--text-muted);
+}
+
+/* Delete button — only visible on owner's posts */
+.post-delete-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    cursor: pointer; background: none;
+    transition: border-color 150ms, color 150ms, background 150ms;
+    flex-shrink: 0;
+}
+.post-delete-btn:hover {
+    border-color: rgba(200,80,80,.3);
+    color: #c94444;
+    background: rgba(200,80,80,.06);
+}
+
+.post-body {
+    font-size: .9rem; color: var(--text);
+    line-height: 1.65;
+    margin-bottom: var(--s4);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Post image */
+.post-img-wrap { margin-bottom: var(--s4); }
+.post-img {
+    width: 100%; max-height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    display: block;
+    cursor: pointer;
+    transition: opacity 150ms;
+}
+.post-img:hover { opacity: .94; }
+
+/* Post footer (comment toggle) */
+.post-footer {
+    padding-top: var(--s3);
+    border-top: 1px solid var(--line);
+}
+.post-comment-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: .72rem; font-weight: 600;
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em;
+    background: none; border: none; cursor: pointer; padding: 0;
+    transition: color 150ms;
+}
+.post-comment-toggle:hover { color: var(--sage); }
+
+/* ── Comments Section ── */
+.post-comments {
+    margin-top: var(--s4);
+    padding-top: var(--s4);
+    border-top: 1px solid var(--line);
+    animation: postIn .3s ease-out;
+}
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+    margin-bottom: var(--s4);
+}
+.comments-loading {
+    font-size: .82rem; color: var(--text-muted);
+    font-style: italic;
+}
+.no-comments {
+    font-size: .82rem; color: var(--text-muted);
+    font-style: italic;
+}
+.comment-item {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: var(--s3) var(--s4);
+    background: var(--muted);
+    border-radius: 8px;
+    font-size: .85rem;
+    animation: postIn .25s ease-out;
+}
+.comment-author {
+    font-weight: 700;
+    color: var(--text);
+    flex-shrink: 0;
+}
+.comment-body {
+    color: var(--text-soft);
+    flex: 1;
+    word-break: break-word;
+}
+.comment-time {
+    font-family: var(--mono); font-size: .62rem;
+    color: var(--text-muted); flex-shrink: 0;
+    align-self: flex-start;
+    margin-left: auto;
+}
+
+/* Comment composer */
+.comment-form {
+    display: flex; gap: var(--s3);
+    align-items: center;
+}
+.comment-input {
+    flex: 1;
+    padding: 9px 14px;
+    border: 1px solid var(--line-mid);
+    border-radius: 20px;
+    background: var(--canvas);
+    color: var(--text);
+    font-family: var(--font); font-size: .85rem;
+    outline: none;
+    transition: border-color 150ms, box-shadow 150ms;
+}
+.comment-input:focus {
+    border-color: rgba(143,184,166,.6);
+    box-shadow: 0 0 0 3px rgba(143,184,166,.1);
+}
+.comment-input::placeholder { color: var(--text-muted); }
+.comment-submit {
+    padding: 8px 16px;
+    background: var(--obsidian); color: #fff;
+    border: none; border-radius: 20px;
+    font-family: var(--font); font-size: .82rem; font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms, opacity 150ms;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.comment-submit:hover { background: #163a32; }
+.comment-submit:disabled { opacity: .5; cursor: not-allowed; }
+[data-theme="dark"] .comment-submit { background: var(--sage); color: var(--obsidian); }
+
+/* btn-spinner inside post submit */
+.btn-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .65s linear infinite;
+    vertical-align: middle;
+}
+
 /* ════════════════════════
    RESPONSIVE
    ════════════════════════ */
@@ -853,6 +1172,13 @@ img { display: block; max-width: 100%; }
             <span class="sidebar-badge" id="sb-ann-count">2</span>
         </button>
 
+        <button class="sidebar-item" data-view="feed">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Community Feed
+        </button>
+
         <span class="sidebar-section">Account</span>
 
         <button class="sidebar-item" data-view="profile">
@@ -949,6 +1275,62 @@ img { display: block; max-width: 100%; }
             </div>
         </div>
 
+        <!-- ══════ COMMUNITY FEED ══════ -->
+        <div class="dash-view" id="view-feed">
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">Econovo Community</div>
+                    <div class="view-title">Community Feed</div>
+                    <div class="view-sub">Share updates, ideas, and resources with fellow members.</div>
+                </div>
+
+                <!-- Create Post Form -->
+                <form id="create-post-form" class="create-post-card" novalidate>
+                    <div class="create-post-top">
+                        <div class="create-post-avatar" id="create-post-avatar">EC</div>
+                        <textarea
+                            id="post-content"
+                            class="create-post-textarea"
+                            placeholder="Share something with the club…"
+                            rows="3"
+                            maxlength="1000"></textarea>
+                    </div>
+
+                    <!-- Image preview -->
+                    <div class="create-post-image-wrap" id="create-post-image-wrap" style="display:none;">
+                        <img id="post-image-preview" src="" alt="Preview" class="create-post-preview">
+                        <button type="button" id="remove-image-btn" class="remove-img-btn" title="Remove image">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+
+                    <div id="post-alert" class="post-alert" style="display:none;"></div>
+
+                    <div class="create-post-footer">
+                        <span class="post-char-count" id="post-char-count">0 / 1000</span>
+                        <div class="create-post-actions">
+                            <label class="attach-img-btn" for="post-image" title="Attach image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                Image
+                                <input type="file" id="post-image" accept="image/*" style="display:none;">
+                            </label>
+                            <button type="submit" id="post-submit-btn" class="btn-primary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                                Publish Post
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Feed -->
+                <div id="posts-feed" class="posts-feed"></div>
+            </div>
+        </div>
+
         <!-- ══════ PROFILE ══════ -->
         <div class="dash-view" id="view-profile">
             <div class="view-body">
@@ -1032,6 +1414,10 @@ img { display: block; max-width: 100%; }
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
         Posts
+    </button>
+    <button class="mob-tab" data-view="feed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Feed
     </button>
     <button class="mob-tab" data-view="profile">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -1249,5 +1635,58 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 })();
 </script>
+    <!-- Posts feed -->
+    <script src="../js/posts.js"></script>
+    <script>
+    // Initialize posts feed when the feed view is activated OR immediately if on feed view
+    (function() {
+        var postsInited = false;
+        function maybeInitPosts() {
+            if (postsInited) return;
+            var token = localStorage.getItem('econovo-token');
+            var userRaw = localStorage.getItem('econovo-user');
+            if (!token || !userRaw) return;
+            var userId = null;
+            try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
+            // Set avatar initials in composer
+            var compAvatar = document.getElementById('create-post-avatar');
+            if (compAvatar) {
+                var name = '';
+                try { name = JSON.parse(userRaw).user_metadata && (JSON.parse(userRaw).user_metadata.full_name || JSON.parse(userRaw).user_metadata.first_name) || ''; } catch(e) {}
+                if (name) {
+                    compAvatar.textContent = name.trim().split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+                }
+            }
+            // Show image preview wrap when file is chosen (CSS-driven, but make sure wrapper shows)
+            var imgInput = document.getElementById('post-image');
+            var imgWrap  = document.getElementById('create-post-image-wrap');
+            if (imgInput && imgWrap) {
+                imgInput.addEventListener('change', function() {
+                    imgWrap.style.display = imgInput.files && imgInput.files[0] ? 'block' : 'none';
+                });
+            }
+            postsInited = true;
+            if (typeof window.initPostsFeed === 'function') {
+                window.initPostsFeed(token, userId);
+            }
+        }
+        // Hook into showView
+        var _originalShowView = window.showView;
+        window.showView = function(view) {
+            if (typeof _originalShowView === 'function') _originalShowView(view);
+            if (view === 'feed') maybeInitPosts();
+        };
+        // Also init if user navigates directly or feed is shown by default
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to let auth UI apply first
+            setTimeout(function() {
+                var feedView = document.getElementById('view-feed');
+                if (feedView && feedView.classList.contains('active')) {
+                    maybeInitPosts();
+                }
+            }, 300);
+        });
+    })();
+    </script>
 </body>
 </html>
