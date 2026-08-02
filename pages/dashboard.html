@@ -1638,53 +1638,45 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Posts feed -->
     <script src="../js/posts.js"></script>
     <script>
-    // Initialize posts feed when the feed view is activated OR immediately if on feed view
+    /* ── Posts init ──────────────────────────────────────────────
+       posts.js handles ALL image preview, char counter, form submit,
+       remove-image button, and feed rendering internally.
+       This block ONLY passes the session token + userId once,
+       then stays out of the way.
+    ──────────────────────────────────────────────────────────── */
     (function() {
         var postsInited = false;
+
         function maybeInitPosts() {
             if (postsInited) return;
-            var token = localStorage.getItem('econovo-token');
+            var token   = localStorage.getItem('econovo-token');
             var userRaw = localStorage.getItem('econovo-user');
             if (!token || !userRaw) return;
+
             var userId = null;
             try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
-            // Set avatar initials in composer
-            var compAvatar = document.getElementById('create-post-avatar');
-            if (compAvatar) {
-                var name = '';
-                try { name = JSON.parse(userRaw).user_metadata && (JSON.parse(userRaw).user_metadata.full_name || JSON.parse(userRaw).user_metadata.first_name) || ''; } catch(e) {}
-                if (name) {
-                    compAvatar.textContent = name.trim().split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
-                }
-            }
-            // Show image preview wrap when file is chosen (CSS-driven, but make sure wrapper shows)
-            var imgInput = document.getElementById('post-image');
-            var imgWrap  = document.getElementById('create-post-image-wrap');
-            if (imgInput && imgWrap) {
-                imgInput.addEventListener('change', function() {
-                    imgWrap.style.display = imgInput.files && imgInput.files[0] ? 'block' : 'none';
-                });
-            }
+
             postsInited = true;
             if (typeof window.initPostsFeed === 'function') {
                 window.initPostsFeed(token, userId);
             }
         }
-        // Hook into showView
+
+        /* Init when switching to feed tab */
         var _originalShowView = window.showView;
         window.showView = function(view) {
             if (typeof _originalShowView === 'function') _originalShowView(view);
             if (view === 'feed') maybeInitPosts();
         };
-        // Also init if user navigates directly or feed is shown by default
+
+        /* Init if feed is the default active view on page load */
         document.addEventListener('DOMContentLoaded', function() {
-            // Small delay to let auth UI apply first
             setTimeout(function() {
                 var feedView = document.getElementById('view-feed');
                 if (feedView && feedView.classList.contains('active')) {
                     maybeInitPosts();
                 }
-            }, 300);
+            }, 100);
         });
     })();
     </script>
