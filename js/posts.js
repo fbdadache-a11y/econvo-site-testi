@@ -81,7 +81,7 @@ async function uploadImage(file, token) {
         headers: {
             ...storageHeaders(token),
             'Content-Type': file.type || 'image/jpeg',
-            'Cache-Control': '3600',
+            'Cache-Control': 'max-age=3600',
         },
         body: file,
     });
@@ -332,6 +332,7 @@ async function loadPosts(container, token, currentUserId) {
                 try {
                     await pgPost('comments', {
                         post_id: row.id,
+                        user_id: currentUserId,
                         content: text,
                     }, token);
 
@@ -413,7 +414,8 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
 
         // Insert post
         await pgPost('posts', {
-            content: content || '',
+            user_id:   currentUserId,
+            content:   content || '',
             image_url: imageUrl,
         }, token);
 
@@ -450,6 +452,19 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
 window.initPostsFeed = function(token, currentUserId) {
     const feedContainer = document.getElementById('posts-feed');
     const createForm    = document.getElementById('create-post-form');
+
+    // Set composer avatar initials from stored user
+    try {
+        const userRaw  = localStorage.getItem('econovo-user');
+        const userObj  = userRaw ? JSON.parse(userRaw) : {};
+        const meta     = userObj.user_metadata || {};
+        const name     = meta.full_name || meta.first_name || userObj.email || '';
+        const avatarEl = document.getElementById('create-post-avatar');
+        if (avatarEl && name) {
+            avatarEl.textContent = name.trim().split(' ')
+                .slice(0, 2).map(w => w[0]).join('').toUpperCase();
+        }
+    } catch(_) {}
     const imageInput    = createForm && createForm.querySelector('#post-image');
     const preview       = createForm && createForm.querySelector('#post-image-preview');
     const textarea      = createForm && createForm.querySelector('#post-content');
@@ -463,26 +478,38 @@ window.initPostsFeed = function(token, currentUserId) {
 
     if (!createForm) return;
 
-    // Image preview
+    // Image preview — single listener handles both preview + wrapper visibility
+    const imgWrap = createForm && createForm.querySelector('#create-post-image-wrap');
     if (imageInput && preview) {
-        imageInput.addEventListener('change', () => {
-            const file = imageInput.files[0];
-            if (!file) { preview.style.display = 'none'; return; }
+        // Remove any prior listener added by dashboard.html by cloning the node
+        const freshInput = imageInput.cloneNode(true);
+        imageInput.parentNode.replaceChild(freshInput, imageInput);
+        const activeInput = createForm.querySelector('#post-image');
+
+        activeInput.addEventListener('change', () => {
+            const file = activeInput.files[0];
+            if (!file) {
+                preview.style.display = 'none';
+                if (imgWrap) imgWrap.style.display = 'none';
+                return;
+            }
             const reader = new FileReader();
             reader.onload = e => {
                 preview.src = e.target.result;
                 preview.style.display = 'block';
+                if (imgWrap) imgWrap.style.display = 'block';
             };
             reader.readAsDataURL(file);
         });
     }
 
-    // Remove image
-    if (removeImgBtn && imageInput && preview) {
+    // Remove image — also hide the wrapper
+    if (removeImgBtn) {
         removeImgBtn.addEventListener('click', () => {
-            imageInput.value = '';
-            preview.src = '';
-            preview.style.display = 'none';
+            const activeInput = createForm.querySelector('#post-image');
+            if (activeInput) activeInput.value = '';
+            if (preview) { preview.src = ''; preview.style.display = 'none'; }
+            if (imgWrap) imgWrap.style.display = 'none';
         });
     }
 
