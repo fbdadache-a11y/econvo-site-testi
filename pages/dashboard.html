@@ -1154,6 +1154,19 @@ const SB_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 const TOKEN = localStorage.getItem('econovo-token');
 const USER_RAW = localStorage.getItem('econovo-user');
 if (!TOKEN || !USER_RAW) { window.location.replace('login.html'); }
+// Check token expiry — Supabase JWTs expire after 1 hour
+try {
+  const _payload = JSON.parse(atob(TOKEN.split('.')[1]));
+  if (_payload.exp && _payload.exp * 1000 < Date.now()) {
+    localStorage.removeItem('econovo-token');
+    localStorage.removeItem('econovo-user');
+    window.location.replace('login.html');
+  }
+} catch(_) {
+  localStorage.removeItem('econovo-token');
+  localStorage.removeItem('econovo-user');
+  window.location.replace('login.html');
+}
 
 /* ═══ USER DATA ═══ */
 let USER = {}, META = {};
@@ -1216,19 +1229,31 @@ function escH(s) {
 }
 
 /* ═══ SUPABASE ═══ */
+// REST helpers — TOKEN is the real JWT from login, SB_KEY is the publishable key (apikey only)
 async function sbGet(path) {
   const r = await fetch(SB_URL + '/rest/v1/' + path, {
-    headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + TOKEN, 'Prefer': '' },
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + TOKEN,
+      'Prefer': '',
+    },
   });
-  if (!r.ok) throw new Error(await r.text());
+  if (!r.ok) {
+    if (r.status === 401) { localStorage.removeItem('econovo-token'); localStorage.removeItem('econovo-user'); window.location.replace('login.html'); }
+    throw new Error(await r.text());
+  }
   return r.json();
 }
 async function sbPost(path, body) {
   const r = await fetch(SB_URL + '/rest/v1/' + path, {
     method: 'POST',
-    headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + TOKEN, 'Prefer': 'return=representation' },
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + TOKEN,
+      'Prefer': 'return=representation',
+    },
     body: JSON.stringify(body),
   });
   if (!r.ok) throw new Error(await r.text());
@@ -1237,8 +1262,11 @@ async function sbPost(path, body) {
 async function sbDel(path) {
   await fetch(SB_URL + '/rest/v1/' + path, {
     method: 'DELETE',
-    headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + TOKEN },
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + TOKEN,
+    },
   });
 }
 
