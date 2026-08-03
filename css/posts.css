@@ -228,38 +228,79 @@
     flex-wrap: wrap;
 }
 
+/* ── Reaction buttons — SVG Lucide icons ── */
 .reaction-btn {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 10px;
+    padding: 5px 11px;
     border-radius: 20px;
     border: 1px solid var(--line);
     background: transparent;
     cursor: pointer;
-    font-size: .82rem;
+    font-size: .78rem;
+    font-weight: 600;
     color: var(--text-soft);
     font-family: var(--font);
-    transition: background .15s, border-color .15s, color .15s, transform .12s;
-    line-height: 1;
     user-select: none;
+    transition:
+        background 150ms ease,
+        border-color 150ms ease,
+        color 150ms ease,
+        box-shadow 150ms ease;
+    will-change: transform;
 }
+
 .reaction-btn:hover {
     background: var(--sage-dim);
     border-color: var(--sage);
     color: var(--text);
-    transform: scale(1.06);
+    box-shadow: 0 1px 6px rgba(143,184,166,.18);
 }
+
 .reaction-btn.active {
-    background: var(--sage-dim);
+    background: color-mix(in srgb, var(--sage) 14%, transparent);
     border-color: var(--sage);
     color: var(--obsidian);
-    font-weight: 600;
+    font-weight: 700;
 }
-[data-theme="dark"] .reaction-btn.active { color: var(--sage-light); }
 
-.reaction-emoji { font-size: 1rem; line-height: 1; }
-.reaction-count { font-size: .78rem; font-variant-numeric: tabular-nums; }
+[data-theme="dark"] .reaction-btn.active {
+    color: var(--sage-light, #b8d4c8);
+    background: color-mix(in srgb, var(--sage) 18%, transparent);
+}
+
+/* Icon — inherits color from button */
+.reaction-icon {
+    flex-shrink: 0;
+    transition: stroke 150ms ease;
+}
+
+/* Active state: filled icon feel via stroke-width bump */
+.reaction-btn.active .reaction-icon {
+    stroke-width: 2.2;
+}
+
+/* Individual icon accent colours when active */
+.reaction-btn[data-key="like"].active      { color: #3b7dd8; border-color: #3b7dd8; background: rgba(59,125,216,.10); }
+.reaction-btn[data-key="helpful"].active   { color: #5dbd7e; border-color: #5dbd7e; background: rgba(93,189,126,.10); }
+.reaction-btn[data-key="smart"].active     { color: #d4a820; border-color: #d4a820; background: rgba(212,168,32,.10); }
+.reaction-btn[data-key="relatable"].active { color: #e05252; border-color: #e05252; background: rgba(224,82,82,.10); }
+.reaction-btn[data-key="fire"].active      { color: #e07a30; border-color: #e07a30; background: rgba(224,122,48,.10); }
+
+/* Dark mode */
+[data-theme="dark"] .reaction-btn[data-key="like"].active      { color: #6ba3e8; border-color: #6ba3e8; background: rgba(107,163,232,.12); }
+[data-theme="dark"] .reaction-btn[data-key="helpful"].active   { color: #7dd89a; border-color: #7dd89a; background: rgba(125,216,154,.12); }
+[data-theme="dark"] .reaction-btn[data-key="smart"].active     { color: #e8c840; border-color: #e8c840; background: rgba(232,200,64,.12); }
+[data-theme="dark"] .reaction-btn[data-key="relatable"].active { color: #f08080; border-color: #f08080; background: rgba(240,128,128,.12); }
+[data-theme="dark"] .reaction-btn[data-key="fire"].active      { color: #f0a060; border-color: #f0a060; background: rgba(240,160,96,.12); }
+
+.reaction-count {
+    font-size: .74rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    min-width: 10px;
+}
 
 .post-comment-toggle {
     display: inline-flex;
@@ -452,39 +493,6 @@
     font-size: .82rem;
     color: #c84444;
     padding: 6px 0 4px;
-}
-
-/* ── Emoji picker dropdown ── */
-.emoji-picker-popup {
-    position: absolute;
-    z-index: 200;
-    background: var(--bg-raised);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 10px;
-    box-shadow: var(--shadow-md);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    width: 240px;
-}
-
-.emoji-picker-btn {
-    width: 34px;
-    height: 34px;
-    border: none;
-    background: none;
-    border-radius: 8px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background .12s, transform .1s;
-}
-.emoji-picker-btn:hover {
-    background: var(--sage-dim);
-    transform: scale(1.2);
 }
 
 /* ── Image preview ── */
