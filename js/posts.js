@@ -1,16 +1,25 @@
 /* ==========================================================================
-   ECONOVO — posts.js  (v2 — multi-image + avatars)
+   ECONOVO — posts.js  (v3 — reactions + emoji picker + multi-image + avatars)
    ========================================================================== */
 
 'use strict';
 
-const POSTS_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
-const POSTS_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
-const BUCKET         = 'post-images';
-const AVATAR_BUCKET  = 'avatars';
-const MAX_IMAGES     = 4;   // max photos per post
+const POSTS_URL     = 'https://nufftndrdfxtdauowkzr.supabase.co';
+const POSTS_KEY     = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
+const BUCKET        = 'post-images';
+const AVATAR_BUCKET = 'avatars';
+const MAX_IMAGES    = 4;
 
-/* ── REST helpers ────────────────────────────────────────────── */
+/* Emojis available in the composer picker */
+const COMPOSER_EMOJIS = [
+    '😊','😂','🥲','😍','🤔','👍','👏','🔥','💡','📚',
+    '🎯','💪','🌟','🙌','😅','🤝','❤️','🚀','✅','⚡',
+];
+
+/* Reaction emojis shown on each post */
+const REACTION_EMOJIS = ['👍','❤️','😂','🔥','💡','👏'];
+
+/* ── REST helpers ── */
 
 function authHeaders(token) {
     return {
@@ -44,7 +53,7 @@ async function pgDelete(path, token) {
     if (!r.ok) throw new Error(await r.text());
 }
 
-/* ── Image upload ────────────────────────────────────────────── */
+/* ── Storage ── */
 
 async function uploadImage(file, token, bucket) {
     const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase();
@@ -59,7 +68,7 @@ async function uploadImage(file, token, bucket) {
     return `${POSTS_URL}/storage/v1/object/public/${bucket}/${path}`;
 }
 
-/* ── Helpers ─────────────────────────────────────────────────── */
+/* ── Helpers ── */
 
 function timeAgo(iso) {
     const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -84,7 +93,8 @@ function escHtml(str) {
 function toast(msg, type = 'ok') {
     let el = document.getElementById('posts-toast');
     if (!el) {
-        el = document.createElement('div'); el.id = 'posts-toast';
+        el = document.createElement('div');
+        el.id = 'posts-toast';
         el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);padding:10px 20px;border-radius:8px;font-size:.85rem;font-weight:600;z-index:9999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;max-width:340px;text-align:center';
         document.body.appendChild(el);
     }
@@ -94,10 +104,13 @@ function toast(msg, type = 'ok') {
     el.style.opacity = '1';
     el.style.transform = 'translateX(-50%) translateY(0)';
     clearTimeout(el._t);
-    el._t = setTimeout(() => { el.style.opacity='0'; el.style.transform='translateX(-50%) translateY(20px)'; }, 3200);
+    el._t = setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(-50%) translateY(20px)';
+    }, 3200);
 }
 
-/* ── Avatar element helper ───────────────────────────────────── */
+/* ── Avatar helper ── */
 
 function makeAvatar(avatarUrl, name, className) {
     const wrap = document.createElement('div');
@@ -115,15 +128,14 @@ function makeAvatar(avatarUrl, name, className) {
     return wrap;
 }
 
-/* ── Image gallery renderer ──────────────────────────────────── */
+/* ── Image gallery ── */
 
 function renderImageGallery(images) {
-    // images: array of URL strings
     if (!images || !images.length) return '';
     const count = images.length;
     const cls   = count === 1 ? 'gallery-single' : count === 2 ? 'gallery-two' : count === 3 ? 'gallery-three' : 'gallery-four';
     const imgs  = images.map((url, i) =>
-        `<div class="gallery-cell ${i >= 3 && count > 4 ? 'gallery-cell-more' : ''}" data-index="${i}">
+        `<div class="gallery-cell" data-index="${i}">
             <img src="${escHtml(url)}" alt="Post image ${i+1}" class="gallery-img" loading="lazy">
             ${i === 3 && count > 4 ? `<div class="gallery-more-overlay">+${count - 4}</div>` : ''}
          </div>`
@@ -131,11 +143,10 @@ function renderImageGallery(images) {
     return `<div class="post-gallery ${cls}" data-images='${JSON.stringify(images)}'>${imgs}</div>`;
 }
 
-/* ── Lightbox ────────────────────────────────────────────────── */
+/* ── Lightbox ── */
 
 function openLightbox(images, startIndex) {
     let current = startIndex || 0;
-
     const overlay = document.createElement('div');
     overlay.id = 'post-lightbox';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px';
@@ -154,7 +165,7 @@ function openLightbox(images, startIndex) {
 
     const btnClose = document.createElement('button');
     btnClose.innerHTML = '&times;';
-    btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;line-height:1;opacity:.7';
+    btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
     btnClose.onclick = () => overlay.remove();
 
     const btnPrev = document.createElement('button');
@@ -180,14 +191,160 @@ function openLightbox(images, startIndex) {
     show(current);
 }
 
-/* ── Render single post card ─────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   REACTIONS
+   ══════════════════════════════════════════════════════════════ */
+
+/**
+ * Load reactions for a post and render/update the reaction bar.
+ * reactions = [{ emoji, count, userReacted }]
+ */
+async function loadReactions(postId, token, currentUserId, reactionBarEl) {
+    try {
+        const rows = await pgGet(
+            `reactions?post_id=eq.${postId}&select=emoji,user_id`,
+            token
+        );
+
+        // Aggregate: count per emoji + did current user react?
+        const agg = {};
+        rows.forEach(r => {
+            if (!agg[r.emoji]) agg[r.emoji] = { count: 0, userReacted: false };
+            agg[r.emoji].count++;
+            if (r.user_id === currentUserId) agg[r.emoji].userReacted = true;
+        });
+
+        renderReactionBar(postId, agg, token, currentUserId, reactionBarEl);
+    } catch(e) {
+        console.error('loadReactions:', e);
+    }
+}
+
+function renderReactionBar(postId, agg, token, currentUserId, barEl) {
+    barEl.innerHTML = '';
+
+    REACTION_EMOJIS.forEach(emoji => {
+        const data = agg[emoji] || { count: 0, userReacted: false };
+        const btn  = document.createElement('button');
+        btn.className  = 'reaction-btn' + (data.userReacted ? ' active' : '');
+        btn.dataset.emoji = emoji;
+        btn.innerHTML  = `<span class="reaction-emoji">${emoji}</span>${data.count > 0 ? `<span class="reaction-count">${data.count}</span>` : ''}`;
+        btn.title      = emoji;
+
+        btn.addEventListener('click', async () => {
+            const isActive = btn.classList.contains('active');
+            // Optimistic UI update
+            const countEl = btn.querySelector('.reaction-count');
+            let count = parseInt(countEl?.textContent || '0');
+            if (isActive) {
+                btn.classList.remove('active');
+                count--;
+                if (count <= 0) {
+                    if (countEl) countEl.remove();
+                } else {
+                    if (!countEl) {
+                        const s = document.createElement('span');
+                        s.className = 'reaction-count';
+                        s.textContent = count;
+                        btn.appendChild(s);
+                    } else countEl.textContent = count;
+                }
+                // Delete from DB
+                try {
+                    await pgDelete(
+                        `reactions?post_id=eq.${postId}&user_id=eq.${currentUserId}&emoji=eq.${encodeURIComponent(emoji)}`,
+                        token
+                    );
+                } catch(e) {
+                    // rollback
+                    btn.classList.add('active');
+                    toast('Could not remove reaction.', 'err');
+                }
+            } else {
+                btn.classList.add('active');
+                count++;
+                if (!countEl) {
+                    const s = document.createElement('span');
+                    s.className = 'reaction-count';
+                    s.textContent = count;
+                    btn.appendChild(s);
+                } else countEl.textContent = count;
+                // Insert to DB
+                try {
+                    await pgPost('reactions', {
+                        post_id: postId,
+                        user_id: currentUserId,
+                        emoji,
+                    }, token);
+                } catch(e) {
+                    // rollback
+                    btn.classList.remove('active');
+                    toast('Could not add reaction.', 'err');
+                }
+            }
+        });
+
+        barEl.appendChild(btn);
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   EMOJI PICKER (composer)
+   ══════════════════════════════════════════════════════════════ */
+
+function initEmojiPicker(triggerBtn, textarea) {
+    let picker = null;
+
+    function closePicker() {
+        if (picker) { picker.remove(); picker = null; }
+    }
+
+    triggerBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (picker) { closePicker(); return; }
+
+        picker = document.createElement('div');
+        picker.className = 'emoji-picker-popup';
+
+        COMPOSER_EMOJIS.forEach(em => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'emoji-picker-btn';
+            btn.textContent = em;
+            btn.addEventListener('click', () => {
+                // Insert at cursor position
+                const start = textarea.selectionStart;
+                const end   = textarea.selectionEnd;
+                const val   = textarea.value;
+                textarea.value = val.slice(0, start) + em + val.slice(end);
+                textarea.selectionStart = textarea.selectionEnd = start + em.length;
+                textarea.focus();
+                // Update char counter
+                const charEl = textarea.closest('form')?.querySelector('#post-char-count');
+                if (charEl) charEl.textContent = textarea.value.length + ' / 1000';
+                closePicker();
+            });
+            picker.appendChild(btn);
+        });
+
+        // Position below the trigger button
+        const rect = triggerBtn.getBoundingClientRect();
+        picker.style.cssText = `position:fixed;z-index:999;top:${rect.bottom + 6}px;left:${rect.left}px`;
+
+        document.body.appendChild(picker);
+        setTimeout(() => document.addEventListener('click', closePicker, { once: true }), 0);
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RENDER POST CARD
+   ══════════════════════════════════════════════════════════════ */
 
 function renderPost(post, currentUserId) {
     const isOwner    = post.user_id === currentUserId;
     const authorName = post.author_name || 'Member';
     const avatarUrl  = post.avatar_url  || null;
 
-    // Images: prefer post_images array, fallback to image_url
     const imageUrls = (post.images && post.images.length)
         ? post.images
         : (post.image_url ? [post.image_url] : []);
@@ -216,6 +373,7 @@ function renderPost(post, currentUserId) {
         ${post.content ? `<p class="post-body">${escHtml(post.content)}</p>` : ''}
         ${renderImageGallery(imageUrls)}
         <div class="post-footer">
+            <div class="reaction-row" id="reactions-${post.id}"></div>
             <button class="post-comment-toggle" data-id="${post.id}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -231,17 +389,20 @@ function renderPost(post, currentUserId) {
                 <div class="comment-composer-avatar"></div>
                 <form class="comment-form" data-post-id="${post.id}">
                     <input class="comment-input" type="text" placeholder="Write a comment…" maxlength="400" required autocomplete="off">
-                    <button type="submit" class="comment-submit">Post</button>
+                    <button type="submit" class="comment-submit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                    </button>
                 </form>
             </div>
         </div>
     `;
 
-    // Inject avatar (real img or initials)
-    const avatarWrap = card.querySelector('.post-avatar-wrap');
-    avatarWrap.appendChild(makeAvatar(avatarUrl, authorName, 'post-avatar'));
+    // Avatar
+    card.querySelector('.post-avatar-wrap').appendChild(makeAvatar(avatarUrl, authorName, 'post-avatar'));
 
-    // Gallery click → lightbox
+    // Gallery → lightbox
     if (imageUrls.length) {
         const gallery = card.querySelector('.post-gallery');
         if (gallery) {
@@ -256,22 +417,24 @@ function renderPost(post, currentUserId) {
     return card;
 }
 
-/* ── Render comment ──────────────────────────────────────────── */
+/* ── Render comment ── */
 
 function renderComment(c) {
     const div = document.createElement('div');
     div.className = 'comment-item';
     const avatarEl = makeAvatar(c.avatar_url || null, c.author_name || 'Member', 'comment-avatar');
     div.innerHTML = `
-        <span class="comment-author">${escHtml(c.author_name || 'Member')}</span>
-        <span class="comment-body">${escHtml(c.content)}</span>
-        <span class="comment-time">${timeAgo(c.created_at)}</span>
+        <div class="comment-bubble">
+            <span class="comment-author">${escHtml(c.author_name || 'Member')}</span>
+            <span class="comment-body">${escHtml(c.content)}</span>
+            <span class="comment-time">${timeAgo(c.created_at)}</span>
+        </div>
     `;
     div.insertBefore(avatarEl, div.firstChild);
     return div;
 }
 
-/* ── Load comments ───────────────────────────────────────────── */
+/* ── Load comments ── */
 
 async function loadComments(postId, token) {
     const listEl = document.getElementById('comments-list-' + postId);
@@ -287,9 +450,11 @@ async function loadComments(postId, token) {
             return;
         }
         rows.forEach(c => {
-            const authorName = c.profiles?.full_name || 'Member';
-            const avatarUrl  = c.profiles?.avatar_url || null;
-            listEl.appendChild(renderComment({ ...c, author_name: authorName, avatar_url: avatarUrl }));
+            listEl.appendChild(renderComment({
+                ...c,
+                author_name: c.profiles?.full_name || 'Member',
+                avatar_url:  c.profiles?.avatar_url || null,
+            }));
         });
         const countEl = document.querySelector(`.comment-count-label[data-id="${postId}"]`);
         if (countEl) countEl.textContent = rows.length + (rows.length === 1 ? ' Comment' : ' Comments');
@@ -299,18 +464,16 @@ async function loadComments(postId, token) {
     }
 }
 
-/* ── Load posts ──────────────────────────────────────────────── */
+/* ── Load posts ── */
 
 async function loadPosts(container, token, currentUserId) {
     container.innerHTML = '<div class="posts-loading"><span class="posts-spinner"></span> Loading posts…</div>';
     try {
-        // Fetch posts + author profiles + post images in parallel
         const [rows, allImages] = await Promise.all([
             pgGet('posts?order=created_at.desc&select=id,content,image_url,created_at,user_id,profiles(full_name,avatar_url)', token),
             pgGet('post_images?select=post_id,url,position&order=position.asc', token).catch(() => []),
         ]);
 
-        // Group images by post_id
         const imagesByPost = {};
         allImages.forEach(img => {
             if (!imagesByPost[img.post_id]) imagesByPost[img.post_id] = [];
@@ -318,6 +481,7 @@ async function loadPosts(container, token, currentUserId) {
         });
 
         container.innerHTML = '';
+
         if (!rows.length) {
             container.innerHTML = `<div class="posts-empty">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="opacity:.25;margin:0 auto 12px">
@@ -329,16 +493,18 @@ async function loadPosts(container, token, currentUserId) {
         }
 
         rows.forEach(row => {
-            const authorName = row.profiles?.full_name || 'Member';
-            const avatarUrl  = row.profiles?.avatar_url || null;
-            const images     = imagesByPost[row.id] || [];
-
             const card = renderPost({
                 ...row,
-                author_name: authorName,
-                avatar_url:  avatarUrl,
-                images,
+                author_name: row.profiles?.full_name || 'Member',
+                avatar_url:  row.profiles?.avatar_url || null,
+                images:      imagesByPost[row.id] || [],
             }, currentUserId);
+
+            // Reactions bar — load async
+            const reactionBarEl = card.querySelector(`#reactions-${row.id}`);
+            if (reactionBarEl) {
+                loadReactions(row.id, token, currentUserId, reactionBarEl);
+            }
 
             // Delete
             const delBtn = card.querySelector('.post-delete-btn');
@@ -347,11 +513,14 @@ async function loadPosts(container, token, currentUserId) {
             // Comments toggle
             const toggleBtn  = card.querySelector('.post-comment-toggle');
             const commentsEl = card.querySelector('.post-comments');
-            let loaded = false;
+            let commentsLoaded = false;
             toggleBtn.addEventListener('click', () => {
                 const open = commentsEl.style.display === 'block';
                 commentsEl.style.display = open ? 'none' : 'block';
-                if (!open && !loaded) { loaded = true; loadComments(row.id, token); }
+                if (!open && !commentsLoaded) {
+                    commentsLoaded = true;
+                    loadComments(row.id, token);
+                }
             });
 
             // Comment submit
@@ -362,16 +531,16 @@ async function loadPosts(container, token, currentUserId) {
                 const text      = input.value.trim();
                 if (!text) return;
                 const submitBtn = form.querySelector('.comment-submit');
-                submitBtn.disabled = true; submitBtn.textContent = '…';
+                submitBtn.disabled = true;
                 try {
                     await pgPost('comments', { post_id: row.id, user_id: currentUserId, content: text }, token);
                     input.value = '';
-                    loaded = true;
+                    commentsLoaded = true;
                     await loadComments(row.id, token);
                 } catch (err) {
                     toast('Could not post comment.', 'err');
                 } finally {
-                    submitBtn.disabled = false; submitBtn.textContent = 'Post';
+                    submitBtn.disabled = false;
                 }
             });
 
@@ -385,7 +554,7 @@ async function loadPosts(container, token, currentUserId) {
     }
 }
 
-/* ── Delete post ─────────────────────────────────────────────── */
+/* ── Delete post ── */
 
 async function deletePost(postId, cardEl, token) {
     if (!confirm('Delete this post? This cannot be undone.')) return;
@@ -401,16 +570,15 @@ async function deletePost(postId, cardEl, token) {
     }
 }
 
-/* ── Create post ─────────────────────────────────────────────── */
+/* ── Create post ── */
 
 async function handleCreatePost(form, feedContainer, token, currentUserId) {
-    const textarea   = form.querySelector('#post-content');
-    const submitBtn  = form.querySelector('#post-submit-btn');
-    const alertEl    = form.querySelector('#post-alert');
-    const charEl     = form.querySelector('#post-char-count');
-
-    const content    = textarea.value.trim();
-    const pickedFiles = window._pickedPostFiles || [];   // set by multi-image picker
+    const textarea    = form.querySelector('#post-content');
+    const submitBtn   = form.querySelector('#post-submit-btn');
+    const alertEl     = form.querySelector('#post-alert');
+    const charEl      = form.querySelector('#post-char-count');
+    const content     = textarea.value.trim();
+    const pickedFiles = window._pickedPostFiles || [];
 
     if (alertEl) { alertEl.textContent = ''; alertEl.style.display = 'none'; }
 
@@ -424,41 +592,24 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
     submitBtn.innerHTML = '<span class="btn-spinner"></span> Posting…';
 
     try {
-        // 1. Insert post row
-        const [newPost] = await pgPost('posts', {
-            user_id:   currentUserId,
-            content:   content || '',
-            image_url: null,    // no longer used as primary; kept for compat
-        }, token);
+        const [newPost] = await pgPost('posts', { user_id: currentUserId, content: content || '', image_url: null }, token);
 
-        // 2. Upload images in parallel, then insert into post_images
         if (pickedFiles.length) {
-            const urls = await Promise.all(
-                pickedFiles.map(f => uploadImage(f, token, BUCKET))
-            );
-            // Also set image_url to first image for backward compat
+            const urls = await Promise.all(pickedFiles.map(f => uploadImage(f, token, BUCKET)));
             await fetch(`${POSTS_URL}/rest/v1/posts?id=eq.${newPost.id}`, {
                 method: 'PATCH',
                 headers: authHeaders(token),
                 body: JSON.stringify({ image_url: urls[0] }),
             });
-
             await Promise.all(urls.map((url, i) =>
-                pgPost('post_images', {
-                    post_id:  newPost.id,
-                    user_id:  currentUserId,
-                    url,
-                    position: i,
-                }, token)
+                pgPost('post_images', { post_id: newPost.id, user_id: currentUserId, url, position: i }, token)
             ));
         }
 
-        // 3. Reset composer
         textarea.value = '';
         if (charEl) charEl.textContent = '0 / 1000';
         window._pickedPostFiles = [];
         renderPickedPreviews(form);
-
         toast('Post published! 🎉');
         await loadPosts(feedContainer, token, currentUserId);
 
@@ -471,10 +622,10 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
     }
 }
 
-/* ── Multi-image picker UI ───────────────────────────────────── */
+/* ── Multi-image picker previews ── */
 
 function renderPickedPreviews(form) {
-    const files    = window._pickedPostFiles || [];
+    const files = window._pickedPostFiles || [];
     let previewRow = form.querySelector('#post-previews-row');
     if (!previewRow) {
         previewRow = document.createElement('div');
@@ -485,7 +636,7 @@ function renderPickedPreviews(form) {
     }
     previewRow.innerHTML = '';
     files.forEach((file, i) => {
-        const url = URL.createObjectURL(file);
+        const url  = URL.createObjectURL(file);
         const wrap = document.createElement('div');
         wrap.style.cssText = 'position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--line-mid)';
         const img = document.createElement('img');
@@ -495,38 +646,35 @@ function renderPickedPreviews(form) {
         rm.type = 'button';
         rm.innerHTML = '&times;';
         rm.style.cssText = 'position:absolute;top:2px;right:4px;background:rgba(0,0,0,.55);border:none;color:#fff;border-radius:50%;width:18px;height:18px;line-height:17px;text-align:center;cursor:pointer;font-size:.8rem;padding:0';
-        rm.onclick = () => {
-            window._pickedPostFiles.splice(i, 1);
-            renderPickedPreviews(form);
-        };
+        rm.onclick = () => { window._pickedPostFiles.splice(i, 1); renderPickedPreviews(form); };
         wrap.append(img, rm);
         previewRow.appendChild(wrap);
     });
-    // Badge on image button
     const imgBtn = form.querySelector('#post-image-btn');
     if (imgBtn) {
-        const badge = imgBtn.querySelector('.img-btn-badge') || Object.assign(document.createElement('span'), {
-            className: 'img-btn-badge',
-            style: 'position:absolute;top:-5px;right:-5px;background:var(--sage);color:var(--obsidian);border-radius:999px;font-size:.65rem;font-weight:700;padding:1px 5px;pointer-events:none',
-        });
-        if (!imgBtn.contains(badge)) { imgBtn.style.position='relative'; imgBtn.appendChild(badge); }
-        badge.textContent = files.length ? files.length : '';
+        let badge = imgBtn.querySelector('.img-btn-badge');
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'img-btn-badge';
+            badge.style.cssText = 'position:absolute;top:-5px;right:-5px;background:var(--sage);color:var(--obsidian);border-radius:999px;font-size:.65rem;font-weight:700;padding:1px 5px;pointer-events:none';
+            imgBtn.style.position = 'relative';
+            imgBtn.appendChild(badge);
+        }
+        badge.textContent = files.length || '';
         badge.style.display = files.length ? 'block' : 'none';
     }
 }
 
-/* ── Avatar upload (Profile page) ───────────────────────────── */
+/* ── Avatar upload (profile page) ── */
 
 async function handleAvatarUpload(file, token, userId, avatarPreviewEl) {
     try {
         const url = await uploadImage(file, token, AVATAR_BUCKET);
-        // Update profiles table
         await fetch(`${POSTS_URL}/rest/v1/profiles?id=eq.${userId}`, {
             method: 'PATCH',
             headers: authHeaders(token),
             body: JSON.stringify({ avatar_url: url, updated_at: new Date().toISOString() }),
         });
-        // Show preview immediately
         if (avatarPreviewEl) {
             avatarPreviewEl.innerHTML = '';
             const img = document.createElement('img');
@@ -542,36 +690,37 @@ async function handleAvatarUpload(file, token, userId, avatarPreviewEl) {
     }
 }
 
-/* ── INIT ────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════════ */
 
 window.initPostsFeed = function(token, currentUserId) {
     const feedContainer = document.getElementById('posts-feed');
     const createForm    = document.getElementById('create-post-form');
 
-    /* Composer avatar */
+    /* Composer avatar — show real photo if available */
     try {
-        const userRaw  = localStorage.getItem('econovo-user');
-        const userObj  = userRaw ? JSON.parse(userRaw) : {};
-        const meta     = userObj.user_metadata || {};
-        const name     = meta.full_name || meta.first_name || userObj.email || '';
+        const userRaw = localStorage.getItem('econovo-user');
+        const userObj = userRaw ? JSON.parse(userRaw) : {};
+        const meta    = userObj.user_metadata || {};
+        const name    = meta.full_name || meta.first_name || userObj.email || '';
         const avatarEl = document.getElementById('create-post-avatar');
-        if (avatarEl && name) {
-            // Try to load real avatar from profiles
+        if (avatarEl) {
             pgGet(`profiles?id=eq.${currentUserId}&select=avatar_url`, token)
                 .then(rows => {
                     const url = rows[0]?.avatar_url;
-                    if (url && avatarEl) {
+                    if (url) {
                         avatarEl.innerHTML = '';
                         const img = document.createElement('img');
                         img.src = url;
                         img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
                         img.onerror = () => { img.remove(); avatarEl.textContent = initials(name); };
                         avatarEl.appendChild(img);
-                    } else if (avatarEl) {
+                    } else {
                         avatarEl.textContent = initials(name);
                     }
                 })
-                .catch(() => { if (avatarEl) avatarEl.textContent = initials(name); });
+                .catch(() => { avatarEl.textContent = initials(name); });
         }
     } catch(_) {}
 
@@ -581,33 +730,31 @@ window.initPostsFeed = function(token, currentUserId) {
 
     /* Multi-image picker */
     window._pickedPostFiles = window._pickedPostFiles || [];
-
     const imageInput = createForm.querySelector('#post-image');
-    let imgBtn = createForm.querySelector('#post-image-btn');
-
-    // If no dedicated button, use the existing imageInput label
     if (imageInput) {
-        // Clone to remove old listeners
         const fresh = imageInput.cloneNode(true);
         fresh.multiple = true;
         fresh.accept   = 'image/*';
         imageInput.parentNode.replaceChild(fresh, imageInput);
-
         fresh.addEventListener('change', () => {
-            const incoming = Array.from(fresh.files || []);
+            const incoming  = Array.from(fresh.files || []);
             const remaining = MAX_IMAGES - (window._pickedPostFiles?.length || 0);
-            if (incoming.length > remaining) {
-                toast(`Max ${MAX_IMAGES} images per post. Only first ${remaining} added.`, 'err');
-            }
+            if (incoming.length > remaining) toast(`Max ${MAX_IMAGES} images per post.`, 'err');
             incoming.slice(0, remaining).forEach(f => window._pickedPostFiles.push(f));
-            fresh.value = ''; // reset so same file can be re-added
+            fresh.value = '';
             renderPickedPreviews(createForm);
         });
     }
 
-    /* Char counter */
+    /* Emoji picker */
+    const emojiBtn = createForm.querySelector('#emoji-trigger-btn');
     const textarea = createForm.querySelector('#post-content');
-    const charEl   = createForm.querySelector('#post-char-count');
+    if (emojiBtn && textarea) {
+        initEmojiPicker(emojiBtn, textarea);
+    }
+
+    /* Char counter */
+    const charEl = createForm.querySelector('#post-char-count');
     if (textarea && charEl) {
         textarea.addEventListener('input', () => {
             charEl.textContent = textarea.value.length + ' / 1000';
@@ -620,14 +767,13 @@ window.initPostsFeed = function(token, currentUserId) {
         await handleCreatePost(createForm, feedContainer, token, currentUserId);
     });
 
-    /* Profile page — avatar upload */
+    /* Profile avatar upload */
     const avatarUploadInput = document.getElementById('avatar-upload-input');
     const profileAvatarEl   = document.getElementById('profile-avatar');
     if (avatarUploadInput) {
         avatarUploadInput.addEventListener('change', () => {
             const file = avatarUploadInput.files[0];
-            if (!file) return;
-            handleAvatarUpload(file, token, currentUserId, profileAvatarEl);
+            if (file) handleAvatarUpload(file, token, currentUserId, profileAvatarEl);
         });
     }
 };
