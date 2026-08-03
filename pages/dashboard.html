@@ -21,9 +21,11 @@
    ════════════════════════════════════════════════════════ */
 :root {
     --obsidian:   #0E2A24;
+    --obsidian-2: #1a3d34;
     --sage:       #8FB8A6;
     --sage-dim:   rgba(143,184,166,.12);
     --sage-mid:   rgba(143,184,166,.28);
+    --sage-light: #b8d4c8;
     --ink:        #1F1F1F;
 
     --canvas:     #F4F7F2;
@@ -31,6 +33,10 @@
     --card-warm:  #EFF5F1;
     --muted:      #EAF0EA;
     --inversion:  #0E2A24;
+
+    /* aliases for posts.css */
+    --bg-raised:  #FAFCF9;
+    --bg-muted:   #EAF0EA;
 
     --text:       #0E2A24;
     --text-soft:  rgba(14,42,36,.50);
@@ -54,6 +60,9 @@
     --fast: 150ms var(--ease);
     --base: 240ms var(--ease);
 
+    --shadow-sm: 0 1px 4px rgba(14,42,36,.07);
+    --shadow-md: 0 4px 16px rgba(14,42,36,.11);
+
     --sidebar-w: 220px;
     --nav-h:     60px;
 }
@@ -68,6 +77,13 @@
     --text-muted:rgba(232,239,233,.32);
     --line:      rgba(232,239,233,.09);
     --line-mid:  rgba(232,239,233,.15);
+    /* dark aliases for posts.css */
+    --bg-raised:  #181818;
+    --bg-muted:   #151515;
+    --obsidian-2: #2a5246;
+    --sage-light: #b8d4c8;
+    --shadow-sm: 0 1px 4px rgba(0,0,0,.25);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.35);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -529,24 +545,17 @@ img { display: block; max-width: 100%; }
                         <textarea id="post-content" class="create-post-textarea" placeholder="Share something with the club…" rows="3" maxlength="1000"></textarea>
                     </div>
 
-                    <div class="create-post-image-wrap" id="create-post-image-wrap" style="display:none;">
-                        <img id="post-image-preview" src="" alt="Preview" class="create-post-preview">
-                        <button type="button" id="remove-image-btn" class="remove-img-btn" title="Remove image">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                    </div>
-
                     <div id="post-alert" class="post-alert" style="display:none;"></div>
 
-                    <div class="create-post-footer">
+                    <div class="create-post-footer create-post-toolbar">
                         <span class="post-char-count" id="post-char-count">0 / 1000</span>
                         <div class="create-post-actions">
-                            <label class="attach-img-btn" for="post-image" title="Attach image">
+                            <label class="attach-img-btn" id="post-image-btn" for="post-image" title="Attach up to 4 images">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
                                     <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                                 </svg>
-                                Image
-                                <input type="file" id="post-image" accept="image/*" style="display:none;">
+                                Images
+                                <input type="file" id="post-image" accept="image/*" multiple style="display:none;">
                             </label>
                             <button type="button" id="emoji-trigger-btn" class="emoji-trigger-btn" title="Add emoji">
                                 😊 Emoji
@@ -575,7 +584,8 @@ img { display: block; max-width: 100%; }
                 </div>
 
                 <div class="profile-header-strip">
-                    <div class="profile-avatar-xl" id="profile-avatar"></div>
+                    <div class="profile-avatar-xl" id="profile-avatar" title="Click to change photo" onclick="document.getElementById('avatar-upload-input').click()"></div>
+                    <input type="file" id="avatar-upload-input" accept="image/*">
                     <div>
                         <div class="profile-header-name" id="profile-name"></div>
                         <div class="profile-header-email" id="profile-email"></div>
@@ -645,7 +655,7 @@ img { display: block; max-width: 100%; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
-        Posts
+        Announcements
     </button>
     <button class="mob-tab" data-view="feed">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -658,11 +668,11 @@ img { display: block; max-width: 100%; }
         Profile
     </button>
 </nav>
-
 <script>
 (function () {
 'use strict';
 
+/* ── Supabase config ── */
 const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 
@@ -682,134 +692,123 @@ async function supaFetch(path, opts = {}) {
     return data;
 }
 
+/* ── Auth guard ── */
 const storedToken = localStorage.getItem('econovo-token');
 const storedUser  = localStorage.getItem('econovo-user');
-
-// Validate session — if missing, redirect once and stop
 if (!storedToken || !storedUser) {
-    localStorage.removeItem('econovo-token');
-    localStorage.removeItem('econovo-user');
     window.location.replace('login.html');
-    throw new Error('No session');
 }
 
-// Validate the token is not expired (JWT payload check)
-(function() {
-    try {
-        const payload = JSON.parse(atob(storedToken.split('.')[1]));
-        if (payload.exp && payload.exp * 1000 < Date.now()) {
-            // Token expired — clear and redirect once
-            localStorage.removeItem('econovo-token');
-            localStorage.removeItem('econovo-user');
-            window.location.replace('login.html');
-            throw new Error('Token expired');
-        }
-    } catch(e) {
-        if (e.message === 'Token expired') throw e;
-        // If we can't parse token, keep going — Supabase will reject bad requests
-    }
-})();
+/* ── Data ── */
+const EVENTS = [
+    { month:'AUG', day:'12', title:'Economics Workshop: Algerian Market Analysis',    desc:'An interactive session on local market trends and economic indicators.',      tag:'Workshop'    },
+    { month:'AUG', day:'19', title:'FinTech Seminar: Digital Banking in Algeria',     desc:'Guest speaker from Algérie Poste on mobile payment adoption.',               tag:'Seminar'     },
+    { month:'SEP', day:'03', title:'Business Case Competition Kickoff',               desc:'Form your team and register for Econovo\'s annual case competition.',         tag:'Competition' },
+];
 
+const ANNOUNCEMENTS = [
+    { date:'Aug 1, 2026',  title:'Welcome to the new Econovo member portal!',           body:'We\'ve just launched our new member dashboard. You can now view upcoming events, read club announcements, and update your profile — all in one place.' },
+    { date:'Jul 28, 2026', title:'Case Competition Registration Opens August 3',         body:'The annual Econovo Business Case Competition is back! Registration opens August 3rd. Teams of 2–4 students from any major are welcome to participate.' },
+];
+
+/* ── Render helpers ── */
+function renderEvents(id, data) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!data.length) {
+        el.innerHTML = '<div class="empty-state"><svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><p>No upcoming events yet. Check back soon.</p></div>';
+        return;
+    }
+    el.innerHTML = data.map(ev => `
+        <div class="event-row">
+            <div class="event-stamp">
+                <span class="stamp-month">${ev.month}</span>
+                <span class="stamp-day">${ev.day}</span>
+            </div>
+            <div class="event-body">
+                <div class="event-title">${ev.title}</div>
+                <div class="event-desc">${ev.desc}</div>
+            </div>
+            <div class="event-tag">${ev.tag}</div>
+        </div>
+    `).join('');
+}
+
+function renderAnnouncements(id, data) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!data.length) {
+        el.innerHTML = '<div class="empty-state"><p>No announcements from the board yet.</p></div>';
+        return;
+    }
+    el.innerHTML = data.map(a => `
+        <div class="announce-card">
+            <div class="announce-date">${a.date}</div>
+            <div class="announce-title">${a.title}</div>
+            <div class="announce-body">${a.body}</div>
+        </div>
+    `).join('');
+}
+
+/* ── Init ── */
 document.addEventListener('DOMContentLoaded', () => {
+
+    /* Parse user */
     let user = {}, meta = {};
     try { user = JSON.parse(storedUser); meta = user.user_metadata || {}; } catch(_) {}
 
     const firstName = meta.first_name || '';
     const lastName  = meta.last_name  || '';
-    const fullName  = (firstName + ' ' + lastName).trim() || meta.full_name || user.email?.split('@')[0] || '';
+    const fullName  = (firstName + ' ' + lastName).trim() || meta.full_name || user.email?.split('@')[0] || 'Member';
     const initials  = ((firstName[0]||'') + (lastName[0]||'')).toUpperCase() || fullName.slice(0,2).toUpperCase();
     const email     = user.email || '';
     const joinedFmt = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month:'short', year:'numeric' }) : '—';
 
+    /* Fill UI */
     ['nav-avatar','sidebar-avatar','greeting-avatar','profile-avatar'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = initials;
     });
-    
     document.getElementById('nav-name').textContent       = firstName || fullName;
     document.getElementById('sidebar-name').textContent   = fullName;
     document.getElementById('greeting-name').textContent  = 'Welcome back, ' + (firstName || fullName) + '.';
     document.getElementById('greeting-joined').textContent = 'Member since ' + joinedFmt;
     document.getElementById('profile-name').textContent   = fullName;
     document.getElementById('profile-email').textContent  = email;
+    document.getElementById('stat-events').textContent    = EVENTS.length;
+    document.getElementById('stat-ann').textContent       = ANNOUNCEMENTS.length;
+    document.getElementById('sb-events-count').textContent = EVENTS.length;
+    document.getElementById('sb-ann-count').textContent    = ANNOUNCEMENTS.length;
 
+    /* Profile form defaults */
     document.getElementById('pf-fname').value = firstName;
     document.getElementById('pf-lname').value = lastName;
     document.getElementById('pf-email').value = email;
     document.getElementById('pf-major').value = meta.major || '';
     document.getElementById('pf-year').value  = meta.year  || '';
 
-    /* ── Static data ── */
-    const EVENTS = [
-        { month:'AUG', day:'12', title:'Economics Workshop: Algerian Market Analysis',    desc:'An interactive session on local market trends and economic indicators.',      tag:'Workshop'    },
-        { month:'AUG', day:'19', title:'FinTech Seminar: Digital Banking in Algeria',     desc:'Guest speaker from Algérie Poste on mobile payment adoption.',               tag:'Seminar'     },
-        { month:'SEP', day:'03', title:'Business Case Competition Kickoff',               desc:"Form your team and register for Econovo's annual case competition.",         tag:'Competition' },
-    ];
-
-    const ANNOUNCEMENTS = [
-        { date:'Aug 1, 2026',  title:'Welcome to the new Econovo member portal!',         body:"We've just launched our new member dashboard. You can now view upcoming events, read club announcements, and update your profile — all in one place." },
-        { date:'Jul 28, 2026', title:'Case Competition Registration Opens August 3',       body:'The annual Econovo Business Case Competition is back! Registration opens August 3rd. Teams of 2–4 students from any major are welcome to participate.' },
-    ];
-
-    /* ── Render helpers ── */
-    function renderEvents(id, data) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (!data.length) {
-            el.innerHTML = '<div class="empty-state"><p>No upcoming events yet.</p></div>';
-            return;
-        }
-        el.innerHTML = data.map(ev => `
-            <div class="event-row">
-                <div class="event-stamp">
-                    <span class="stamp-month">${ev.month}</span>
-                    <span class="stamp-day">${ev.day}</span>
-                </div>
-                <div class="event-body">
-                    <div class="event-title">${ev.title}</div>
-                    <div class="event-desc">${ev.desc}</div>
-                </div>
-                <div class="event-tag">${ev.tag}</div>
-            </div>
-        `).join('');
-    }
-
-    function renderAnnouncements(id, data) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (!data.length) {
-            el.innerHTML = '<div class="empty-state"><p>No announcements yet.</p></div>';
-            return;
-        }
-        el.innerHTML = data.map(a => `
-            <div class="announce-card">
-                <div class="announce-date">${a.date}</div>
-                <div class="announce-title">${a.title}</div>
-                <div class="announce-body">${a.body}</div>
-            </div>
-        `).join('');
-    }
-
-    /* ── Fill stats ── */
-    const statEvents = document.getElementById('stat-events');
-    const statAnn    = document.getElementById('stat-ann');
-    const sbEvents   = document.getElementById('sb-events-count');
-    const sbAnn      = document.getElementById('sb-ann-count');
-    if (statEvents) statEvents.textContent = EVENTS.length;
-    if (statAnn)    statAnn.textContent    = ANNOUNCEMENTS.length;
-    if (sbEvents)   sbEvents.textContent   = EVENTS.length;
-    if (sbAnn)      sbAnn.textContent      = ANNOUNCEMENTS.length;
-
-    /* ── Render lists ── */
+    /* Render lists */
     renderEvents('overview-events', EVENTS.slice(0, 2));
     renderEvents('full-events', EVENTS);
     renderAnnouncements('overview-ann', ANNOUNCEMENTS.slice(0, 1));
     renderAnnouncements('full-ann', ANNOUNCEMENTS);
 
-    /* ── Location ── */
-    const greetingLoc = document.getElementById('greeting-location');
-    if (greetingLoc) greetingLoc.textContent = meta.city || 'Algeria';
+    /* Feed initialisation — wired directly here to avoid race conditions with posts-init script */
+    let postsInited = false;
+    function maybeInitPosts() {
+        if (postsInited) return;
+        const token   = localStorage.getItem('econovo-token');
+        const userRaw = localStorage.getItem('econovo-user');
+        if (!token || !userRaw) return;
+        let userId = null;
+        try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
+        postsInited = true;
+        if (typeof window.initPostsFeed === 'function') {
+            window.initPostsFeed(token, userId);
+        }
+    }
 
+    /* View switching — sidebar + mobile tab */
     function setView(viewId) {
         document.querySelectorAll('.dash-view').forEach(v => v.classList.remove('active'));
         const el = document.getElementById('view-' + viewId);
@@ -821,6 +820,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.mob-tab').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.view === viewId);
         });
+
+        if (viewId === 'feed') maybeInitPosts();
     }
 
     window.showView = setView;
@@ -829,6 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => setView(btn.dataset.view));
     });
 
+    /* Sign out */
     function signOut() {
         localStorage.removeItem('econovo-token');
         localStorage.removeItem('econovo-user');
@@ -837,6 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('signout-btn').addEventListener('click', signOut);
     document.getElementById('signout-btn-2').addEventListener('click', signOut);
 
+    /* Theme toggle */
     const root = document.documentElement;
     const themeIcon = document.getElementById('theme-icon');
 
@@ -844,6 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (t === 'dark') root.setAttribute('data-theme','dark');
         else root.removeAttribute('data-theme');
         localStorage.setItem('econovo-theme', t);
+        /* Moon / Sun icon */
         themeIcon.innerHTML = t === 'dark'
             ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
             : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
@@ -856,6 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
 
+    /* Profile save */
     document.getElementById('save-btn').addEventListener('click', async () => {
         const btn   = document.getElementById('save-btn');
         const alert = document.getElementById('profile-alert');
@@ -888,38 +893,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 })();
 </script>
-
-<script src="../js/posts.js"></script>
-<script>
-    (function() {
-        var postsInited = false;
-        function maybeInitPosts() {
-            if (postsInited) return;
-            var token   = localStorage.getItem('econovo-token');
-            var userRaw = localStorage.getItem('econovo-user');
-            if (!token || !userRaw) return;
-            var userId = null;
-            try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
-            postsInited = true;
-            if (typeof window.initPostsFeed === 'function') {
-                window.initPostsFeed(token, userId);
-            }
-        }
-        var _originalShowView = window.showView;
-        window.showView = function(view) {
-            if (typeof _originalShowView === 'function') _originalShowView(view);
-            if (view === 'feed') maybeInitPosts();
-        };
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                var feedView = document.getElementById('view-feed');
-                if (feedView && feedView.classList.contains('active')) {
-                    maybeInitPosts();
-                }
-            }, 100);
-        });
-    })();
-</script>
+    <!-- Posts feed -->
+    <script src="../js/posts.js"></script>
 
 </body>
 </html>
