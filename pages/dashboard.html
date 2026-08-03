@@ -1011,12 +1011,42 @@ async function supaFetch(path, opts = {}) {
     return data;
 }
 
-/* ── Auth guard ── */
-const storedToken = localStorage.getItem('econovo-token');
-const storedUser  = localStorage.getItem('econovo-user');
+/* ── Auth guard الذكي ── */
+function getStoredAuth() {
+    let token = localStorage.getItem('econovo-token');
+    let user = localStorage.getItem('econovo-user');
+
+    // إذا لم يجد المفاتيح الخاصة، يبحث عن جلسة Supabase الافتراضية
+    if (!token || !user) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+                try {
+                    const sessionData = JSON.parse(localStorage.getItem(key));
+                    if (sessionData && sessionData.access_token) {
+                        token = sessionData.access_token;
+                        user = JSON.stringify(sessionData.user);
+                        // حفظهما في المفاتيح المتوقعة للداشبورد
+                        localStorage.setItem('econovo-token', token);
+                        localStorage.setItem('econovo-user', user);
+                        break;
+                    }
+                } catch(e) {}
+            }
+        }
+    }
+    return { token, user };
+}
+
+const auth = getStoredAuth();
+const storedToken = auth.token;
+const storedUser  = auth.user;
+
+// إذا لم يجد الجلسة بعد كل الفحوصات، يعيد التوجيه لصفحة الدخول
 if (!storedToken || !storedUser) {
     window.location.replace('login.html');
 }
+
 
 /* ── Data ── */
 const EVENTS = [
