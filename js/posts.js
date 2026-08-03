@@ -47,15 +47,18 @@ const REACTIONS = [
 /* ── REST helpers ── */
 
 function authHeaders(token) {
+    // POSTS_KEY is the publishable key — used only as apikey, NOT as Bearer.
+    // Bearer must be the real JWT access_token returned after login.
+    if (!token) console.warn('posts.js: missing access token — API calls will fail');
     return {
         'Content-Type': 'application/json',
         'apikey': POSTS_KEY,
-        'Authorization': 'Bearer ' + (token || POSTS_KEY),
+        'Authorization': 'Bearer ' + (token || ''),
         'Prefer': 'return=representation',
     };
 }
 function storageHeaders(token) {
-    return { 'apikey': POSTS_KEY, 'Authorization': 'Bearer ' + (token || POSTS_KEY) };
+    return { 'apikey': POSTS_KEY, 'Authorization': 'Bearer ' + (token || '') };
 }
 async function pgGet(path, token) {
     const r = await fetch(POSTS_URL + '/rest/v1/' + path, {
@@ -701,7 +704,8 @@ window.initPostsFeed = function(token, currentUserId) {
         const userObj = userRaw ? JSON.parse(userRaw) : {};
         const meta    = userObj.user_metadata || {};
         const name    = meta.full_name || meta.first_name || userObj.email || '';
-        const avatarEl = document.getElementById('create-post-avatar');
+        // ID in dashboard.html is "composer-av" — not "create-post-avatar"
+        const avatarEl = document.getElementById('composer-av');
         if (avatarEl) {
             pgGet(`profiles?id=eq.${currentUserId}&select=avatar_url`, token)
                 .then(rows => {
