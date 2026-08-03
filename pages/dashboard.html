@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/posts.css">
 <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
 <style>
 /* ── Portal design system extensions ── */
@@ -790,7 +791,6 @@ img { display: block; max-width: 100%; }
   .form-grid .span-2 { grid-column: 1; }
 }
 </style>
-<link rel="stylesheet" href="../css/posts.css">
 </head>
 <body>
 
@@ -923,7 +923,7 @@ img { display: block; max-width: 100%; }
       <!-- HOME -->
       <div class="portal-view active" id="view-home">
         <!-- Composer -->
-        <div class="composer-card" id="main-composer">
+        <form class="composer-card" id="create-post-form">
           <div class="composer-top">
             <div class="composer-av" id="composer-av"></div>
             <textarea class="composer-input" id="post-content" placeholder="Share something with the community…" rows="2" maxlength="1000"></textarea>
@@ -938,13 +938,13 @@ img { display: block; max-width: 100%; }
                 Images
                 <input type="file" id="post-image" accept="image/*" multiple style="display:none;">
               </label>
-              <button class="btn-publish" id="post-submit-btn" type="button">
+              <button class="btn-publish" id="post-submit-btn" type="submit">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 Publish
               </button>
             </div>
           </div>
-        </div>
+        </form>
 
         <!-- Feed container -->
         <div id="posts-feed"></div>
@@ -1255,15 +1255,29 @@ function fillAvatar(el, url, name) {
   } else { el.textContent = inits(name); }
 }
 
-/* Load avatar from profiles table */
+/* Load avatar + name from profiles table */
 let cachedAvatarUrl = null;
+let cachedFullName  = FULL_NAME;
 async function loadUserAvatar() {
   try {
-    const rows = await sbGet(`profiles?id=eq.${USER_ID}&select=avatar_url`);
+    const rows = await sbGet(`profiles?id=eq.${USER_ID}&select=avatar_url,full_name`);
     cachedAvatarUrl = rows[0]?.avatar_url || null;
+    /* إذا كان الاسم في جدول profiles أوفر من user_metadata، استخدمه */
+    if (rows[0]?.full_name) cachedFullName = rows[0].full_name;
   } catch(_) {}
+  /* تحديث الاسم في الواجهة إذا تغيّر */
+  if (cachedFullName !== FULL_NAME) {
+    ['nav-name','sb-name','profile-name'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && (el.textContent === 'Member' || el.textContent === FULL_NAME)) {
+        el.textContent = id === 'nav-name'
+          ? (cachedFullName.split(' ')[0] || cachedFullName)
+          : cachedFullName;
+      }
+    });
+  }
   ['nav-av','sb-av','composer-av','profile-av'].forEach(id => {
-    fillAvatar(document.getElementById(id), cachedAvatarUrl, FULL_NAME);
+    fillAvatar(document.getElementById(id), cachedAvatarUrl, cachedFullName);
   });
 }
 
