@@ -744,6 +744,7 @@ window.initPostsFeed = function(token, currentUserId) {
     }
 
     /* Char counter */
+    const textarea = createForm.querySelector('#post-content');
     const charEl = createForm.querySelector('#post-char-count');
     if (textarea && charEl) {
         textarea.addEventListener('input', () => {
