@@ -4,1042 +4,897 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#F4F7F2" id="themeColorMeta">
-    <title>Sign In — Econovo Club</title>
-    <meta name="description" content="Sign in to your Econovo member account.">
+    <title>Dashboard — Econovo</title>
 
     <link rel="icon" href="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Shared styles -->
-    <link rel="stylesheet" href="../css/style.css">
     <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
-    <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/sections.css">
-    <link rel="stylesheet" href="../css/responsive.css">
 
     <style>
-        /* ---- Page shell ---- */
-        .page-shell {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding-top: 80px;
-        }
+/* ════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Econovo Dashboard
+   ════════════════════════════════════════════════════════ */
+:root {
+    --obsidian:   #0E2A24;
+    --obsidian-2: #1a3d34;
+    --sage:       #8FB8A6;
+    --sage-dim:   rgba(143,184,166,.12);
+    --sage-mid:   rgba(143,184,166,.28);
+    --sage-light: #b8d4c8;
+    --ink:        #1F1F1F;
 
-        /* ---- Auth layout ---- */
-        .auth-layout {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            min-height: calc(100vh - 80px);
-        }
+    --canvas:     #F4F7F2;
+    --card:       #FAFCF9;
+    --card-warm:  #EFF5F1;
+    --muted:      #EAF0EA;
+    --inversion:  #0E2A24;
 
-        /* ---- Left brand panel ---- */
-        .auth-panel {
-            background: var(--gradient-primary);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: var(--sp-64);
-        }
-        .auth-panel::before {
-            content: '';
-            position: absolute;
-            top: -15%;
-            right: -15%;
-            width: 480px;
-            height: 480px;
-            background: radial-gradient(circle, rgba(143,184,166,.22) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .auth-panel::after {
-            content: '';
-            position: absolute;
-            bottom: -10%;
-            left: -10%;
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle, rgba(143,184,166,.14) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .auth-panel .dot-grid {
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(143,184,166,.18) 1px, transparent 1px);
-            background-size: 28px 28px;
-            pointer-events: none;
-        }
-        .auth-panel-content { position: relative; z-index: 2; }
+    /* aliases for posts.css */
+    --bg-raised:  #FAFCF9;
+    --bg-muted:   #EAF0EA;
 
-        .auth-brand {
-            display: flex;
-            align-items: center;
-            gap: var(--sp-12);
-            text-decoration: none;
-        }
-        .auth-brand img { width: 48px; height: 48px; object-fit: contain; border-radius: var(--r-sm); }
-        .auth-brand span { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -.02em; }
+    --text:       #0E2A24;
+    --text-soft:  rgba(14,42,36,.50);
+    --text-muted: rgba(14,42,36,.35);
 
-        .auth-panel-hero {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: var(--sp-64) 0;
-        }
+    --line:       rgba(14,42,36,.09);
+    --line-mid:   rgba(14,42,36,.15);
 
-        .auth-panel-eyebrow {
-            font-family: var(--font-mono);
-            font-size: .72rem;
-            text-transform: uppercase;
-            letter-spacing: .14em;
-            color: var(--color-sage);
-            font-weight: 600;
-            margin-bottom: var(--sp-16);
-            display: block;
-        }
+    --font:    'Host Grotesk', system-ui, sans-serif;
+    --mono:    'IBM Plex Mono', ui-monospace, monospace;
 
-        .auth-panel h1 {
-            font-size: clamp(2rem, 3.6vw, 3rem);
-            color: #fff;
-            line-height: 1.08;
-            margin-bottom: var(--sp-24);
-        }
-        .auth-panel h1 em { color: var(--color-sage); font-style: normal; }
-        .auth-panel-desc {
-            color: rgba(255,255,255,.72);
-            font-size: 1.05rem;
-            max-width: 400px;
-            line-height: 1.65;
-        }
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+    --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
 
-        /* Quote / member testimonial */
-        .auth-testimonial {
-            background: rgba(143,184,166,.1);
-            border: 1px solid rgba(143,184,166,.22);
-            border-radius: var(--r-md);
-            padding: var(--sp-24);
-        }
-        .auth-testimonial p {
-            color: rgba(255,255,255,.82);
-            font-size: .96rem;
-            line-height: 1.65;
-            margin-bottom: var(--sp-16);
-        }
-        .testimonial-attr {
-            display: flex;
-            align-items: center;
-            gap: var(--sp-12);
-        }
-        .testimonial-avatar {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: var(--gradient-sage);
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-mono); font-size: .85rem; font-weight: 600;
-            color: var(--color-obsidian);
-            flex-shrink: 0;
-        }
-        .testimonial-name { font-size: .88rem; font-weight: 700; color: #fff; }
-        .testimonial-role { font-size: .78rem; color: rgba(255,255,255,.55); }
+    --r-card:   16px;
+    --r-btn:    6px;
+    --r-pill:   9999px;
+    --r-sm:     6px;
 
-        /* ---- Right form panel ---- */
-        .auth-form-panel {
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--sp-64) var(--sp-48);
-        }
+    --ease: cubic-bezier(.4,0,.2,1);
+    --fast: 150ms var(--ease);
+    --base: 240ms var(--ease);
 
-        .auth-form-inner {
-            width: 100%;
-            max-width: 420px;
-        }
+    --shadow-sm: 0 1px 4px rgba(14,42,36,.07);
+    --shadow-md: 0 4px 16px rgba(14,42,36,.11);
 
-        /* Tab switch: Sign In / Sign Up */
-        .auth-tabs {
-            display: flex;
-            border-radius: var(--r-md);
-            background: var(--bg-sunken);
-            padding: 4px;
-            gap: 4px;
-            margin-bottom: var(--sp-32);
-        }
-        .auth-tab {
-            flex: 1;
-            padding: 10px;
-            border-radius: calc(var(--r-md) - 4px);
-            font-weight: 700;
-            font-size: .92rem;
-            color: var(--text-soft);
-            text-align: center;
-            transition: var(--t-fast);
-            cursor: pointer;
-        }
-        .auth-tab.active {
-            background: var(--bg-raised);
-            color: var(--text);
-            box-shadow: var(--shadow-sm);
-        }
-        .auth-tab:hover:not(.active) { color: var(--text); }
+    --sidebar-w: 220px;
+    --nav-h:     60px;
+}
 
-        /* Forms */
-        .auth-form { display: none; }
-        .auth-form.active { display: block; }
+[data-theme="dark"] {
+    --canvas:    #111;
+    --card:      #181818;
+    --card-warm: #161b17;
+    --muted:     #151515;
+    --text:      #E8EFE9;
+    --text-soft: rgba(232,239,233,.55);
+    --text-muted:rgba(232,239,233,.32);
+    --line:      rgba(232,239,233,.09);
+    --line-mid:  rgba(232,239,233,.15);
+    /* dark aliases for posts.css */
+    --bg-raised:  #181818;
+    --bg-muted:   #151515;
+    --obsidian-2: #2a5246;
+    --sage-light: #b8d4c8;
+    --shadow-sm: 0 1px 4px rgba(0,0,0,.25);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.35);
+}
 
-        .form-heading {
-            font-size: clamp(1.6rem, 3vw, 2.1rem);
-            margin-bottom: var(--sp-8);
-            color: var(--text);
-        }
-        .form-subheading {
-            color: var(--text-soft);
-            font-size: .96rem;
-            margin-bottom: var(--sp-32);
-        }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+    font-family: var(--font);
+    background: var(--canvas);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: var(--font); cursor: pointer; border: none; background: none; color: inherit; }
+img { display: block; max-width: 100%; }
+::selection { background: var(--sage); color: var(--obsidian); }
 
-        /* Fields */
-        .field-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 20px;
-        }
-        .field-label {
-            font-size: .8rem;
-            font-weight: 700;
-            color: var(--text);
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            font-family: var(--font-mono);
-        }
-        .field-label .req { color: var(--color-sage); margin-left: 2px; }
+/* NAVBAR */
+.dash-nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    z-index: 200;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center;
+    padding: 0 var(--s7);
+    gap: var(--s5);
+    transition: background var(--base);
+}
+.dash-nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: .9rem;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: var(--text);
+    flex-shrink: 0;
+}
+.dash-nav-brand img { width: 28px; height: 28px; object-fit: contain; }
+.dash-nav-center { flex: 1; }
+.dash-nav-right { display: flex; align-items: center; gap: var(--s3); flex-shrink: 0; }
 
-        .field-input-wrap { position: relative; }
-        .field-input {
-            width: 100%;
-            padding: 14px 18px;
-            border-radius: var(--r-md);
-            border: 1.5px solid var(--line);
-            background: var(--bg-raised);
-            color: var(--text);
-            font-family: var(--font-current);
-            font-size: 1rem;
-            transition: border-color var(--t-fast), box-shadow var(--t-fast);
-            -webkit-appearance: none;
-            appearance: none;
-            outline: none;
-        }
-        .field-input::placeholder { color: var(--text-soft); opacity: .55; }
-        .field-input:focus {
-            border-color: var(--color-sage);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-sage) 18%, transparent);
-        }
-        .field-input.error {
-            border-color: #e05252;
-            box-shadow: 0 0 0 3px rgba(224,82,82,.12);
-        }
-        .field-input.has-icon { padding-right: 48px; }
+.nav-icon-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--line);
+    color: var(--text-soft);
+    transition: var(--fast);
+}
+.nav-icon-btn:hover { background: var(--muted); color: var(--text); }
+.nav-icon-btn svg { width: 15px; height: 15px; }
 
-        /* Show password toggle */
-        .field-icon-btn {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-soft);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4px;
-            border-radius: 4px;
-            transition: color var(--t-fast);
-        }
-        .field-icon-btn:hover { color: var(--text); }
-        .field-icon-btn svg { width: 18px; height: 18px; }
+.nav-user-chip {
+    display: flex; align-items: center; gap: var(--s2);
+    padding: 5px var(--s3) 5px 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    font-size: .82rem; font-weight: 600;
+    color: var(--text-soft);
+    transition: var(--fast);
+}
+.nav-user-chip:hover { border-color: var(--sage); color: var(--text); }
+.nav-user-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: .6rem; font-weight: 700;
+    color: var(--obsidian);
+    flex-shrink: 0;
+}
+.nav-signout-btn {
+    font-size: .8rem; font-weight: 600;
+    color: var(--text-soft);
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-btn);
+    transition: var(--fast);
+}
+.nav-signout-btn:hover { border-color: rgba(180,60,60,.35); color: #c94444; }
 
-        .field-error {
-            font-size: .78rem;
-            color: #c94444;
-            font-weight: 600;
-            display: none;
-        }
-        .field-error.visible { display: block; }
+/* APP SHELL & SIDEBAR */
+.dash-shell {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    min-height: 100vh;
+    padding-top: var(--nav-h);
+}
+.dash-sidebar {
+    position: sticky; top: var(--nav-h);
+    height: calc(100vh - var(--nav-h));
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    padding: var(--s6) var(--s4);
+    display: flex; flex-direction: column;
+    background: var(--canvas);
+    gap: 2px;
+}
+.sidebar-member {
+    padding: var(--s4) var(--s3) var(--s5);
+    margin-bottom: var(--s3);
+    border-bottom: 1px solid var(--line);
+}
+.sidebar-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: .9rem; font-weight: 700;
+    color: var(--obsidian);
+    margin-bottom: var(--s3);
+}
+.sidebar-name {
+    font-size: .875rem; font-weight: 700;
+    color: var(--text); margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-role {
+    font-family: var(--mono); font-size: .66rem;
+    font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--sage);
+}
+.sidebar-section {
+    font-family: var(--mono); font-size: .62rem;
+    text-transform: uppercase; letter-spacing: .13em;
+    color: var(--text-muted); font-weight: 600;
+    padding: var(--s5) var(--s3) var(--s2);
+}
+.sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px var(--s3);
+    border-radius: var(--r-sm);
+    font-size: .85rem; font-weight: 500;
+    color: var(--text-soft);
+    transition: background var(--fast), color var(--fast);
+    cursor: pointer; width: 100%; text-align: left;
+    position: relative;
+}
+.sidebar-item svg { width: 15px; height: 15px; flex-shrink: 0; stroke-width: 2; }
+.sidebar-item:hover { background: var(--muted); color: var(--text); }
+.sidebar-item.active { background: var(--sage-dim); color: var(--obsidian); font-weight: 700; }
+[data-theme="dark"] .sidebar-item.active { color: var(--sage); }
+.sidebar-item.active::before {
+    content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
+    width: 2px; background: var(--sage); border-radius: 0 2px 2px 0;
+}
+.sidebar-badge {
+    margin-left: auto; background: var(--sage); color: var(--obsidian);
+    font-family: var(--mono); font-size: .6rem; font-weight: 700;
+    padding: 1px 6px; border-radius: var(--r-pill);
+    min-width: 18px; text-align: center;
+}
 
-        /* Password strength bar */
-        .pw-strength {
-            margin-top: 8px;
-            display: none;
-        }
-        .pw-strength.visible { display: block; }
-        .pw-strength-bar {
-            height: 3px;
-            border-radius: 99px;
-            background: var(--line);
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-        .pw-strength-fill {
-            height: 100%;
-            border-radius: 99px;
-            width: 0%;
-            transition: width .3s var(--ease), background .3s;
-        }
-        .pw-strength-label {
-            font-family: var(--font-mono);
-            font-size: .7rem;
-            color: var(--text-soft);
-        }
+/* MAIN CONTENT */
+.dash-main { background: var(--canvas); min-height: calc(100vh - var(--nav-h)); }
+.dash-view { display: none; }
+.dash-view.active { display: block; }
+.view-body { max-width: 800px; padding: var(--s7) var(--s7); }
+.view-header {
+    padding-bottom: var(--s5); margin-bottom: var(--s6);
+    border-bottom: 1px solid var(--line);
+}
+.view-eyebrow {
+    font-family: var(--mono); font-size: .66rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .14em; color: var(--sage);
+    margin-bottom: var(--s2);
+}
+.view-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -.035em; color: var(--text); margin-bottom: 3px; line-height: 1.1; }
+.view-sub { font-size: .9rem; color: var(--text-soft); line-height: 1.55; }
 
-        /* Remember / forgot row */
-        .field-row-inline {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-        }
-        .checkbox-inline {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: .88rem;
-            color: var(--text-soft);
-        }
-        .checkbox-inline input { display: none; }
-        .check-box {
-            width: 18px; height: 18px; border-radius: 4px;
-            border: 1.5px solid var(--color-sage);
-            flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            transition: var(--t-fast);
-        }
-        .check-box::after {
-            content: '';
-            width: 10px; height: 10px; border-radius: 2px;
-            background: var(--color-sage); transform: scale(0);
-            transition: transform .15s var(--ease-bounce);
-        }
-        .checkbox-inline input:checked ~ .check-box { background: color-mix(in srgb, var(--color-sage) 12%, transparent); }
-        .checkbox-inline input:checked ~ .check-box::after { transform: scale(1); }
+/* OVERVIEW */
+.greeting-strip {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: var(--s5); padding-bottom: var(--s6); margin-bottom: var(--s6);
+    border-bottom: 1px solid var(--line);
+}
+.greeting-label {
+    font-family: var(--mono); font-size: .68rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted);
+    margin-bottom: var(--s2);
+}
+.greeting-name { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: var(--s2); line-height: 1.1; }
+.greeting-meta { font-size: .82rem; color: var(--text-soft); display: flex; align-items: center; gap: var(--s3); }
+.greeting-meta span { display: flex; align-items: center; gap: 5px; }
+.greeting-meta svg { width: 13px; height: 13px; }
+.greeting-avatar-lg {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 700; font-size: 1.15rem;
+    color: var(--obsidian); flex-shrink: 0; border: 1px solid var(--line-mid);
+}
+.stats-ledger {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    margin-bottom: var(--s7);
+}
+.stat-cell { padding: var(--s5) var(--s4); border-right: 1px solid var(--line); text-align: center; }
+.stat-cell:last-child { border-right: none; }
+.stat-value { display: block; font-size: 1.8rem; font-weight: 800; letter-spacing: -.04em; color: var(--text); line-height: 1; margin-bottom: var(--s1); }
+.stat-label { font-family: var(--mono); font-size: .64rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
+.stat-sub { font-size: .75rem; color: var(--text-soft); margin-top: 2px; }
 
-        .link-muted {
-            font-size: .88rem;
-            color: var(--text-soft);
-            border-bottom: 1.5px solid var(--line);
-            transition: color var(--t-fast), border-color var(--t-fast);
-        }
-        .link-muted:hover { color: var(--text); border-color: var(--color-sage); }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s4); }
+.section-label { font-size: .9rem; font-weight: 700; letter-spacing: -.01em; color: var(--text); }
+.section-action { font-family: var(--mono); font-size: .7rem; font-weight: 600; color: var(--sage); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; border-bottom: 1px solid transparent; transition: border-color var(--fast); }
+.section-action:hover { border-color: var(--sage); }
 
-        /* Alert box */
-        .auth-alert {
-            padding: 12px 16px;
-            border-radius: var(--r-sm);
-            font-size: .88rem;
-            font-weight: 600;
-            margin-bottom: var(--sp-20);
-            display: none;
-        }
-        .auth-alert.visible { display: block; }
-        .auth-alert.error { background: rgba(224,82,82,.1); border: 1px solid rgba(224,82,82,.3); color: #c94444; }
-        .auth-alert.success { background: color-mix(in srgb, var(--color-sage) 12%, transparent); border: 1px solid color-mix(in srgb, var(--color-sage) 35%, transparent); color: var(--brand-dark); }
-        [data-theme="dark"] .auth-alert.success { color: var(--color-sage); }
+/* EVENT & ANNOUNCEMENTS STYLES */
+.event-list { display: flex; flex-direction: column; }
+.event-row { display: flex; align-items: flex-start; gap: var(--s5); padding: var(--s5) 0; border-bottom: 1px solid var(--line); transition: var(--fast); cursor: default; }
+.event-row:first-child { border-top: 1px solid var(--line); }
+.event-stamp { flex-shrink: 0; text-align: center; width: 40px; }
+.stamp-month { font-family: var(--mono); font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--sage); display: block; margin-bottom: 1px; }
+.stamp-day { font-size: 1.5rem; font-weight: 800; letter-spacing: -.04em; color: var(--text); line-height: 1; display: block; }
+.event-body { flex: 1; min-width: 0; }
+.event-title { font-size: .9rem; font-weight: 700; color: var(--text); margin-bottom: 3px; letter-spacing: -.01em; }
+.event-desc { font-size: .82rem; color: var(--text-soft); line-height: 1.5; }
+.event-tag { flex-shrink: 0; font-family: var(--mono); font-size: .64rem; font-weight: 700; padding: 3px 8px; border: 1px solid var(--line-mid); border-radius: var(--r-sm); color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; align-self: flex-start; margin-top: 2px; }
 
-        /* Submit button */
-        .btn-submit {
-            width: 100%;
-            padding: 17px 30px;
-            font-size: 1.05rem;
-            margin-top: var(--sp-8);
-        }
-        .btn-submit .spinner {
-            width: 20px; height: 20px;
-            border: 2.5px solid rgba(255,255,255,.35);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-            display: none;
-        }
-        .btn-submit.loading .btn-text { display: none; }
-        .btn-submit.loading .spinner { display: block; }
+.announce-list { display: flex; flex-direction: column; gap: var(--s3); }
+.announce-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); border-left: 3px solid var(--sage); padding: var(--s5) var(--s6); position: relative; transition: border-color var(--base); }
+.announce-card:hover { border-color: var(--sage); }
+.announce-date { font-family: var(--mono); font-size: .66rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: var(--s2); }
+.announce-title { font-size: 1rem; font-weight: 700; letter-spacing: -.02em; color: var(--text); margin-bottom: var(--s2); line-height: 1.3; }
+.announce-body { font-size: .875rem; color: var(--text-soft); line-height: 1.65; }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+/* PROFILE */
+.profile-header-strip { display: flex; align-items: center; gap: var(--s5); padding-bottom: var(--s6); margin-bottom: var(--s6); border-bottom: 1px solid var(--line); }
+.profile-avatar-xl { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: 1.4rem; color: var(--obsidian); flex-shrink: 0; border: 1px solid var(--line-mid); }
+.profile-header-name { font-size: 1.25rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 3px; }
+.profile-header-email { font-family: var(--mono); font-size: .78rem; color: var(--text-soft); }
+.profile-header-badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; background: var(--sage-dim); color: var(--obsidian); padding: 3px 9px; border-radius: var(--r-pill); margin-top: var(--s2); }
+.profile-header-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #5dbd7e; }
 
-        /* Divider */
-        .or-divider {
-            display: flex;
-            align-items: center;
-            gap: var(--sp-16);
-            margin: var(--sp-24) 0;
-        }
-        .or-divider::before,
-        .or-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--line);
-        }
-        .or-divider span {
-            font-size: .78rem;
-            color: var(--text-soft);
-            font-family: var(--font-mono);
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            white-space: nowrap;
-        }
+.profile-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4) var(--s5); margin-bottom: var(--s6); }
+.profile-form-grid .span-2 { grid-column: 1 / -1; }
+.field-block { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-family: var(--mono); font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text-soft); }
+.field-input { width: 100%; padding: 10px 14px; border-radius: var(--r-btn); border: 1px solid var(--line-mid); background: var(--card); color: var(--text); font-family: var(--font); font-size: .9rem; outline: none; -webkit-appearance: none; transition: border-color var(--fast), box-shadow var(--fast); }
+.field-input::placeholder { color: var(--text-muted); opacity: .7; }
+.field-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-dim); }
+.field-input:disabled { opacity: .45; cursor: not-allowed; }
 
-        /* No-account CTA */
-        .no-account {
-            text-align: center;
-            margin-top: var(--sp-24);
-            font-size: .9rem;
-            color: var(--text-soft);
-        }
-        .no-account a {
-            color: var(--brand-dark);
-            font-weight: 700;
-            border-bottom: 1.5px solid var(--color-sage);
-        }
-        [data-theme="dark"] .no-account a { color: var(--color-sage); }
-        .no-account a:hover { color: var(--color-sage); }
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--obsidian); color: #fff; font-family: var(--font); font-size: .875rem; font-weight: 700; border-radius: var(--r-btn); border-bottom-left-radius: var(--r-btn); border-bottom-right-radius: var(--r-btn); border-top-left-radius: 2px; border-top-right-radius: 2px; transition: background var(--fast), box-shadow var(--fast); cursor: pointer; border: none; }
+.btn-primary:hover { background: #163a32; box-shadow: 0 2px 12px rgba(14,42,36,.18); }
+[data-theme="dark"] .btn-primary { background: var(--sage); color: var(--obsidian); }
+[data-theme="dark"] .btn-primary:hover { background: #b8d4c8; }
 
-        /* Agree row */
-        .agree-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-        .agree-row .checkbox-inline { font-size: .85rem; line-height: 1.5; }
-        .agree-row a { color: var(--brand-dark); border-bottom: 1.5px solid var(--color-sage); font-weight: 700; }
-        [data-theme="dark"] .agree-row a { color: var(--color-sage); }
+.btn-danger { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; background: transparent; color: #c94444; font-family: var(--font); font-size: .85rem; font-weight: 600; border: 1px solid rgba(200,80,80,.28); border-radius: var(--r-btn); transition: var(--fast); cursor: pointer; }
+.btn-danger:hover { background: rgba(200,80,80,.07); }
 
-        /* ---- Responsive ---- */
-        @media (max-width: 900px) {
-            .auth-layout { grid-template-columns: 1fr; }
-            .auth-panel { display: none; }
-            .auth-form-panel { padding: var(--sp-32) var(--sp-24); }
-        }
+.spin-wrap { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .65s linear infinite; display: none; }
+.loading .btn-txt { display: none; }
+.loading .spin-wrap { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ══ Page entrance animations ══ */
-        .auth-panel-content {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: authPanelIn .7s var(--ease-out) .1s forwards;
-        }
-        .auth-form-inner {
-            opacity: 0;
-            transform: translateY(18px);
-            animation: authPanelIn .65s var(--ease-out) .2s forwards;
-        }
-        @keyframes authPanelIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Animated dot grid on panel */
-        .auth-panel .dot-grid {
-            animation: dotDrift 20s linear infinite;
-        }
-        @keyframes dotDrift {
-            from { background-position: 0 0; }
-            to   { background-position: 28px 28px; }
-        }
-        /* Panel orbs pulse */
-        .auth-panel::before {
-            animation: orbPulse 8s ease-in-out infinite;
-        }
-        .auth-panel::after {
-            animation: orbPulse 8s ease-in-out infinite;
-            animation-delay: -4s;
-        }
-        @keyframes orbPulse {
-            0%, 100% { transform: scale(1); opacity: .9; }
-            50% { transform: scale(1.15); opacity: 1; }
-        }
-        /* Input focus enhancement */
-        .form-input:focus {
-            border-color: var(--sage) !important;
-            box-shadow: 0 0 0 3px var(--sage-dim) !important;
-        }
-        /* Auth tab active underline animation */
-        .auth-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0;
-            width: 100%; height: 2px;
-            background: var(--sage);
-            border-radius: 1px;
-            animation: tabUnderlineIn .25s var(--ease-spring);
-        }
-        @keyframes tabUnderlineIn {
-            from { transform: scaleX(0); transform-origin: left; }
-            to   { transform: scaleX(1); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .auth-panel-content, .auth-form-inner { animation: none; opacity: 1; transform: none; }
-            .auth-panel .dot-grid, .auth-panel::before, .auth-panel::after { animation: none; }
-        }
+.form-alert { padding: 10px 14px; border-radius: var(--r-sm); font-size: .85rem; font-weight: 600; margin-bottom: var(--s5); display: none; }
+.form-alert.visible { display: block; }
+.form-alert.ok { background: var(--sage-dim); border: 1px solid var(--sage-mid); color: var(--obsidian); }
+[data-theme="dark"] .form-alert.ok { color: var(--sage); }
+.form-alert.err { background: rgba(200,80,80,.08); border: 1px solid rgba(200,80,80,.25); color: #c94444; }
+
+.danger-zone { margin-top: var(--s8); padding-top: var(--s6); border-top: 1px solid var(--line); }
+.danger-label { font-family: var(--mono); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(180,60,60,.6); margin-bottom: var(--s3); }
+.danger-desc { font-size: .85rem; color: var(--text-soft); margin-bottom: var(--s4); line-height: 1.55; }
+
+.empty-state { text-align: center; padding: var(--s8) var(--s5); border: 1px dashed var(--line-mid); border-radius: var(--r-card); }
+.empty-icon { width: 40px; height: 40px; margin: 0 auto var(--s4); opacity: .25; }
+.empty-state p { font-size: .875rem; color: var(--text-soft); }
+
+.mob-tab-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--canvas); border-top: 1px solid var(--line); z-index: 300; align-items: stretch; }
+.mob-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: .64rem; font-weight: 600; font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); transition: color var(--fast); cursor: pointer; }
+.mob-tab svg { width: 18px; height: 18px; stroke-width: 1.8; }
+.mob-tab.active { color: var(--obsidian); }
+[data-theme="dark"] .mob-tab.active { color: var(--sage); }
+.mob-tab.active svg { stroke-width: 2.5; }
+
+@media (max-width: 768px) {
+    .dash-shell { grid-template-columns: 1fr; padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+    .dash-sidebar { display: none; }
+    .mob-tab-bar { display: flex; }
+    .dash-nav { padding: 0 var(--s5); }
+    .view-body { padding: var(--s6) var(--s5); max-width: 100%; }
+    .profile-form-grid { grid-template-columns: 1fr; }
+    .profile-form-grid .span-2 { grid-column: 1; }
+    .stats-ledger { grid-template-columns: repeat(3,1fr); }
+    .stat-cell { padding: var(--s4) var(--s2); }
+    .stat-value { font-size: 1.4rem; }
+    .greeting-strip { flex-direction: row; align-items: center; }
+}
+@media (max-width: 440px) {
+    .stats-ledger { grid-template-columns: 1fr 1fr; }
+    .stat-cell:last-child { border-right: none; border-top: 1px solid var(--line); grid-column: 1 / -1; }
+    .greeting-name { font-size: 1.35rem; }
+}
     </style>
+    <!-- Posts styles dynamically handled or in posts.css -->
+    <link rel="stylesheet" href="../css/posts.css" id="posts-stylesheet">
 </head>
 <body>
 
-    <div class="scroll-progress" id="scrollProgress"></div>
-
-    <!-- NAVBAR -->
-    <nav class="navbar" id="navbar">
-        <div class="container nav-container">
-            <a href="../index.html" class="brand">
-                <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo logo" class="logo-img">
-                <span>ECONOVO</span>
-            </a>
-            <ul class="nav-links">
-                <li><a href="../index.html#about" class="nav-link">About Us</a></li>
-                <li><a href="../index.html#pillars" class="nav-link">Our Focus</a></li>
-                <li><a href="../index.html#team" class="nav-link">Team</a></li>
-                <li><a href="../index.html#events" class="nav-link">Events</a></li>
-            </ul>
-            <div class="nav-actions" id="nav-actions">
-                <button class="icon-btn js-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-                    <i class="js-theme-icon" id="themeToggleIcon" data-lucide="moon"></i>
-                </button>
-                <a href="join.html" class="btn btn-primary btn-sm" id="nav-join-btn">Join Now</a>
-                <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu">
-                    <i data-lucide="menu"></i>
-                </button>
-            </div>
+<nav class="dash-nav" id="dashNav">
+    <a href="../index.html" class="dash-nav-brand">
+        <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo">
+        <span>Econovo</span>
+    </a>
+    <div class="dash-nav-center"></div>
+    <div class="dash-nav-right">
+        <button class="nav-icon-btn js-theme-toggle" aria-label="Toggle dark mode">
+            <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        </button>
+        <div class="nav-user-chip" onclick="showView('profile')">
+            <div class="nav-user-avatar" id="nav-avatar"></div>
+            <span id="nav-name"></span>
         </div>
-    </nav>
+        <button class="nav-signout-btn" id="signout-btn">Sign Out</button>
+    </div>
+</nav>
 
-    <!-- MOBILE MENU -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
-    <aside class="mobile-menu" id="mobileMenu">
-        <button class="icon-btn mobile-menu-close" id="mobileMenuClose" aria-label="Close menu"><i data-lucide="x"></i></button>
-        <div class="mobile-menu-utility">
-            <button class="icon-btn js-theme-toggle" aria-label="Toggle dark mode">
-                <i class="js-theme-icon" data-lucide="moon"></i>
-            </button>
+<div class="dash-shell">
+
+    <aside class="dash-sidebar">
+        <div class="sidebar-member">
+            <div class="sidebar-avatar" id="sidebar-avatar"></div>
+            <div class="sidebar-name" id="sidebar-name"></div>
+            <div class="sidebar-role">Club Member</div>
         </div>
-        <ul>
-            <li><a href="../index.html#about" class="nav-link">About Us</a></li>
-            <li><a href="../index.html#pillars" class="nav-link">Our Focus</a></li>
-            <li><a href="../index.html#team" class="nav-link">Team</a></li>
-            <li><a href="../index.html#events" class="nav-link">Events</a></li>
-        </ul>
-        <a href="join.html" class="btn btn-primary">Join Now</a>
+
+        <span class="sidebar-section">Menu</span>
+        <button class="sidebar-item active" data-view="overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            Overview
+        </button>
+        <button class="sidebar-item" data-view="events">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+            Events
+            <span class="sidebar-badge" id="sb-events-count">0</span>
+        </button>
+        <button class="sidebar-item" data-view="announcements">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            Announcements
+            <span class="sidebar-badge" id="sb-ann-count">0</span>
+        </button>
+        <button class="sidebar-item" data-view="feed">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Community Feed
+        </button>
+
+        <span class="sidebar-section">Account</span>
+        <button class="sidebar-item" data-view="profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            Profile
+        </button>
     </aside>
 
-    <!-- MAIN -->
-    <div class="page-shell">
-        <div class="auth-layout">
-
-            <!-- Left brand panel -->
-            <div class="auth-panel">
-                <div class="dot-grid"></div>
-                <div class="auth-panel-content">
-                    <a href="../index.html" class="auth-brand">
-                        <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo">
-                        <span>ECONOVO</span>
-                    </a>
-                </div>
-
-                <div class="auth-panel-hero">
-                    <span class="auth-panel-eyebrow">Member Portal</span>
-                    <h1>Welcome <em>back</em> to Econovo.</h1>
-                    <p class="auth-panel-desc">Sign in to access your member dashboard — upcoming events, club resources, and your community.</p>
-                </div>
-
-                <div class="auth-testimonial">
-                    <p>"Econovo changed how I think about economics. It's not just theory — we actually build things and solve real problems."</p>
-                    <div class="testimonial-attr">
-                        <div class="testimonial-avatar">HY</div>
-                        <div>
-                            <div class="testimonial-name">Houssem Yettou</div>
-                            <div class="testimonial-role">Vice President, Econovo</div>
+    <main>
+        <!-- OVERVIEW -->
+        <div class="dash-view active" id="view-overview">
+            <div class="view-body">
+                <div class="greeting-strip">
+                    <div class="greeting-text">
+                        <div class="greeting-label">Member Dashboard</div>
+                        <div class="greeting-name" id="greeting-name"></div>
+                        <div class="greeting-meta">
+                            <span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                Bordj Bou Arreridj
+                            </span>
+                            <span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                <span id="greeting-joined"></span>
+                            </span>
                         </div>
                     </div>
+                    <div class="greeting-avatar-lg" id="greeting-avatar"></div>
                 </div>
+
+                <div class="stats-ledger">
+                    <div class="stat-cell">
+                        <span class="stat-value" id="stat-events">0</span>
+                        <div class="stat-label">Upcoming Events</div>
+                        <div class="stat-sub">This semester</div>
+                    </div>
+                    <div class="stat-cell">
+                        <span class="stat-value" id="stat-ann">0</span>
+                        <div class="stat-label">Announcements</div>
+                        <div class="stat-sub">Unread</div>
+                    </div>
+                    <div class="stat-cell">
+                        <span class="stat-value">4</span>
+                        <div class="stat-label">Focus Areas</div>
+                        <div class="stat-sub">Active tracks</div>
+                    </div>
+                </div>
+
+                <div class="section-head">
+                    <span class="section-label">Upcoming Events</span>
+                    <span class="section-action" onclick="showView('events')">View all →</span>
+                </div>
+                <div class="event-list" id="overview-events"></div>
+
+                <div class="section-head" style="margin-top: var(--s7);">
+                    <span class="section-label">Latest Announcements</span>
+                    <span class="section-action" onclick="showView('announcements')">View all →</span>
+                </div>
+                <div class="announce-list" id="overview-ann"></div>
             </div>
-
-            <!-- Right: sign in / sign up -->
-            <div class="auth-form-panel">
-                <div class="auth-form-inner">
-
-                    <!-- Tab switcher -->
-                    <div class="auth-tabs" role="tablist">
-                        <button class="auth-tab active" id="tab-signin" role="tab" aria-selected="true" aria-controls="form-signin">Sign In</button>
-                        <button class="auth-tab" id="tab-signup" role="tab" aria-selected="false" aria-controls="form-signup">Create Account</button>
-                    </div>
-
-                    <!-- ===== SIGN IN ===== -->
-                    <div class="auth-form active" id="form-signin" role="tabpanel">
-                        <h2 class="form-heading">Sign In</h2>
-                        <p class="form-subheading">Access your Econovo member account.</p>
-
-                        <div class="auth-alert" id="signin-alert"></div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="si-email">Email <span class="req">*</span></label>
-                            <input class="field-input" type="email" id="si-email" placeholder="your@email.com" autocomplete="email" required>
-                            <span class="field-error" id="err-si-email">Enter a valid email.</span>
-                        </div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="si-password">Password <span class="req">*</span></label>
-                            <div class="field-input-wrap">
-                                <input class="field-input has-icon" type="password" id="si-password" placeholder="Your password" autocomplete="current-password" required>
-                                <button class="field-icon-btn" id="toggle-si-pw" type="button" aria-label="Show password">
-                                    <svg id="si-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                </button>
-                            </div>
-                            <span class="field-error" id="err-si-password">Enter your password.</span>
-                        </div>
-
-                        <div class="field-row-inline">
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="si-remember">
-                                <div class="check-box"></div>
-                                Remember me
-                            </label>
-                            <a href="#" class="link-muted" id="forgot-link">Forgot password?</a>
-                        </div>
-
-                        <button class="btn btn-primary btn-submit" id="signin-btn" type="button">
-                            <span class="btn-text">Sign In</span>
-                            <div class="spinner"></div>
-                        </button>
-
-                        <p class="no-account">Not a member yet? <a href="join.html">Apply to join →</a></p>
-                    </div>
-
-                    <!-- ===== SIGN UP ===== -->
-                    <div class="auth-form" id="form-signup" role="tabpanel">
-                        <h2 class="form-heading">Create Account</h2>
-                        <p class="form-subheading">Already applied? Set up your member account.</p>
-
-                        <div class="auth-alert" id="signup-alert"></div>
-
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-16);">
-                            <div class="field-group">
-                                <label class="field-label" for="su-fname">First Name <span class="req">*</span></label>
-                                <input class="field-input" type="text" id="su-fname" placeholder="Ahmed" autocomplete="given-name" required>
-                                <span class="field-error" id="err-su-fname">Required.</span>
-                            </div>
-                            <div class="field-group">
-                                <label class="field-label" for="su-lname">Last Name <span class="req">*</span></label>
-                                <input class="field-input" type="text" id="su-lname" placeholder="Benali" autocomplete="family-name" required>
-                                <span class="field-error" id="err-su-lname">Required.</span>
-                            </div>
-                        </div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="su-email">Email <span class="req">*</span></label>
-                            <input class="field-input" type="email" id="su-email" placeholder="your@email.com" autocomplete="email" required>
-                            <span class="field-error" id="err-su-email">Enter a valid email.</span>
-                        </div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="su-password">Password <span class="req">*</span></label>
-                            <div class="field-input-wrap">
-                                <input class="field-input has-icon" type="password" id="su-password" placeholder="Min. 8 characters" autocomplete="new-password" required>
-                                <button class="field-icon-btn" id="toggle-su-pw" type="button" aria-label="Show password">
-                                    <svg id="su-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                </button>
-                            </div>
-                            <div class="pw-strength" id="pw-strength">
-                                <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div>
-                                <span class="pw-strength-label" id="pw-label">Weak</span>
-                            </div>
-                            <span class="field-error" id="err-su-password">Password must be at least 8 characters.</span>
-                        </div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="su-confirm">Confirm Password <span class="req">*</span></label>
-                            <input class="field-input" type="password" id="su-confirm" placeholder="Repeat password" autocomplete="new-password" required>
-                            <span class="field-error" id="err-su-confirm">Passwords do not match.</span>
-                        </div>
-
-                        <div class="agree-row">
-                            <label class="checkbox-inline" style="align-items:flex-start;gap:10px;">
-                                <input type="checkbox" id="su-agree">
-                                <div class="check-box" style="margin-top:2px;"></div>
-                                <span>I confirm I am a student at Mohamed El Bachir El Ibrahimi University and agree to the <a href="#">club rules</a>.</span>
-                            </label>
-                        </div>
-
-                        <button class="btn btn-primary btn-submit" id="signup-btn" type="button">
-                            <span class="btn-text">Create Account</span>
-                            <div class="spinner"></div>
-                        </button>
-
-                        <p class="no-account">Haven't applied yet? <a href="join.html">Apply to join first →</a></p>
-                    </div>
-
-                    <!-- Forgot password inline (hidden by default) -->
-                    <div class="auth-form" id="form-forgot">
-                        <h2 class="form-heading" style="font-size:1.7rem;">Reset Password</h2>
-                        <p class="form-subheading">Enter your email and we'll send a reset link.</p>
-
-                        <div class="auth-alert" id="forgot-alert"></div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="forgot-email">Email <span class="req">*</span></label>
-                            <input class="field-input" type="email" id="forgot-email" placeholder="your@email.com" autocomplete="email">
-                            <span class="field-error" id="err-forgot">Enter a valid email.</span>
-                        </div>
-
-                        <button class="btn btn-primary btn-submit" id="forgot-btn" type="button">
-                            <span class="btn-text">Send Reset Link</span>
-                            <div class="spinner"></div>
-                        </button>
-
-                        <p class="no-account" style="margin-top:var(--sp-16);"><a href="#" id="back-to-signin">← Back to Sign In</a></p>
-                    </div>
-
-                </div>
-            </div>
-
         </div>
-    </div>
 
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-    (function () {
-        'use strict';
+        <!-- EVENTS -->
+        <div class="dash-view" id="view-events">
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">Econovo Calendar</div>
+                    <div class="view-title">Events &amp; Workshops</div>
+                    <div class="view-sub">Upcoming activities organised by the club board.</div>
+                </div>
+                <div class="event-list" id="full-events"></div>
+            </div>
+        </div>
 
-        // --- Theme ---
-        function applyTheme(theme) {
-            const root = document.documentElement;
-            if (theme === 'dark') root.setAttribute('data-theme', 'dark');
-            else root.removeAttribute('data-theme');
-            document.querySelectorAll('.js-theme-icon').forEach(icon => {
-                icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
-            });
-            if (window.lucide) window.lucide.createIcons();
-            const meta = document.getElementById('themeColorMeta');
-            if (meta) meta.setAttribute('content', theme === 'dark' ? '#1F1F1F' : '#F4F7F2');
+        <!-- ANNOUNCEMENTS -->
+        <div class="dash-view" id="view-announcements">
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">From the Board</div>
+                    <div class="view-title">Announcements</div>
+                    <div class="view-sub">Latest news and updates from the Econovo club board.</div>
+                </div>
+                <div class="announce-list" id="full-ann"></div>
+            </div>
+        </div>
+
+        <!-- COMMUNITY FEED -->
+        <div class="dash-view" id="view-feed">
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">Econovo Community</div>
+                    <div class="view-title">Community Feed</div>
+                    <div class="view-sub">Share updates, ideas, and resources with fellow members.</div>
+                </div>
+
+                <form id="create-post-form" class="create-post-card" novalidate>
+                    <div class="create-post-top">
+                        <div class="create-post-avatar" id="create-post-avatar"></div>
+                        <textarea id="post-content" class="create-post-textarea" placeholder="Share something with the club…" rows="3" maxlength="1000"></textarea>
+                    </div>
+
+                    <div id="post-alert" class="post-alert" style="display:none;"></div>
+
+                    <div class="create-post-footer create-post-toolbar">
+                        <span class="post-char-count" id="post-char-count">0 / 1000</span>
+                        <div class="create-post-actions">
+                            <label class="attach-img-btn" id="post-image-btn" for="post-image" title="Attach up to 4 images">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                Images
+                                <input type="file" id="post-image" accept="image/*" multiple style="display:none;">
+                            </label>
+                            <button type="button" id="emoji-trigger-btn" class="emoji-trigger-btn" title="Add emoji">
+                                😊 Emoji
+                            </button>
+                            <button type="submit" id="post-submit-btn" class="btn-primary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                                Publish
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="posts-feed" class="posts-feed"></div>
+            </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="dash-view" id="view-profile">
+            <div class="view-body">
+                <div class="view-header">
+                    <div class="view-eyebrow">Account</div>
+                    <div class="view-title">My Profile</div>
+                    <div class="view-sub">Update your display name and membership details.</div>
+                </div>
+
+                <div class="profile-header-strip">
+                    <div class="profile-avatar-xl" id="profile-avatar" title="Click to change photo" onclick="document.getElementById('avatar-upload-input').click()"></div>
+                    <input type="file" id="avatar-upload-input" accept="image/*">
+                    <div>
+                        <div class="profile-header-name" id="profile-name"></div>
+                        <div class="profile-header-email" id="profile-email"></div>
+                        <div class="profile-header-badge">Active Member</div>
+                    </div>
+                </div>
+
+                <div class="form-alert" id="profile-alert"></div>
+
+                <div class="profile-form-grid">
+                    <div class="field-block">
+                        <label class="field-label" for="pf-fname">First Name</label>
+                        <input class="field-input" type="text" id="pf-fname" autocomplete="given-name">
+                    </div>
+                    <div class="field-block">
+                        <label class="field-label" for="pf-lname">Last Name</label>
+                        <input class="field-input" type="text" id="pf-lname" autocomplete="family-name">
+                    </div>
+                    <div class="field-block span-2">
+                        <label class="field-label" for="pf-email">Email Address</label>
+                        <input class="field-input" type="email" id="pf-email" disabled>
+                    </div>
+                    <div class="field-block">
+                        <label class="field-label" for="pf-major">Field of Study</label>
+                        <input class="field-input" type="text" id="pf-major">
+                    </div>
+                    <div class="field-block">
+                        <label class="field-label" for="pf-year">Year of Study</label>
+                        <input class="field-input" type="text" id="pf-year">
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="save-btn">
+                    <span class="btn-txt">Save Changes</span>
+                    <div class="spin-wrap"></div>
+                </button>
+
+                <div class="danger-zone">
+                    <div class="danger-label">Danger Zone</div>
+                    <p class="danger-desc">Sign out of your Econovo account on this device. Your membership and data are not affected.</p>
+                    <button class="btn-danger" id="signout-btn-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<nav class="mob-tab-bar" aria-label="Mobile navigation">
+    <button class="mob-tab active" data-view="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Overview
+    </button>
+    <button class="mob-tab" data-view="events">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+        Events
+    </button>
+    <button class="mob-tab" data-view="announcements">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Announcements
+    </button>
+    <button class="mob-tab" data-view="feed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Feed
+    </button>
+    <button class="mob-tab" data-view="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        Profile
+    </button>
+</nav>
+<script>
+(function () {
+'use strict';
+
+/* ── Supabase config ── */
+const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
+
+async function supaFetch(path, opts = {}) {
+    const token = localStorage.getItem('econovo-token');
+    const res = await fetch(SUPABASE_URL + path, {
+        ...opts,
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (token || SUPABASE_KEY),
+            ...(opts.headers || {}),
+        },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error_description || data.message || 'Error');
+    return data;
+}
+
+/* ── Auth guard ── */
+const storedToken = localStorage.getItem('econovo-token');
+const storedUser  = localStorage.getItem('econovo-user');
+if (!storedToken || !storedUser) {
+    window.location.replace('login.html');
+}
+
+/* ── Data ── */
+const EVENTS = [
+    { month:'AUG', day:'12', title:'Economics Workshop: Algerian Market Analysis',    desc:'An interactive session on local market trends and economic indicators.',      tag:'Workshop'    },
+    { month:'AUG', day:'19', title:'FinTech Seminar: Digital Banking in Algeria',     desc:'Guest speaker from Algérie Poste on mobile payment adoption.',               tag:'Seminar'     },
+    { month:'SEP', day:'03', title:'Business Case Competition Kickoff',               desc:'Form your team and register for Econovo\'s annual case competition.',         tag:'Competition' },
+];
+
+const ANNOUNCEMENTS = [
+    { date:'Aug 1, 2026',  title:'Welcome to the new Econovo member portal!',           body:'We\'ve just launched our new member dashboard. You can now view upcoming events, read club announcements, and update your profile — all in one place.' },
+    { date:'Jul 28, 2026', title:'Case Competition Registration Opens August 3',         body:'The annual Econovo Business Case Competition is back! Registration opens August 3rd. Teams of 2–4 students from any major are welcome to participate.' },
+];
+
+/* ── Render helpers ── */
+function renderEvents(id, data) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!data.length) {
+        el.innerHTML = '<div class="empty-state"><svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><p>No upcoming events yet. Check back soon.</p></div>';
+        return;
+    }
+    el.innerHTML = data.map(ev => `
+        <div class="event-row">
+            <div class="event-stamp">
+                <span class="stamp-month">${ev.month}</span>
+                <span class="stamp-day">${ev.day}</span>
+            </div>
+            <div class="event-body">
+                <div class="event-title">${ev.title}</div>
+                <div class="event-desc">${ev.desc}</div>
+            </div>
+            <div class="event-tag">${ev.tag}</div>
+        </div>
+    `).join('');
+}
+
+function renderAnnouncements(id, data) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!data.length) {
+        el.innerHTML = '<div class="empty-state"><p>No announcements from the board yet.</p></div>';
+        return;
+    }
+    el.innerHTML = data.map(a => `
+        <div class="announce-card">
+            <div class="announce-date">${a.date}</div>
+            <div class="announce-title">${a.title}</div>
+            <div class="announce-body">${a.body}</div>
+        </div>
+    `).join('');
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* Parse user */
+    let user = {}, meta = {};
+    try { user = JSON.parse(storedUser); meta = user.user_metadata || {}; } catch(_) {}
+
+    const firstName = meta.first_name || '';
+    const lastName  = meta.last_name  || '';
+    const fullName  = (firstName + ' ' + lastName).trim() || meta.full_name || user.email?.split('@')[0] || 'Member';
+    const initials  = ((firstName[0]||'') + (lastName[0]||'')).toUpperCase() || fullName.slice(0,2).toUpperCase();
+    const email     = user.email || '';
+    const joinedFmt = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month:'short', year:'numeric' }) : '—';
+
+    /* Fill UI */
+    ['nav-avatar','sidebar-avatar','greeting-avatar','profile-avatar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = initials;
+    });
+    document.getElementById('nav-name').textContent       = firstName || fullName;
+    document.getElementById('sidebar-name').textContent   = fullName;
+    document.getElementById('greeting-name').textContent  = 'Welcome back, ' + (firstName || fullName) + '.';
+    document.getElementById('greeting-joined').textContent = 'Member since ' + joinedFmt;
+    document.getElementById('profile-name').textContent   = fullName;
+    document.getElementById('profile-email').textContent  = email;
+    document.getElementById('stat-events').textContent    = EVENTS.length;
+    document.getElementById('stat-ann').textContent       = ANNOUNCEMENTS.length;
+    document.getElementById('sb-events-count').textContent = EVENTS.length;
+    document.getElementById('sb-ann-count').textContent    = ANNOUNCEMENTS.length;
+
+    /* Profile form defaults */
+    document.getElementById('pf-fname').value = firstName;
+    document.getElementById('pf-lname').value = lastName;
+    document.getElementById('pf-email').value = email;
+    document.getElementById('pf-major').value = meta.major || '';
+    document.getElementById('pf-year').value  = meta.year  || '';
+
+    /* Render lists */
+    renderEvents('overview-events', EVENTS.slice(0, 2));
+    renderEvents('full-events', EVENTS);
+    renderAnnouncements('overview-ann', ANNOUNCEMENTS.slice(0, 1));
+    renderAnnouncements('full-ann', ANNOUNCEMENTS);
+
+    /* Feed initialisation — wired directly here to avoid race conditions with posts-init script */
+    let postsInited = false;
+    function maybeInitPosts() {
+        if (postsInited) return;
+        const token   = localStorage.getItem('econovo-token');
+        const userRaw = localStorage.getItem('econovo-user');
+        if (!token || !userRaw) return;
+        let userId = null;
+        try { userId = JSON.parse(userRaw).id || null; } catch(e) {}
+        postsInited = true;
+        if (typeof window.initPostsFeed === 'function') {
+            window.initPostsFeed(token, userId);
         }
-        const stored = localStorage.getItem('econovo-theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(stored || (prefersDark ? 'dark' : 'light'));
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) window.lucide.createIcons();
+    /* View switching — sidebar + mobile tab */
+    function setView(viewId) {
+        document.querySelectorAll('.dash-view').forEach(v => v.classList.remove('active'));
+        const el = document.getElementById('view-' + viewId);
+        if (el) el.classList.add('active');
 
-            // Theme
-            document.querySelectorAll('.js-theme-toggle').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                    applyTheme(next);
-                    localStorage.setItem('econovo-theme', next);
-                });
-            });
-
-            // Navbar scroll
-            const nav = document.getElementById('navbar');
-            window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
-
-            // Scroll progress
-            const bar = document.getElementById('scrollProgress');
-            window.addEventListener('scroll', () => {
-                const doc = document.documentElement;
-                const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
-                bar.style.width = Math.min(pct || 0, 100) + '%';
-            }, { passive: true });
-
-            // Mobile menu
-            const openBtn = document.getElementById('navToggle');
-            const closeBtn = document.getElementById('mobileMenuClose');
-            const menu = document.getElementById('mobileMenu');
-            const overlay = document.getElementById('mobileMenuOverlay');
-            const open = () => { menu.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; };
-            const close = () => { menu.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; };
-            openBtn.addEventListener('click', open);
-            closeBtn.addEventListener('click', close);
-            overlay.addEventListener('click', close);
-
-            // ---- Tabs ----
-            const tabs = document.querySelectorAll('.auth-tab');
-            const forms = document.querySelectorAll('.auth-form');
-
-            function switchTab(target) {
-                tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-                forms.forEach(f => f.classList.remove('active'));
-                const btn = document.getElementById('tab-' + target);
-                const form = document.getElementById('form-' + target);
-                if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
-                if (form) form.classList.add('active');
-            }
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const id = tab.id.replace('tab-', '');
-                    switchTab(id);
-                });
-            });
-
-            // Check URL for ?tab=signup
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('tab') === 'signup') switchTab('signup');
-
-            // ---- Forgot password flow ----
-            document.getElementById('forgot-link').addEventListener('click', (e) => {
-                e.preventDefault();
-                forms.forEach(f => f.classList.remove('active'));
-                document.getElementById('form-forgot').classList.add('active');
-                tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-            });
-            document.getElementById('back-to-signin').addEventListener('click', (e) => {
-                e.preventDefault();
-                switchTab('signin');
-            });
-
-            // ---- Password visibility toggles ----
-            function makeToggle(btnId, inputId, iconId) {
-                const btn = document.getElementById(btnId);
-                const input = document.getElementById(inputId);
-                if (!btn || !input) return;
-                btn.addEventListener('click', () => {
-                    const show = input.type === 'password';
-                    input.type = show ? 'text' : 'password';
-                    const icon = document.getElementById(iconId);
-                    if (icon) {
-                        icon.innerHTML = show
-                            ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
-                            : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
-                    }
-                });
-            }
-            makeToggle('toggle-si-pw', 'si-password', 'si-eye-icon');
-            makeToggle('toggle-su-pw', 'su-password', 'su-eye-icon');
-
-            // ---- Password strength meter ----
-            const pwInput = document.getElementById('su-password');
-            const pwStrength = document.getElementById('pw-strength');
-            const pwFill = document.getElementById('pw-fill');
-            const pwLabel = document.getElementById('pw-label');
-
-            pwInput.addEventListener('input', () => {
-                const val = pwInput.value;
-                if (!val) { pwStrength.classList.remove('visible'); return; }
-                pwStrength.classList.add('visible');
-
-                let score = 0;
-                if (val.length >= 8) score++;
-                if (val.length >= 12) score++;
-                if (/[A-Z]/.test(val)) score++;
-                if (/[0-9]/.test(val)) score++;
-                if (/[^A-Za-z0-9]/.test(val)) score++;
-
-                const map = [
-                    { w: '20%', color: '#e05252', label: 'Weak' },
-                    { w: '40%', color: '#e07a52', label: 'Fair' },
-                    { w: '60%', color: '#d4b44a', label: 'Moderate' },
-                    { w: '80%', color: '#6fbf73', label: 'Strong' },
-                    { w: '100%', color: '#4CAF7D', label: 'Very Strong' },
-                ];
-                const idx = Math.min(score, 4);
-                pwFill.style.width = map[idx].w;
-                pwFill.style.background = map[idx].color;
-                pwLabel.textContent = map[idx].label;
-                pwLabel.style.color = map[idx].color;
-            });
-
-            // ---- Error helpers ----
-            function showErr(inputId, errId, show) {
-                const input = document.getElementById(inputId);
-                const err = document.getElementById(errId);
-                if (input) input.classList.toggle('error', show);
-                if (err) err.classList.toggle('visible', show);
-                return !show;
-            }
-
-            function setAlert(alertId, msg, type) {
-                const el = document.getElementById(alertId);
-                if (!el) return;
-                if (!msg) { el.classList.remove('visible'); return; }
-                el.textContent = msg;
-                el.className = 'auth-alert visible ' + (type || 'error');
-            }
-
-            function startLoading(btnId) {
-                const btn = document.getElementById(btnId);
-                if (btn) { btn.classList.add('loading'); btn.disabled = true; }
-            }
-            function stopLoading(btnId) {
-                const btn = document.getElementById(btnId);
-                if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
-            }
-
-            // Clear errors on type
-            document.querySelectorAll('.field-input').forEach(el => {
-                el.addEventListener('input', () => {
-                    el.classList.remove('error');
-                    const err = document.getElementById('err-' + el.id);
-                    if (err) err.classList.remove('visible');
-                });
-            });
-
-            // ---- Supabase config ----
-            const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
-            const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
-
-            async function supaFetch(path, options = {}) {
-                const res = await fetch(SUPABASE_URL + path, {
-                    ...options,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': 'Bearer ' + SUPABASE_KEY,
-                        ...(options.headers || {}),
-                    },
-                });
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(data.error_description || data.msg || data.message || 'Request failed');
-                return data;
-            }
-
-            function saveSession(data) {
-                if (data.access_token) localStorage.setItem('econovo-token', data.access_token);
-                if (data.user) localStorage.setItem('econovo-user', JSON.stringify(data.user));
-            }
-
-            // Redirect if already logged in
-            if (localStorage.getItem('econovo-token') && localStorage.getItem('econovo-user')) {
-                window.location.href = 'dashboard.html';
-            }
-
-            // ---- Sign In ----
-            document.getElementById('signin-btn').addEventListener('click', async () => {
-                const email = document.getElementById('si-email').value.trim();
-                const pw = document.getElementById('si-password').value;
-                const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                let ok = true;
-                ok = showErr('si-email', 'err-si-email', !emailRe.test(email)) && ok;
-                ok = showErr('si-password', 'err-si-password', pw.length < 1) && ok;
-                if (!ok) return;
-
-                startLoading('signin-btn');
-                setAlert('signin-alert', '', '');
-
-                try {
-                    const data = await supaFetch('/auth/v1/token?grant_type=password', {
-                        method: 'POST',
-                        body: JSON.stringify({ email, password: pw }),
-                    });
-                    saveSession(data);
-                    setAlert('signin-alert', '✓ Signed in successfully! Redirecting…', 'success');
-                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
-                } catch (err) {
-                    stopLoading('signin-btn');
-                    const msg = err.message.toLowerCase();
-                    if (msg.includes('invalid') || msg.includes('credentials') || msg.includes('password')) {
-                        setAlert('signin-alert', 'Incorrect email or password. Please try again.', 'error');
-                    } else if (msg.includes('confirm') || msg.includes('email')) {
-                        setAlert('signin-alert', 'Please confirm your email before signing in. Check your inbox.', 'error');
-                    } else {
-                        setAlert('signin-alert', err.message, 'error');
-                    }
-                }
-            });
-
-            // ---- Sign Up ----
-            document.getElementById('signup-btn').addEventListener('click', async () => {
-                const fname = document.getElementById('su-fname').value.trim();
-                const lname = document.getElementById('su-lname').value.trim();
-                const email = document.getElementById('su-email').value.trim();
-                const pw = document.getElementById('su-password').value;
-                const confirm = document.getElementById('su-confirm').value;
-                const agree = document.getElementById('su-agree').checked;
-                const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-                let ok = true;
-                ok = showErr('su-fname', 'err-su-fname', !fname) && ok;
-                ok = showErr('su-lname', 'err-su-lname', !lname) && ok;
-                ok = showErr('su-email', 'err-su-email', !emailRe.test(email)) && ok;
-                ok = showErr('su-password', 'err-su-password', pw.length < 8) && ok;
-                ok = showErr('su-confirm', 'err-su-confirm', pw !== confirm) && ok;
-
-                if (!agree) {
-                    setAlert('signup-alert', 'Please confirm you are a university student and agree to club rules.', 'error');
-                    ok = false;
-                }
-                if (!ok) return;
-
-                startLoading('signup-btn');
-                setAlert('signup-alert', '', '');
-
-                try {
-                    const data = await supaFetch('/auth/v1/signup', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            email,
-                            password: pw,
-                            data: { first_name: fname, last_name: lname, full_name: fname + ' ' + lname }
-                        }),
-                    });
-                    stopLoading('signup-btn');
-                    // Check if email confirmation is required
-                    if (data.user && data.user.identities && data.user.identities.length === 0) {
-                        setAlert('signup-alert', 'An account with this email already exists. Please sign in instead.', 'error');
-                    } else if (data.access_token) {
-                        saveSession(data);
-                        setAlert('signup-alert', '✓ Account created! Welcome to Econovo. Redirecting…', 'success');
-                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
-                    } else {
-                        setAlert('signup-alert', '✓ Account created! Please check your email to confirm your account before signing in.', 'success');
-                        // Clear the form
-                        ['su-fname','su-lname','su-email','su-password','su-confirm'].forEach(id => {
-                            document.getElementById(id).value = '';
-                        });
-                    }
-                } catch (err) {
-                    stopLoading('signup-btn');
-                    const msg = err.message.toLowerCase();
-                    if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('user already')) {
-                        setAlert('signup-alert', 'An account with this email already exists. Please sign in instead.', 'error');
-                    } else if (msg.includes('weak password') || msg.includes('password')) {
-                        setAlert('signup-alert', 'Password is too weak. Use at least 8 characters with letters and numbers.', 'error');
-                    } else {
-                        setAlert('signup-alert', err.message, 'error');
-                    }
-                }
-            });
-
-            // ---- Forgot password ----
-            document.getElementById('forgot-btn').addEventListener('click', async () => {
-                const email = document.getElementById('forgot-email').value.trim();
-                const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRe.test(email)) {
-                    showErr('forgot-email', 'err-forgot', true);
-                    return;
-                }
-                showErr('forgot-email', 'err-forgot', false);
-                startLoading('forgot-btn');
-
-                try {
-                    await supaFetch('/auth/v1/recover', {
-                        method: 'POST',
-                        body: JSON.stringify({ email }),
-                    });
-                } catch (_) { /* silent — don't reveal if email exists */ }
-
-                stopLoading('forgot-btn');
-                setAlert('forgot-alert', '✓ If that email belongs to a member account, a reset link is on its way.', 'success');
-            });
-
+        document.querySelectorAll('.sidebar-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === viewId);
         });
-    })();
-    </script>
+        document.querySelectorAll('.mob-tab').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === viewId);
+        });
+
+        if (viewId === 'feed') maybeInitPosts();
+    }
+
+    window.showView = setView;
+
+    document.querySelectorAll('.sidebar-item, .mob-tab').forEach(btn => {
+        btn.addEventListener('click', () => setView(btn.dataset.view));
+    });
+
+    /* Sign out */
+    function signOut() {
+        localStorage.removeItem('econovo-token');
+        localStorage.removeItem('econovo-user');
+        window.location.replace('login.html');
+    }
+    document.getElementById('signout-btn').addEventListener('click', signOut);
+    document.getElementById('signout-btn-2').addEventListener('click', signOut);
+
+    /* Theme toggle */
+    const root = document.documentElement;
+    const themeIcon = document.getElementById('theme-icon');
+
+    function applyTheme(t) {
+        if (t === 'dark') root.setAttribute('data-theme','dark');
+        else root.removeAttribute('data-theme');
+        localStorage.setItem('econovo-theme', t);
+        /* Moon / Sun icon */
+        themeIcon.innerHTML = t === 'dark'
+            ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+            : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    }
+
+    const initialTheme = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+    applyTheme(initialTheme);
+
+    document.querySelector('.js-theme-toggle').addEventListener('click', () => {
+        applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    /* Profile save */
+    document.getElementById('save-btn').addEventListener('click', async () => {
+        const btn   = document.getElementById('save-btn');
+        const alert = document.getElementById('profile-alert');
+        const fname = document.getElementById('pf-fname').value.trim();
+        const lname = document.getElementById('pf-lname').value.trim();
+        const major = document.getElementById('pf-major').value.trim();
+        const year  = document.getElementById('pf-year').value.trim();
+
+        btn.classList.add('loading'); btn.disabled = true;
+        alert.className = 'form-alert';
+
+        try {
+            const data = await supaFetch('/auth/v1/user', {
+                method: 'PUT',
+                headers: { 'Authorization': 'Bearer ' + storedToken },
+                body: JSON.stringify({ data: { first_name: fname, last_name: lname, full_name: (fname+' '+lname).trim(), major, year } }),
+            });
+            localStorage.setItem('econovo-user', JSON.stringify(data));
+            btn.classList.remove('loading'); btn.disabled = false;
+            alert.textContent = '✓ Profile saved.';
+            alert.className = 'form-alert ok visible';
+            setTimeout(() => alert.classList.remove('visible'), 3500);
+        } catch(err) {
+            btn.classList.remove('loading'); btn.disabled = false;
+            alert.textContent = '⚠ ' + err.message;
+            alert.className = 'form-alert err visible';
+        }
+    });
+
+});
+})();
+</script>
+    <!-- Posts feed -->
+    <script src="../js/posts.js"></script>
+
 </body>
 </html>
