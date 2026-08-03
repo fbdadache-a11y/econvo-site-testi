@@ -10,14 +10,39 @@ const BUCKET        = 'post-images';
 const AVATAR_BUCKET = 'avatars';
 const MAX_IMAGES    = 4;
 
-/* Emojis available in the composer picker */
-const COMPOSER_EMOJIS = [
-    '😊','😂','🥲','😍','🤔','👍','👏','🔥','💡','📚',
-    '🎯','💪','🌟','🙌','😅','🤝','❤️','🚀','✅','⚡',
-];
+/* Emojis available in the composer picker — removed */
 
-/* Reaction emojis shown on each post */
-const REACTION_EMOJIS = ['👍','❤️','😂','🔥','💡','👏'];
+/* ══════════════════════════════════════════════════════════════
+   REACTIONS — Lucide SVG icons
+   key: stored in DB | icon: Lucide SVG paths | label: tooltip
+   ══════════════════════════════════════════════════════════════ */
+const REACTIONS = [
+    {
+        key:   'like',
+        label: 'Like',
+        icon:  '<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>',
+    },
+    {
+        key:   'helpful',
+        label: 'Helpful',
+        icon:  '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    },
+    {
+        key:   'smart',
+        label: 'Smart',
+        icon:  '<line x1="12" y1="2" x2="12" y2="6"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><line x1="12" y1="22" x2="12" y2="18"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/>',
+    },
+    {
+        key:   'relatable',
+        label: 'Relatable',
+        icon:  '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+    },
+    {
+        key:   'fire',
+        label: 'Fire',
+        icon:  '<path d="M12 2c0 0-5.5 5-5.5 10a5.5 5.5 0 0 0 11 0c0-2.5-1.5-5-1.5-5s-1 3-3 4c0 0 1-4-1-9z"/><path d="M10 15c0 1.1.9 2 2 2s2-.9 2-2-2-3-2-3-2 1.9-2 3z"/>',
+    },
+];
 
 /* ── REST helpers ── */
 
@@ -206,13 +231,14 @@ async function loadReactions(postId, token, currentUserId, reactionBarEl) {
             token
         );
 
-        // Aggregate: count per emoji + did current user react?
+        // Aggregate: count per reaction key + did current user react?
         const agg = {};
         rows.forEach(r => {
             if (!agg[r.emoji]) agg[r.emoji] = { count: 0, userReacted: false };
             agg[r.emoji].count++;
             if (r.user_id === currentUserId) agg[r.emoji].userReacted = true;
         });
+        // r.emoji now stores the reaction key (e.g. 'like', 'heart'…)
 
         renderReactionBar(postId, agg, token, currentUserId, reactionBarEl);
     } catch(e) {
@@ -223,45 +249,62 @@ async function loadReactions(postId, token, currentUserId, reactionBarEl) {
 function renderReactionBar(postId, agg, token, currentUserId, barEl) {
     barEl.innerHTML = '';
 
-    REACTION_EMOJIS.forEach(emoji => {
-        const data = agg[emoji] || { count: 0, userReacted: false };
-        const btn  = document.createElement('button');
-        btn.className  = 'reaction-btn' + (data.userReacted ? ' active' : '');
-        btn.dataset.emoji = emoji;
-        btn.innerHTML  = `<span class="reaction-emoji">${emoji}</span>${data.count > 0 ? `<span class="reaction-count">${data.count}</span>` : ''}`;
-        btn.title      = emoji;
+    REACTIONS.forEach(reaction => {
+        const { key, label, icon } = reaction;
+        const data = agg[key] || { count: 0, userReacted: false };
+
+        const btn = document.createElement('button');
+        btn.className = 'reaction-btn' + (data.userReacted ? ' active' : '');
+        btn.dataset.key = key;
+        btn.title = label;
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('aria-pressed', data.userReacted ? 'true' : 'false');
+
+        btn.innerHTML = `
+            <svg class="reaction-icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round"
+                 width="16" height="16" aria-hidden="true">
+                ${icon}
+            </svg>
+            ${data.count > 0
+                ? `<span class="reaction-count">${data.count}</span>`
+                : ''}
+        `;
 
         btn.addEventListener('click', async () => {
             const isActive = btn.classList.contains('active');
-            // Optimistic UI update
-            const countEl = btn.querySelector('.reaction-count');
+            const countEl  = btn.querySelector('.reaction-count');
             let count = parseInt(countEl?.textContent || '0');
+
+            /* ── Optimistic update ── */
             if (isActive) {
                 btn.classList.remove('active');
-                count--;
-                if (count <= 0) {
-                    if (countEl) countEl.remove();
-                } else {
-                    if (!countEl) {
-                        const s = document.createElement('span');
-                        s.className = 'reaction-count';
-                        s.textContent = count;
-                        btn.appendChild(s);
-                    } else countEl.textContent = count;
-                }
-                // Delete from DB
+                btn.setAttribute('aria-pressed', 'false');
+                count = Math.max(0, count - 1);
+                if (count === 0) countEl?.remove();
+                else if (countEl) countEl.textContent = count;
+
                 try {
                     await pgDelete(
-                        `reactions?post_id=eq.${postId}&user_id=eq.${currentUserId}&emoji=eq.${encodeURIComponent(emoji)}`,
+                        `reactions?post_id=eq.${postId}&user_id=eq.${currentUserId}&emoji=eq.${encodeURIComponent(key)}`,
                         token
                     );
-                } catch(e) {
-                    // rollback
+                } catch(_) {
+                    /* rollback */
                     btn.classList.add('active');
+                    btn.setAttribute('aria-pressed', 'true');
                     toast('Could not remove reaction.', 'err');
                 }
             } else {
                 btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
+                /* pop animation */
+                btn.animate(
+                    [{ transform:'scale(1)' }, { transform:'scale(1.35)' }, { transform:'scale(1)' }],
+                    { duration: 280, easing: 'cubic-bezier(.34,1.56,.64,1)' }
+                );
+
                 count++;
                 if (!countEl) {
                     const s = document.createElement('span');
@@ -269,16 +312,17 @@ function renderReactionBar(postId, agg, token, currentUserId, barEl) {
                     s.textContent = count;
                     btn.appendChild(s);
                 } else countEl.textContent = count;
-                // Insert to DB
+
                 try {
                     await pgPost('reactions', {
                         post_id: postId,
                         user_id: currentUserId,
-                        emoji,
+                        emoji:   key,
                     }, token);
-                } catch(e) {
-                    // rollback
+                } catch(_) {
+                    /* rollback */
                     btn.classList.remove('active');
+                    btn.setAttribute('aria-pressed', 'false');
                     toast('Could not add reaction.', 'err');
                 }
             }
@@ -289,53 +333,6 @@ function renderReactionBar(postId, agg, token, currentUserId, barEl) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   EMOJI PICKER (composer)
-   ══════════════════════════════════════════════════════════════ */
-
-function initEmojiPicker(triggerBtn, textarea) {
-    let picker = null;
-
-    function closePicker() {
-        if (picker) { picker.remove(); picker = null; }
-    }
-
-    triggerBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        if (picker) { closePicker(); return; }
-
-        picker = document.createElement('div');
-        picker.className = 'emoji-picker-popup';
-
-        COMPOSER_EMOJIS.forEach(em => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'emoji-picker-btn';
-            btn.textContent = em;
-            btn.addEventListener('click', () => {
-                // Insert at cursor position
-                const start = textarea.selectionStart;
-                const end   = textarea.selectionEnd;
-                const val   = textarea.value;
-                textarea.value = val.slice(0, start) + em + val.slice(end);
-                textarea.selectionStart = textarea.selectionEnd = start + em.length;
-                textarea.focus();
-                // Update char counter
-                const charEl = textarea.closest('form')?.querySelector('#post-char-count');
-                if (charEl) charEl.textContent = textarea.value.length + ' / 1000';
-                closePicker();
-            });
-            picker.appendChild(btn);
-        });
-
-        // Position below the trigger button
-        const rect = triggerBtn.getBoundingClientRect();
-        picker.style.cssText = `position:fixed;z-index:999;top:${rect.bottom + 6}px;left:${rect.left}px`;
-
-        document.body.appendChild(picker);
-        setTimeout(() => document.addEventListener('click', closePicker, { once: true }), 0);
-    });
-}
-
 /* ══════════════════════════════════════════════════════════════
    RENDER POST CARD
    ══════════════════════════════════════════════════════════════ */
@@ -744,13 +741,6 @@ window.initPostsFeed = function(token, currentUserId) {
             fresh.value = '';
             renderPickedPreviews(createForm);
         });
-    }
-
-    /* Emoji picker */
-    const emojiBtn = createForm.querySelector('#emoji-trigger-btn');
-    const textarea = createForm.querySelector('#post-content');
-    if (emojiBtn && textarea) {
-        initEmojiPicker(emojiBtn, textarea);
     }
 
     /* Char counter */
