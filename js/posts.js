@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ECONOVO — posts.js  (v3 — reactions + emoji picker + multi-image + avatars)
+   ECONOVO — posts.js  (v4 — FIXED: unified class names + 401 handling)
    ========================================================================== */
 
 'use strict';
@@ -10,45 +10,30 @@ const BUCKET        = 'post-images';
 const AVATAR_BUCKET = 'avatars';
 const MAX_IMAGES    = 4;
 
-/* Emojis available in the composer picker — removed */
-
 /* ══════════════════════════════════════════════════════════════
-   REACTIONS — Lucide SVG icons
-   key: stored in DB | icon: Lucide SVG paths | label: tooltip
+   REACTIONS
    ══════════════════════════════════════════════════════════════ */
 const REACTIONS = [
-    {
-        key:   'like',
-        label: 'Like',
-        icon:  '<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>',
-    },
-    {
-        key:   'helpful',
-        label: 'Helpful',
-        icon:  '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
-    },
-    {
-        key:   'smart',
-        label: 'Smart',
-        icon:  '<line x1="12" y1="2" x2="12" y2="6"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><line x1="12" y1="22" x2="12" y2="18"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/>',
-    },
-    {
-        key:   'relatable',
-        label: 'Relatable',
-        icon:  '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
-    },
-    {
-        key:   'fire',
-        label: 'Fire',
-        icon:  '<path d="M12 2c0 0-5.5 5-5.5 10a5.5 5.5 0 0 0 11 0c0-2.5-1.5-5-1.5-5s-1 3-3 4c0 0 1-4-1-9z"/><path d="M10 15c0 1.1.9 2 2 2s2-.9 2-2-2-3-2-3-2 1.9-2 3z"/>',
-    },
+    { key: 'like',      label: 'Like',      icon: '<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>' },
+    { key: 'helpful',   label: 'Helpful',   icon: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>' },
+    { key: 'smart',     label: 'Smart',     icon: '<line x1="12" y1="2" x2="12" y2="6"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><line x1="12" y1="22" x2="12" y2="18"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/>' },
+    { key: 'relatable', label: 'Relatable', icon: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>' },
+    { key: 'fire',      label: 'Fire',      icon: '<path d="M12 2c0 0-5.5 5-5.5 10a5.5 5.5 0 0 0 11 0c0-2.5-1.5-5-1.5-5s-1 3-3 4c0 0 1-4-1-9z"/><path d="M10 15c0 1.1.9 2 2 2s2-.9 2-2-2-3-2-3-2 1.9-2 3z"/>' },
 ];
 
-/* ── REST helpers ── */
+/* ══════════════════════════════════════════════════════════════
+   AUTH FAILURE HANDLING (FIX #7 — was missing in posts.js)
+   ══════════════════════════════════════════════════════════════ */
+function handleAuthFailure() {
+    localStorage.removeItem('econovo-token');
+    localStorage.removeItem('econovo-user');
+    // نفس منطق dashboard.html — إذا انتهى التوكن بينما المستخدم يتصفح،
+    // أعده لصفحة تسجيل الدخول بدل ترك واجهة معطّلة بصمت.
+    window.location.replace('login.html');
+}
 
+/* ── REST helpers ── */
 function authHeaders(token) {
-    // POSTS_KEY is the publishable key — used only as apikey, NOT as Bearer.
-    // Bearer must be the real JWT access_token returned after login.
     if (!token) console.warn('posts.js: missing access token — API calls will fail');
     return {
         'Content-Type': 'application/json',
@@ -64,6 +49,7 @@ async function pgGet(path, token) {
     const r = await fetch(POSTS_URL + '/rest/v1/' + path, {
         headers: { ...authHeaders(token), 'Prefer': '' },
     });
+    if (r.status === 401) { handleAuthFailure(); throw new Error('Session expired'); }
     if (!r.ok) throw new Error(await r.text());
     return r.json();
 }
@@ -71,6 +57,7 @@ async function pgPost(path, body, token) {
     const r = await fetch(POSTS_URL + '/rest/v1/' + path, {
         method: 'POST', headers: authHeaders(token), body: JSON.stringify(body),
     });
+    if (r.status === 401) { handleAuthFailure(); throw new Error('Session expired'); }
     if (!r.ok) throw new Error(await r.text());
     return r.json();
 }
@@ -78,11 +65,11 @@ async function pgDelete(path, token) {
     const r = await fetch(POSTS_URL + '/rest/v1/' + path, {
         method: 'DELETE', headers: { ...authHeaders(token), 'Prefer': '' },
     });
+    if (r.status === 401) { handleAuthFailure(); throw new Error('Session expired'); }
     if (!r.ok) throw new Error(await r.text());
 }
 
 /* ── Storage ── */
-
 async function uploadImage(file, token, bucket) {
     const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase();
     const name = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
@@ -92,12 +79,12 @@ async function uploadImage(file, token, bucket) {
         headers: { ...storageHeaders(token), 'Content-Type': file.type || 'image/jpeg', 'Cache-Control': 'max-age=3600' },
         body: file,
     });
+    if (r.status === 401) { handleAuthFailure(); throw new Error('Session expired'); }
     if (!r.ok) throw new Error('Upload failed: ' + await r.text());
     return `${POSTS_URL}/storage/v1/object/public/${bucket}/${path}`;
 }
 
 /* ── Helpers ── */
-
 function timeAgo(iso) {
     const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
     if (diff < 60)    return 'just now';
@@ -105,25 +92,23 @@ function timeAgo(iso) {
     if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
     return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
-
 function initials(name) {
     if (!name) return '??';
     return name.trim().split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
-
 function escHtml(str) {
     if (!str) return '';
     return String(str)
         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
         .replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/\n/g,'<br>');
 }
-
 function toast(msg, type = 'ok') {
-    let el = document.getElementById('posts-toast');
+    // FIX: يستخدم الآن #eco-toast الموجود فعليًا في dashboard.html
+    // (كان سابقًا ينشئ عنصر #posts-toast منفصل لا يملك نفس التنسيق)
+    let el = document.getElementById('eco-toast');
     if (!el) {
         el = document.createElement('div');
-        el.id = 'posts-toast';
-        el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);padding:10px 20px;border-radius:8px;font-size:.85rem;font-weight:600;z-index:9999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;max-width:340px;text-align:center';
+        el.id = 'eco-toast';
         document.body.appendChild(el);
     }
     el.textContent = msg;
@@ -139,7 +124,6 @@ function toast(msg, type = 'ok') {
 }
 
 /* ── Avatar helper ── */
-
 function makeAvatar(avatarUrl, name, className) {
     const wrap = document.createElement('div');
     wrap.className = className || 'post-avatar';
@@ -156,34 +140,36 @@ function makeAvatar(avatarUrl, name, className) {
     return wrap;
 }
 
-/* ── Image gallery ── */
-
+/* ── Image gallery ──
+   FIX #2: classes موحّدة الآن مع CSS الموجود في dashboard.html
+   (.gallery-grid.g1/g2/g3/g4 — كانت سابقًا gallery-single/two/three/four
+   وهذا كان يمنع ظهور أي layout للصور). */
 function renderImageGallery(images) {
     if (!images || !images.length) return '';
     const count = images.length;
-    const cls   = count === 1 ? 'gallery-single' : count === 2 ? 'gallery-two' : count === 3 ? 'gallery-three' : 'gallery-four';
-    const imgs  = images.map((url, i) =>
+    const cls = 'g' + Math.min(count, 4);
+    const imgs = images.map((url, i) =>
         `<div class="gallery-cell" data-index="${i}">
             <img src="${escHtml(url)}" alt="Post image ${i+1}" class="gallery-img" loading="lazy">
-            ${i === 3 && count > 4 ? `<div class="gallery-more-overlay">+${count - 4}</div>` : ''}
+            ${i === 3 && count > 4 ? `<div class="gallery-more">+${count - 4}</div>` : ''}
          </div>`
     ).slice(0, 4).join('');
-    return `<div class="post-gallery ${cls}" data-images='${JSON.stringify(images)}'>${imgs}</div>`;
+    return `<div class="post-gallery"><div class="gallery-grid ${cls}" data-images='${JSON.stringify(images)}'>${imgs}</div></div>`;
 }
 
-/* ── Lightbox ── */
-
+/* ── Lightbox ──
+   FIX: يستخدم الآن #eco-lightbox مع classes lb-* المعرّفة في CSS
+   (كان سابقًا #post-lightbox بدون أي تعريف CSS مطابق — يعمل لكن غير منسّق). */
 function openLightbox(images, startIndex) {
     let current = startIndex || 0;
     const overlay = document.createElement('div');
-    overlay.id = 'post-lightbox';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px';
+    overlay.id = 'eco-lightbox';
 
     const img = document.createElement('img');
-    img.style.cssText = 'max-width:92vw;max-height:78vh;object-fit:contain;border-radius:8px';
+    img.className = 'lb-img';
 
     const counter = document.createElement('div');
-    counter.style.cssText = 'color:rgba(255,255,255,.6);font-size:.82rem;letter-spacing:.05em';
+    counter.className = 'lb-counter';
 
     function show(i) {
         current = (i + images.length) % images.length;
@@ -192,18 +178,18 @@ function openLightbox(images, startIndex) {
     }
 
     const btnClose = document.createElement('button');
+    btnClose.className = 'lb-close';
     btnClose.innerHTML = '&times;';
-    btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
     btnClose.onclick = () => overlay.remove();
 
     const btnPrev = document.createElement('button');
+    btnPrev.className = 'lb-arrow lb-prev';
     btnPrev.innerHTML = '&#8592;';
-    btnPrev.style.cssText = 'position:absolute;left:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
     btnPrev.onclick = () => show(current - 1);
 
     const btnNext = document.createElement('button');
+    btnNext.className = 'lb-arrow lb-next';
     btnNext.innerHTML = '&#8594;';
-    btnNext.style.cssText = 'position:absolute;right:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
     btnNext.onclick = () => show(current + 1);
 
     overlay.append(btnClose, img, counter);
@@ -222,27 +208,15 @@ function openLightbox(images, startIndex) {
 /* ══════════════════════════════════════════════════════════════
    REACTIONS
    ══════════════════════════════════════════════════════════════ */
-
-/**
- * Load reactions for a post and render/update the reaction bar.
- * reactions = [{ emoji, count, userReacted }]
- */
 async function loadReactions(postId, token, currentUserId, reactionBarEl) {
     try {
-        const rows = await pgGet(
-            `reactions?post_id=eq.${postId}&select=emoji,user_id`,
-            token
-        );
-
-        // Aggregate: count per reaction key + did current user react?
+        const rows = await pgGet(`reactions?post_id=eq.${postId}&select=emoji,user_id`, token);
         const agg = {};
         rows.forEach(r => {
             if (!agg[r.emoji]) agg[r.emoji] = { count: 0, userReacted: false };
             agg[r.emoji].count++;
             if (r.user_id === currentUserId) agg[r.emoji].userReacted = true;
         });
-        // r.emoji now stores the reaction key (e.g. 'like', 'heart'…)
-
         renderReactionBar(postId, agg, token, currentUserId, reactionBarEl);
     } catch(e) {
         console.error('loadReactions:', e);
@@ -251,7 +225,6 @@ async function loadReactions(postId, token, currentUserId, reactionBarEl) {
 
 function renderReactionBar(postId, agg, token, currentUserId, barEl) {
     barEl.innerHTML = '';
-
     REACTIONS.forEach(reaction => {
         const { key, label, icon } = reaction;
         const data = agg[key] || { count: 0, userReacted: false };
@@ -264,15 +237,13 @@ function renderReactionBar(postId, agg, token, currentUserId, barEl) {
         btn.setAttribute('aria-pressed', data.userReacted ? 'true' : 'false');
 
         btn.innerHTML = `
-            <svg class="reaction-icon" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="1.8"
-                 stroke-linecap="round" stroke-linejoin="round"
-                 width="16" height="16" aria-hidden="true">
-                ${icon}
-            </svg>
-            ${data.count > 0
-                ? `<span class="reaction-count">${data.count}</span>`
-                : ''}
+            <span class="reaction-emoji">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true">
+                    ${icon}
+                </svg>
+            </span>
+            ${data.count > 0 ? `<span class="reaction-count">${data.count}</span>` : ''}
         `;
 
         btn.addEventListener('click', async () => {
@@ -280,7 +251,6 @@ function renderReactionBar(postId, agg, token, currentUserId, barEl) {
             const countEl  = btn.querySelector('.reaction-count');
             let count = parseInt(countEl?.textContent || '0');
 
-            /* ── Optimistic update ── */
             if (isActive) {
                 btn.classList.remove('active');
                 btn.setAttribute('aria-pressed', 'false');
@@ -294,7 +264,6 @@ function renderReactionBar(postId, agg, token, currentUserId, barEl) {
                         token
                     );
                 } catch(_) {
-                    /* rollback */
                     btn.classList.add('active');
                     btn.setAttribute('aria-pressed', 'true');
                     toast('Could not remove reaction.', 'err');
@@ -302,7 +271,6 @@ function renderReactionBar(postId, agg, token, currentUserId, barEl) {
             } else {
                 btn.classList.add('active');
                 btn.setAttribute('aria-pressed', 'true');
-                /* pop animation */
                 btn.animate(
                     [{ transform:'scale(1)' }, { transform:'scale(1.35)' }, { transform:'scale(1)' }],
                     { duration: 280, easing: 'cubic-bezier(.34,1.56,.64,1)' }
@@ -317,13 +285,8 @@ function renderReactionBar(postId, agg, token, currentUserId, barEl) {
                 } else countEl.textContent = count;
 
                 try {
-                    await pgPost('reactions', {
-                        post_id: postId,
-                        user_id: currentUserId,
-                        emoji:   key,
-                    }, token);
+                    await pgPost('reactions', { post_id: postId, user_id: currentUserId, emoji: key }, token);
                 } catch(_) {
-                    /* rollback */
                     btn.classList.remove('active');
                     btn.setAttribute('aria-pressed', 'false');
                     toast('Could not add reaction.', 'err');
@@ -336,10 +299,9 @@ function renderReactionBar(postId, agg, token, currentUserId, barEl) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-/* ══════════════════════════════════════════════════════════════
    RENDER POST CARD
+   FIX #3: كل الـ classes موحّدة الآن مع CSS الموجود في dashboard.html
    ══════════════════════════════════════════════════════════════ */
-
 function renderPost(post, currentUserId) {
     const isOwner    = post.user_id === currentUserId;
     const authorName = post.author_name || 'Member';
@@ -350,7 +312,7 @@ function renderPost(post, currentUserId) {
         : (post.image_url ? [post.image_url] : []);
 
     const deleteBtn = isOwner
-        ? `<button class="post-delete-btn" data-id="${post.id}" aria-label="Delete post">
+        ? `<button class="post-del-btn" data-id="${post.id}" aria-label="Delete post">
                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
                </svg>
@@ -362,7 +324,7 @@ function renderPost(post, currentUserId) {
     card.dataset.postId = post.id;
 
     card.innerHTML = `
-        <div class="post-header">
+        <div class="post-hdr">
             <div class="post-avatar-wrap"></div>
             <div class="post-meta">
                 <span class="post-author">${escHtml(authorName)}</span>
@@ -372,25 +334,25 @@ function renderPost(post, currentUserId) {
         </div>
         ${post.content ? `<p class="post-body">${escHtml(post.content)}</p>` : ''}
         ${renderImageGallery(imageUrls)}
-        <div class="post-footer">
+        <div class="post-ftr">
             <div class="reaction-row" id="reactions-${post.id}"></div>
-            <button class="post-comment-toggle" data-id="${post.id}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+            <button class="comment-toggle-btn" data-id="${post.id}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
                 <span class="comment-count-label" data-id="${post.id}">Comments</span>
             </button>
         </div>
-        <div class="post-comments" id="comments-${post.id}" style="display:none;">
+        <div class="comments-section" id="comments-${post.id}" style="display:none;">
             <div class="comments-list" id="comments-list-${post.id}">
-                <div class="comments-loading">Loading…</div>
+                <div class="no-comments-msg">Loading…</div>
             </div>
             <div class="comment-form-row">
-                <div class="comment-composer-avatar"></div>
+                <div class="comment-av comment-composer-av"></div>
                 <form class="comment-form" data-post-id="${post.id}">
                     <input class="comment-input" type="text" placeholder="Write a comment…" maxlength="400" required autocomplete="off">
-                    <button type="submit" class="comment-submit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round">
+                    <button type="submit" class="comment-send-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                         </svg>
                     </button>
@@ -399,12 +361,10 @@ function renderPost(post, currentUserId) {
         </div>
     `;
 
-    // Avatar
     card.querySelector('.post-avatar-wrap').appendChild(makeAvatar(avatarUrl, authorName, 'post-avatar'));
 
-    // Gallery → lightbox
     if (imageUrls.length) {
-        const gallery = card.querySelector('.post-gallery');
+        const gallery = card.querySelector('.gallery-grid');
         if (gallery) {
             gallery.addEventListener('click', e => {
                 const cell = e.target.closest('.gallery-cell');
@@ -418,15 +378,14 @@ function renderPost(post, currentUserId) {
 }
 
 /* ── Render comment ── */
-
 function renderComment(c) {
     const div = document.createElement('div');
     div.className = 'comment-item';
-    const avatarEl = makeAvatar(c.avatar_url || null, c.author_name || 'Member', 'comment-avatar');
+    const avatarEl = makeAvatar(c.avatar_url || null, c.author_name || 'Member', 'comment-av');
     div.innerHTML = `
         <div class="comment-bubble">
             <span class="comment-author">${escHtml(c.author_name || 'Member')}</span>
-            <span class="comment-body">${escHtml(c.content)}</span>
+            <div class="comment-body">${escHtml(c.content)}</div>
             <span class="comment-time">${timeAgo(c.created_at)}</span>
         </div>
     `;
@@ -435,7 +394,6 @@ function renderComment(c) {
 }
 
 /* ── Load comments ── */
-
 async function loadComments(postId, token) {
     const listEl = document.getElementById('comments-list-' + postId);
     if (!listEl) return;
@@ -446,7 +404,7 @@ async function loadComments(postId, token) {
         );
         listEl.innerHTML = '';
         if (!rows.length) {
-            listEl.innerHTML = '<p class="no-comments">No comments yet. Be the first!</p>';
+            listEl.innerHTML = '<p class="no-comments-msg">No comments yet. Be the first!</p>';
             return;
         }
         rows.forEach(c => {
@@ -459,103 +417,107 @@ async function loadComments(postId, token) {
         const countEl = document.querySelector(`.comment-count-label[data-id="${postId}"]`);
         if (countEl) countEl.textContent = rows.length + (rows.length === 1 ? ' Comment' : ' Comments');
     } catch (e) {
-        listEl.innerHTML = '<p class="no-comments" style="color:#c94444;">Could not load comments.</p>';
+        listEl.innerHTML = '<p class="no-comments-msg" style="color:#c94444;">Could not load comments.</p>';
         console.error('loadComments:', e);
     }
 }
 
-/* ── Load posts ── */
-
+/* ── Load posts ──
+   FIX #4/#5: كل fetch لديه الآن معالجة خطأ مستقلة بدل Promise.all واحد
+   يفشل بالكامل إذا فشل طلب واحد فقط. الآن إذا فشلت الصور، المنشورات
+   النصية تظهر رغم ذلك. */
 async function loadPosts(container, token, currentUserId) {
-    container.innerHTML = '<div class="posts-loading"><span class="posts-spinner"></span> Loading posts…</div>';
+    container.innerHTML = '<div class="feed-loading"><span class="eco-spinner"></span> Loading posts…</div>';
+
+    let rows = [];
+    let allImages = [];
+
     try {
-        const [rows, allImages] = await Promise.all([
-            pgGet('posts?order=created_at.desc&select=id,content,image_url,created_at,user_id,profiles(full_name,avatar_url)', token),
-            pgGet('post_images?select=post_id,url,position&order=position.asc', token).catch(() => []),
-        ]);
-
-        const imagesByPost = {};
-        allImages.forEach(img => {
-            if (!imagesByPost[img.post_id]) imagesByPost[img.post_id] = [];
-            imagesByPost[img.post_id].push(img.url);
-        });
-
-        container.innerHTML = '';
-
-        if (!rows.length) {
-            container.innerHTML = `<div class="posts-empty">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="opacity:.25;margin:0 auto 12px">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-                <p>No posts yet. Be the first to share something!</p>
-            </div>`;
-            return;
-        }
-
-        rows.forEach(row => {
-            const card = renderPost({
-                ...row,
-                author_name: row.profiles?.full_name || 'Member',
-                avatar_url:  row.profiles?.avatar_url || null,
-                images:      imagesByPost[row.id] || [],
-            }, currentUserId);
-
-            // Reactions bar — load async
-            const reactionBarEl = card.querySelector(`#reactions-${row.id}`);
-            if (reactionBarEl) {
-                loadReactions(row.id, token, currentUserId, reactionBarEl);
-            }
-
-            // Delete
-            const delBtn = card.querySelector('.post-delete-btn');
-            if (delBtn) delBtn.addEventListener('click', () => deletePost(row.id, card, token));
-
-            // Comments toggle
-            const toggleBtn  = card.querySelector('.post-comment-toggle');
-            const commentsEl = card.querySelector('.post-comments');
-            let commentsLoaded = false;
-            toggleBtn.addEventListener('click', () => {
-                const open = commentsEl.style.display === 'block';
-                commentsEl.style.display = open ? 'none' : 'block';
-                if (!open && !commentsLoaded) {
-                    commentsLoaded = true;
-                    loadComments(row.id, token);
-                }
-            });
-
-            // Comment submit
-            const form = card.querySelector('.comment-form');
-            form.addEventListener('submit', async e => {
-                e.preventDefault();
-                const input     = form.querySelector('.comment-input');
-                const text      = input.value.trim();
-                if (!text) return;
-                const submitBtn = form.querySelector('.comment-submit');
-                submitBtn.disabled = true;
-                try {
-                    await pgPost('comments', { post_id: row.id, user_id: currentUserId, content: text }, token);
-                    input.value = '';
-                    commentsLoaded = true;
-                    await loadComments(row.id, token);
-                } catch (err) {
-                    toast('Could not post comment.', 'err');
-                } finally {
-                    submitBtn.disabled = false;
-                }
-            });
-
-            container.appendChild(card);
-        });
+        rows = await pgGet(
+            'posts?order=created_at.desc&select=id,content,image_url,created_at,user_id,profiles(full_name,avatar_url)',
+            token
+        );
     } catch (e) {
-        container.innerHTML = `<div class="posts-empty" style="border-color:rgba(200,80,80,.3);">
-            <p style="color:#c94444;">Could not load posts. Please refresh.</p>
+        console.error('loadPosts (posts query):', e);
+        container.innerHTML = `<div class="feed-empty" style="border-color:rgba(200,80,80,.3);">
+            <p style="color:#c94444;">Could not load posts (${escHtml(e.message.slice(0,120))}). Please refresh.</p>
         </div>`;
-        console.error('loadPosts:', e);
+        return;
     }
+
+    try {
+        allImages = await pgGet('post_images?select=post_id,url,position&order=position.asc', token);
+    } catch (e) {
+        console.warn('loadPosts (images query) — continuing without images:', e);
+        allImages = [];
+    }
+
+    const imagesByPost = {};
+    allImages.forEach(img => {
+        if (!imagesByPost[img.post_id]) imagesByPost[img.post_id] = [];
+        imagesByPost[img.post_id].push(img.url);
+    });
+
+    container.innerHTML = '';
+
+    if (!rows.length) {
+        container.innerHTML = `<div class="feed-empty">
+            <p>No posts yet. Be the first to share something!</p>
+        </div>`;
+        return;
+    }
+
+    rows.forEach(row => {
+        const card = renderPost({
+            ...row,
+            author_name: row.profiles?.full_name || 'Member',
+            avatar_url:  row.profiles?.avatar_url || null,
+            images:      imagesByPost[row.id] || [],
+        }, currentUserId);
+
+        const reactionBarEl = card.querySelector(`#reactions-${row.id}`);
+        if (reactionBarEl) loadReactions(row.id, token, currentUserId, reactionBarEl);
+
+        const delBtn = card.querySelector('.post-del-btn');
+        if (delBtn) delBtn.addEventListener('click', () => deletePost(row.id, card, token));
+
+        const toggleBtn  = card.querySelector('.comment-toggle-btn');
+        const commentsEl = card.querySelector('.comments-section');
+        let commentsLoaded = false;
+        toggleBtn.addEventListener('click', () => {
+            const open = commentsEl.style.display === 'block';
+            commentsEl.style.display = open ? 'none' : 'block';
+            if (!open && !commentsLoaded) {
+                commentsLoaded = true;
+                loadComments(row.id, token);
+            }
+        });
+
+        const form = card.querySelector('.comment-form');
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const input = form.querySelector('.comment-input');
+            const text  = input.value.trim();
+            if (!text) return;
+            const submitBtn = form.querySelector('.comment-send-btn');
+            submitBtn.disabled = true;
+            try {
+                await pgPost('comments', { post_id: row.id, user_id: currentUserId, content: text }, token);
+                input.value = '';
+                commentsLoaded = true;
+                await loadComments(row.id, token);
+            } catch (err) {
+                toast('Could not post comment.', 'err');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        container.appendChild(card);
+    });
 }
 
 /* ── Delete post ── */
-
 async function deletePost(postId, cardEl, token) {
     if (!confirm('Delete this post? This cannot be undone.')) return;
     try {
@@ -571,7 +533,6 @@ async function deletePost(postId, cardEl, token) {
 }
 
 /* ── Create post ── */
-
 async function handleCreatePost(form, feedContainer, token, currentUserId) {
     const textarea    = form.querySelector('#post-content');
     const submitBtn   = form.querySelector('#post-submit-btn');
@@ -589,7 +550,8 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
     }
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="btn-spinner"></span> Posting…';
+    const originalBtnHTML = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spin-sm" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:eco-spin .65s linear infinite;"></span> Posting…';
 
     try {
         const [newPost] = await pgPost('posts', { user_id: currentUserId, content: content || '', image_url: null }, token);
@@ -618,12 +580,11 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
         console.error('handleCreatePost:', err);
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Publish`;
+        submitBtn.innerHTML = originalBtnHTML;
     }
 }
 
 /* ── Multi-image picker previews ── */
-
 function renderPickedPreviews(form) {
     const files = window._pickedPostFiles || [];
     let previewRow = form.querySelector('#post-previews-row');
@@ -666,7 +627,6 @@ function renderPickedPreviews(form) {
 }
 
 /* ── Avatar upload (profile page) ── */
-
 async function handleAvatarUpload(file, token, userId, avatarPreviewEl) {
     try {
         const url = await uploadImage(file, token, AVATAR_BUCKET);
@@ -689,22 +649,20 @@ async function handleAvatarUpload(file, token, userId, avatarPreviewEl) {
         console.error('handleAvatarUpload:', e);
     }
 }
+window.handleAvatarUpload = handleAvatarUpload;
 
 /* ══════════════════════════════════════════════════════════════
    INIT
    ══════════════════════════════════════════════════════════════ */
-
 window.initPostsFeed = function(token, currentUserId) {
     const feedContainer = document.getElementById('posts-feed');
     const createForm    = document.getElementById('create-post-form');
 
-    /* Composer avatar — show real photo if available */
     try {
         const userRaw = localStorage.getItem('econovo-user');
         const userObj = userRaw ? JSON.parse(userRaw) : {};
         const meta    = userObj.user_metadata || {};
         const name    = meta.full_name || meta.first_name || userObj.email || '';
-        // ID in dashboard.html is "composer-av" — not "create-post-avatar"
         const avatarEl = document.getElementById('composer-av');
         if (avatarEl) {
             pgGet(`profiles?id=eq.${currentUserId}&select=avatar_url`, token)
@@ -729,7 +687,6 @@ window.initPostsFeed = function(token, currentUserId) {
     loadPosts(feedContainer, token, currentUserId);
     if (!createForm) return;
 
-    /* Multi-image picker */
     window._pickedPostFiles = window._pickedPostFiles || [];
     const imageInput = createForm.querySelector('#post-image');
     if (imageInput) {
@@ -747,7 +704,6 @@ window.initPostsFeed = function(token, currentUserId) {
         });
     }
 
-    /* Char counter */
     const textarea = createForm.querySelector('#post-content');
     const charEl = createForm.querySelector('#post-char-count');
     if (textarea && charEl) {
@@ -756,13 +712,11 @@ window.initPostsFeed = function(token, currentUserId) {
         });
     }
 
-    /* Submit */
     createForm.addEventListener('submit', async e => {
         e.preventDefault();
         await handleCreatePost(createForm, feedContainer, token, currentUserId);
     });
 
-    /* Profile avatar upload */
     const avatarUploadInput = document.getElementById('avatar-upload-input');
     const profileAvatarEl   = document.getElementById('profile-avatar');
     if (avatarUploadInput) {
