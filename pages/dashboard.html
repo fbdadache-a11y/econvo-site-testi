@@ -1192,16 +1192,9 @@ const JOIN_DATE = USER.created_at
   ? new Date(USER.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
   : '—';
 
-/* ═══ STATIC DATA ═══ */
-const EVENTS = [
-  { month:'AUG', day:'12', title:'Economics Workshop: Algerian Market Analysis', desc:'Interactive session on local market trends and economic indicators.', tag:'Workshop' },
-  { month:'AUG', day:'19', title:'FinTech Seminar: Digital Banking in Algeria', desc:'Guest speaker from Algérie Poste on mobile payment adoption.', tag:'Seminar' },
-  { month:'SEP', day:'03', title:'Business Case Competition Kickoff', desc:'Form your team and register for the annual case competition.', tag:'Competition' },
-];
-const ANNOUNCEMENTS = [
-  { date:'Aug 1, 2026', title:'Welcome to the new Econovo portal!', body:'The community-first portal is live. Post, connect, create groups, and stay updated — all in one place.' },
-  { date:'Jul 28, 2026', title:'Case Competition Registration Opens Aug 3', body:'The annual Econovo Business Case Competition is back. Teams of 2–4 students from any major are welcome. Registration opens August 3rd.' },
-];
+/* ═══ LIVE DATA CACHES (loaded from Supabase) ═══ */
+let EVENTS = [];
+let ANNOUNCEMENTS = [];
 /* المجموعات لم تعد ثابتة في الذاكرة — تُحمَّل من Supabase (جدولا
    groups + group_members، انظر groups_migration.sql) وتُخزَّن هنا
    بعد كل تحميل فقط كـ cache محلي للعرض السريع بين التبويبات. */
@@ -1309,10 +1302,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   loadUserAvatar();
 
-  /* Render static content */
-  renderAnnouncements();
-  renderEvents();
-  renderWidgetEvents();
+  /* Load live content from Supabase */
+  loadAnnouncements();
+  loadEvents(); /* also calls renderWidgetEvents() after data arrives */
   /* المجموعات تُحمَّل من Supabase الآن (كانت مصفوفة ثابتة) — تُحمَّل
      مرة واحدة هنا ثم renderWidgetGroups تُعاد من GROUPS_CACHE مباشرة. */
   loadGroups().then(() => { renderGroups(); renderWidgetGroups(); });
@@ -1507,26 +1499,82 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /* ══ RENDER STATIC CONTENT ══ */
 
+  async function loadAnnouncements() {
+    const el = document.getElementById('ann-list');
+    if (!el) return;
+    el.innerHTML = '<div class="feed-empty" style="opacity:.5;">Loading announcements…</div>';
+    try {
+      const rows = await sbGet('announcements?select=id,title,body,date_label,published,created_at&order=created_at.desc');
+      ANNOUNCEMENTS = rows
+        .filter(a => a.published !== false)
+        .map(a => ({
+          date: a.date_label || new Date(a.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }),
+          title: a.title,
+          body: a.body || '',
+        }));
+      renderAnnouncements();
+    } catch (e) {
+      console.error('loadAnnouncements:', e);
+      el.innerHTML = '<div class="feed-empty">Could not load announcements.</div>';
+    }
+  }
+
   function renderAnnouncements() {
     const el = document.getElementById('ann-list');
     if (!el) return;
+    if (!ANNOUNCEMENTS.length) {
+      el.innerHTML = '<div class="feed-empty">No announcements yet.</div>';
+      return;
+    }
     el.innerHTML = ANNOUNCEMENTS.map(a => `
       <div class="ann-card">
-        <div class="ann-date">${a.date}</div>
-        <div class="ann-title">${a.title}</div>
-        <div class="ann-body">${a.body}</div>
+        <div class="ann-date">${escH(a.date)}</div>
+        <div class="ann-title">${escH(a.title)}</div>
+        <div class="ann-body">${escH(a.body)}</div>
       </div>
     `).join('');
+  }
+
+  async function loadEvents() {
+    const el = document.getElementById('events-list');
+    if (!el) return;
+    el.innerHTML = '<div class="feed-empty" style="opacity:.5;">Loading events…</div>';
+    try {
+      const rows = await sbGet('events?select=id,title,description,event_date,month_short,day_num,tag,created_at&order=event_date.asc');
+      const now = new Date(); now.setHours(0,0,0,0);
+      EVENTS = rows
+        .filter(ev => !ev.event_date || new Date(ev.event_date) >= now)
+        .map(ev => {
+          let month = ev.month_short, day = ev.day_num;
+          if (!month || !day) {
+            const d = ev.event_date ? new Date(ev.event_date) : null;
+            if (d) {
+              month = d.toLocaleString('en-US', { month:'short' }).toUpperCase();
+              day   = String(d.getDate()).padStart(2,'0');
+            } else { month = '—'; day = '—'; }
+          }
+          return { month, day, title: ev.title, desc: ev.description || '', tag: ev.tag || '' };
+        });
+      renderEvents();
+      renderWidgetEvents();
+    } catch (e) {
+      console.error('loadEvents:', e);
+      if (el) el.innerHTML = '<div class="feed-empty">Could not load events.</div>';
+    }
   }
 
   function renderEvents() {
     const el = document.getElementById('events-list');
     if (!el) return;
+    if (!EVENTS.length) {
+      el.innerHTML = '<div class="feed-empty">No upcoming events.</div>';
+      return;
+    }
     el.innerHTML = EVENTS.map(ev => `
       <div class="event-row">
-        <div class="event-stamp"><span class="ev-month">${ev.month}</span><span class="ev-day">${ev.day}</span></div>
-        <div class="event-body"><div class="ev-title">${ev.title}</div><div class="ev-desc">${ev.desc}</div></div>
-        <div class="ev-tag">${ev.tag}</div>
+        <div class="event-stamp"><span class="ev-month">${escH(ev.month)}</span><span class="ev-day">${escH(ev.day)}</span></div>
+        <div class="event-body"><div class="ev-title">${escH(ev.title)}</div><div class="ev-desc">${escH(ev.desc)}</div></div>
+        <div class="ev-tag">${escH(ev.tag)}</div>
       </div>
     `).join('');
   }
@@ -1781,15 +1829,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   function renderWidgetEvents() {
     const el = document.getElementById('widget-events');
     if (!el) return;
+    if (!EVENTS.length) {
+      el.innerHTML = '<p style="font-size:.78rem;color:var(--text-muted);">No upcoming events.</p>';
+      return;
+    }
     el.innerHTML = EVENTS.slice(0, 2).map(ev => `
       <div class="event-mini">
         <div class="event-mini-stamp">
-          <span class="event-mini-month">${ev.month}</span>
-          <span class="event-mini-day">${ev.day}</span>
+          <span class="event-mini-month">${escH(ev.month)}</span>
+          <span class="event-mini-day">${escH(ev.day)}</span>
         </div>
         <div>
-          <div class="event-mini-title">${ev.title}</div>
-          <div class="event-mini-tag">${ev.tag}</div>
+          <div class="event-mini-title">${escH(ev.title)}</div>
+          <div class="event-mini-tag">${escH(ev.tag)}</div>
         </div>
       </div>
     `).join('');
