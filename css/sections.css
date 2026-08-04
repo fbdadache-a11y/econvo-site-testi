@@ -453,14 +453,14 @@
     align-items: flex-start;
     margin-bottom: var(--s5);
     position: relative;
-    /* Hidden until intersection — handled by stagger system */
+    /* opacity:0 is the initial hidden state.
+       GSAP ScrollTrigger drives opacity/transform to visible.
+       No CSS transition here — avoids double-animation conflict. */
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity .6s var(--ease-out), transform .6s var(--ease-out);
 }
+/* .in class added by GSAP as signal — no CSS transition needed */
 .timeline-item.in {
-    opacity: 1;
-    transform: translateY(0);
+    /* GSAP already animated to opacity:1; this is just a state marker */
 }
 .timeline-item:nth-child(even) { flex-direction: row-reverse; }
 .timeline-content {
@@ -489,7 +489,7 @@
 }
 .timeline-content h3 { font-size: 1rem; margin-bottom: 6px; }
 
-/* Timeline dot — pop in with spring */
+/* Timeline dot — GSAP drives scale via back.out easing */
 .timeline-dot {
     position: absolute; left: 50%; top: var(--s3);
     transform: translateX(-50%) scale(0);
@@ -498,10 +498,11 @@
     border: 3px solid var(--bg-muted);
     border-radius: 50%;
     z-index: 2;
-    transition: transform .5s var(--ease-spring);
+    /* No CSS transition — GSAP controls scale to avoid conflict */
 }
+/* GSAP sets scale(1) directly; .in is a state marker */
 .timeline-item.in .timeline-dot {
-    transform: translateX(-50%) scale(1);
+    /* visual state maintained by GSAP inline style */
 }
 
 /* ═══════════════════════════════════════
