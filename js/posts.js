@@ -178,52 +178,178 @@ function renderImageGallery(images) {
     return `<div class="post-gallery ${cls}" data-images='${JSON.stringify(images)}'>${imgs}</div>`;
 }
 
-/* ── Lightbox ── */
+/* ── Lightbox — glassmorphism + touch swipe ── */
 
 function openLightbox(images, startIndex) {
-    let current = startIndex || 0;
+    // Remove any existing lightbox
+    document.getElementById('post-lightbox')?.remove();
+
+    let current   = (startIndex || 0 + images.length) % images.length;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isDragging  = false;
+    let dragOffsetX = 0;
+
+    /* ── DOM structure ── */
     const overlay = document.createElement('div');
     overlay.id = 'post-lightbox';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px';
 
-    const img = document.createElement('img');
-    img.style.cssText = 'max-width:92vw;max-height:78vh;object-fit:contain;border-radius:8px';
+    // Blurred glass background
+    const glassBack = document.createElement('div');
+    glassBack.className = 'lb-glass-back';
+
+    // Image stage (swipeable)
+    const stage = document.createElement('div');
+    stage.className = 'lb-stage';
+
+    const imgEl = document.createElement('img');
+    imgEl.className = 'lb-img';
+    imgEl.draggable = false;
+
+    // Thumbnail strip (only when >1 image)
+    const thumbStrip = document.createElement('div');
+    thumbStrip.className = 'lb-thumbs';
 
     const counter = document.createElement('div');
-    counter.style.cssText = 'color:rgba(255,255,255,.6);font-size:.82rem;letter-spacing:.05em';
+    counter.className = 'lb-counter';
 
-    function show(i) {
-        current = (i + images.length) % images.length;
-        img.src = images[current];
-        counter.textContent = `${current + 1} / ${images.length}`;
-    }
-
+    // Arrows
     const btnClose = document.createElement('button');
-    btnClose.innerHTML = '&times;';
-    btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
-    btnClose.onclick = () => overlay.remove();
+    btnClose.className = 'lb-btn lb-close';
+    btnClose.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 
     const btnPrev = document.createElement('button');
-    btnPrev.innerHTML = '&#8592;';
-    btnPrev.style.cssText = 'position:absolute;left:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
-    btnPrev.onclick = () => show(current - 1);
+    btnPrev.className = 'lb-btn lb-prev';
+    btnPrev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><polyline points="15 18 9 12 15 6"/></svg>';
 
     const btnNext = document.createElement('button');
-    btnNext.innerHTML = '&#8594;';
-    btnNext.style.cssText = 'position:absolute;right:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
-    btnNext.onclick = () => show(current + 1);
+    btnNext.className = 'lb-btn lb-next';
+    btnNext.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><polyline points="9 18 15 12 9 6"/></svg>';
 
-    overlay.append(btnClose, img, counter);
+    /* ── Show image i ── */
+    function show(i, animated = true) {
+        const prev = current;
+        current = ((i % images.length) + images.length) % images.length;
+
+        if (animated && prev !== current) {
+            const dir = current > prev ? 1 : -1;
+            imgEl.style.transition = 'none';
+            imgEl.style.transform  = `translateX(${dir * 60}px)`;
+            imgEl.style.opacity    = '0';
+            requestAnimationFrame(() => {
+                imgEl.style.transition = 'transform .28s cubic-bezier(.16,1,.3,1), opacity .22s ease';
+                imgEl.style.transform  = 'translateX(0)';
+                imgEl.style.opacity    = '1';
+            });
+        } else {
+            imgEl.style.transition = 'none';
+            imgEl.style.transform  = 'translateX(0)';
+            imgEl.style.opacity    = '1';
+        }
+
+        imgEl.src = images[current];
+        updateGlassBackground(images[current]);
+        counter.textContent = images.length > 1 ? `${current + 1} / ${images.length}` : '';
+
+        // Update thumb strip
+        thumbStrip.querySelectorAll('.lb-thumb').forEach((t, idx) => {
+            t.classList.toggle('active', idx === current);
+        });
+
+        // Show/hide arrows
+        btnPrev.style.display = images.length > 1 ? '' : 'none';
+        btnNext.style.display = images.length > 1 ? '' : 'none';
+    }
+
+    /* ── Blurred background from current image ── */
+    function updateGlassBackground(src) {
+        glassBack.style.backgroundImage = `url(${src})`;
+    }
+
+    /* ── Close ── */
+    function close() {
+        overlay.style.opacity = '0';
+        overlay.style.transform = 'scale(.97)';
+        setTimeout(() => { overlay.remove(); document.body.style.overflow = ''; }, 220);
+        document.removeEventListener('keydown', onKey);
+    }
+
+    /* ── Keyboard ── */
+    function onKey(e) {
+        if (e.key === 'Escape')      close();
+        if (e.key === 'ArrowRight')  show(current + 1);
+        if (e.key === 'ArrowLeft')   show(current - 1);
+    }
+
+    /* ── Touch / Pointer swipe ── */
+    stage.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        touchStartX  = e.clientX;
+        touchStartY  = e.clientY;
+        isDragging   = true;
+        dragOffsetX  = 0;
+        stage.setPointerCapture(e.pointerId);
+    }, { passive: true });
+
+    stage.addEventListener('pointermove', e => {
+        if (!isDragging) return;
+        dragOffsetX = e.clientX - touchStartX;
+        const dampened = dragOffsetX * 0.4;
+        imgEl.style.transition = 'none';
+        imgEl.style.transform  = `translateX(${dampened}px)`;
+    }, { passive: true });
+
+    stage.addEventListener('pointerup', e => {
+        if (!isDragging) return;
+        isDragging = false;
+        const dx   = e.clientX - touchStartX;
+        const dy   = Math.abs(e.clientY - touchStartY);
+
+        imgEl.style.transition = 'transform .3s cubic-bezier(.16,1,.3,1), opacity .2s';
+        imgEl.style.transform  = 'translateX(0)';
+
+        if (Math.abs(dx) > 48 && dy < 80) {
+            if (dx < 0) show(current + 1);
+            else        show(current - 1);
+        }
+    }, { passive: true });
+
+    /* ── Thumb strip ── */
+    if (images.length > 1) {
+        images.forEach((url, i) => {
+            const t = document.createElement('button');
+            t.className = 'lb-thumb';
+            t.style.backgroundImage = `url(${url})`;
+            t.onclick = () => show(i);
+            thumbStrip.appendChild(t);
+        });
+    }
+
+    /* ── Build overlay ── */
+    btnClose.onclick = close;
+    btnPrev.onclick  = () => show(current - 1);
+    btnNext.onclick  = () => show(current + 1);
+
+    stage.appendChild(imgEl);
+    overlay.append(glassBack, btnClose, stage, counter, thumbStrip);
     if (images.length > 1) overlay.append(btnPrev, btnNext);
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-    document.addEventListener('keydown', function esc(e) {
-        if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
-        if (e.key === 'ArrowRight') show(current + 1);
-        if (e.key === 'ArrowLeft')  show(current - 1);
-    });
+
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', onKey);
 
     document.body.appendChild(overlay);
-    show(current);
+    document.body.style.overflow = 'hidden';
+
+    // Entrance
+    overlay.style.opacity   = '0';
+    overlay.style.transform = 'scale(.96)';
+    requestAnimationFrame(() => {
+        overlay.style.transition = 'opacity .22s ease, transform .22s cubic-bezier(.16,1,.3,1)';
+        overlay.style.opacity    = '1';
+        overlay.style.transform  = 'scale(1)';
+    });
+
+    show(current, false);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -471,25 +597,98 @@ async function loadComments(postId, token) {
     }
 }
 
-/* ── Load posts ── */
+/* ── Load posts — Infinite Scroll ── */
+
+const POSTS_PAGE_SIZE = 10;
+
+/* Attach a card's interactive events */
+function attachPostEvents(card, row, token, currentUserId) {
+    const reactionBarEl = card.querySelector(`#reactions-${row.id}`);
+    if (reactionBarEl) loadReactions(row.id, token, currentUserId, reactionBarEl);
+
+    const delBtn = card.querySelector('.post-delete-btn');
+    if (delBtn) delBtn.addEventListener('click', () => deletePost(row.id, card, token));
+
+    const toggleBtn    = card.querySelector('.post-comment-toggle');
+    const commentsEl   = card.querySelector('.post-comments');
+    let commentsLoaded = false;
+    toggleBtn?.addEventListener('click', () => {
+        const open = commentsEl.style.display === 'block';
+        commentsEl.style.display = open ? 'none' : 'block';
+        if (!open && !commentsLoaded) { commentsLoaded = true; loadComments(row.id, token); }
+    });
+
+    const form = card.querySelector('.comment-form');
+    form?.addEventListener('submit', async e => {
+        e.preventDefault();
+        const input     = form.querySelector('.comment-input');
+        const text      = input.value.trim();
+        if (!text) return;
+        const submitBtn = form.querySelector('.comment-submit');
+        submitBtn.disabled = true;
+        try {
+            await pgPost('comments', { post_id: row.id, user_id: currentUserId, content: text }, token);
+            input.value = '';
+            commentsLoaded = true;
+            await loadComments(row.id, token);
+        } catch { toast('Could not post comment.', 'err'); }
+        finally   { submitBtn.disabled = false; }
+    });
+}
+
+/* Render a batch of rows into the feed */
+function appendRows(rows, imagesByPost, container, token, currentUserId) {
+    rows.forEach(row => {
+        const card = renderPost({
+            ...row,
+            author_name: row.profiles?.full_name || row.full_name || 'Member',
+            avatar_url:  row.profiles?.avatar_url || null,
+            images:      imagesByPost[row.id] || [],
+        }, currentUserId);
+
+        // Entrance animation
+        card.style.opacity   = '0';
+        card.style.transform = 'translateY(16px)';
+        container.appendChild(card);
+        requestAnimationFrame(() => {
+            card.style.transition = 'opacity .35s ease, transform .35s cubic-bezier(.16,1,.3,1)';
+            card.style.opacity    = '1';
+            card.style.transform  = 'translateY(0)';
+        });
+
+        attachPostEvents(card, row, token, currentUserId);
+    });
+}
 
 async function loadPosts(container, token, currentUserId) {
-    container.innerHTML = '<div class="posts-loading"><span class="posts-spinner"></span> Loading posts…</div>';
-    try {
-        const [rows, allImages] = await Promise.all([
-            pgGet('posts?order=created_at.desc&select=id,content,image_url,created_at,user_id,full_name,profiles(full_name,avatar_url)', token),
-            pgGet('post_images?select=post_id,url,position&order=position.asc', token).catch(() => []),
-        ]);
+    // Clear old infinite-scroll observer if any
+    if (container._infiniteObs) { container._infiniteObs.disconnect(); container._infiniteObs = null; }
+    container._feedExhausted = false;
+    container._feedOffset    = 0;
+    container._feedLoading   = false;
+    container._allImages     = null;   // cached images map
 
+    container.innerHTML = '<div class="posts-loading"><span class="posts-spinner"></span> Loading posts…</div>';
+
+    try {
+        // Load all post_images once — they're small metadata rows
+        const allImages = await pgGet('post_images?select=post_id,url,position&order=position.asc', token).catch(() => []);
         const imagesByPost = {};
         allImages.forEach(img => {
             if (!imagesByPost[img.post_id]) imagesByPost[img.post_id] = [];
             imagesByPost[img.post_id].push(img.url);
         });
+        container._allImages = imagesByPost;
+
+        // First page
+        const firstPage = await pgGet(
+            `posts?order=created_at.desc&limit=${POSTS_PAGE_SIZE}&offset=0&select=id,content,image_url,created_at,user_id,full_name,profiles(full_name,avatar_url)`,
+            token
+        );
 
         container.innerHTML = '';
 
-        if (!rows.length) {
+        if (!firstPage.length) {
             container.innerHTML = `<div class="posts-empty">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="opacity:.25;margin:0 auto 12px">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -499,66 +698,96 @@ async function loadPosts(container, token, currentUserId) {
             return;
         }
 
-        rows.forEach(row => {
-            const card = renderPost({
-                ...row,
-                author_name: row.profiles?.full_name || row.full_name || 'Member',
-                avatar_url:  row.profiles?.avatar_url || null,
-                images:      imagesByPost[row.id] || [],
-            }, currentUserId);
+        appendRows(firstPage, imagesByPost, container, token, currentUserId);
+        container._feedOffset = firstPage.length;
 
-            // Reactions bar — load async
-            const reactionBarEl = card.querySelector(`#reactions-${row.id}`);
-            if (reactionBarEl) {
-                loadReactions(row.id, token, currentUserId, reactionBarEl);
+        if (firstPage.length < POSTS_PAGE_SIZE) {
+            container._feedExhausted = true;
+            appendEndMarker(container);
+            return;
+        }
+
+        // Sentinel element — when visible, load next page
+        const sentinel = document.createElement('div');
+        sentinel.className = 'feed-sentinel';
+        sentinel.innerHTML = '<span class="posts-spinner"></span>';
+        container.appendChild(sentinel);
+
+        const obs = new IntersectionObserver(async entries => {
+            if (!entries[0].isIntersecting) return;
+            if (container._feedLoading || container._feedExhausted) return;
+
+            container._feedLoading = true;
+            try {
+                const nextPage = await pgGet(
+                    `posts?order=created_at.desc&limit=${POSTS_PAGE_SIZE}&offset=${container._feedOffset}&select=id,content,image_url,created_at,user_id,full_name,profiles(full_name,avatar_url)`,
+                    token
+                );
+
+                if (!nextPage.length) {
+                    container._feedExhausted = true;
+                    sentinel.remove();
+                    appendEndMarker(container);
+                    obs.disconnect();
+                    return;
+                }
+
+                // Insert before sentinel
+                const frag = document.createDocumentFragment();
+                nextPage.forEach(row => {
+                    const card = renderPost({
+                        ...row,
+                        author_name: row.profiles?.full_name || row.full_name || 'Member',
+                        avatar_url:  row.profiles?.avatar_url || null,
+                        images:      container._allImages[row.id] || [],
+                    }, currentUserId);
+                    card.style.opacity   = '0';
+                    card.style.transform = 'translateY(16px)';
+                    frag.appendChild(card);
+                    attachPostEvents(card, row, token, currentUserId);
+                });
+                container.insertBefore(frag, sentinel);
+
+                // Animate new cards
+                container.querySelectorAll('.post-card[style*="opacity: 0"]').forEach(c => {
+                    requestAnimationFrame(() => {
+                        c.style.transition = 'opacity .35s ease, transform .35s cubic-bezier(.16,1,.3,1)';
+                        c.style.opacity    = '1';
+                        c.style.transform  = 'translateY(0)';
+                    });
+                });
+
+                container._feedOffset += nextPage.length;
+                if (nextPage.length < POSTS_PAGE_SIZE) {
+                    container._feedExhausted = true;
+                    sentinel.remove();
+                    appendEndMarker(container);
+                    obs.disconnect();
+                }
+            } catch (err) {
+                console.error('infinite scroll page load:', err);
+                toast('Could not load more posts.', 'err');
+            } finally {
+                container._feedLoading = false;
             }
+        }, { rootMargin: '300px' });
 
-            // Delete
-            const delBtn = card.querySelector('.post-delete-btn');
-            if (delBtn) delBtn.addEventListener('click', () => deletePost(row.id, card, token));
+        obs.observe(sentinel);
+        container._infiniteObs = obs;
 
-            // Comments toggle
-            const toggleBtn  = card.querySelector('.post-comment-toggle');
-            const commentsEl = card.querySelector('.post-comments');
-            let commentsLoaded = false;
-            toggleBtn.addEventListener('click', () => {
-                const open = commentsEl.style.display === 'block';
-                commentsEl.style.display = open ? 'none' : 'block';
-                if (!open && !commentsLoaded) {
-                    commentsLoaded = true;
-                    loadComments(row.id, token);
-                }
-            });
-
-            // Comment submit
-            const form = card.querySelector('.comment-form');
-            form.addEventListener('submit', async e => {
-                e.preventDefault();
-                const input     = form.querySelector('.comment-input');
-                const text      = input.value.trim();
-                if (!text) return;
-                const submitBtn = form.querySelector('.comment-submit');
-                submitBtn.disabled = true;
-                try {
-                    await pgPost('comments', { post_id: row.id, user_id: currentUserId, content: text }, token);
-                    input.value = '';
-                    commentsLoaded = true;
-                    await loadComments(row.id, token);
-                } catch (err) {
-                    toast('Could not post comment.', 'err');
-                } finally {
-                    submitBtn.disabled = false;
-                }
-            });
-
-            container.appendChild(card);
-        });
     } catch (e) {
         container.innerHTML = `<div class="posts-empty" style="border-color:rgba(200,80,80,.3);">
             <p style="color:#c94444;">Could not load posts. Please refresh.</p>
         </div>`;
         console.error('loadPosts:', e);
     }
+}
+
+function appendEndMarker(container) {
+    const end = document.createElement('div');
+    end.className = 'feed-end-marker';
+    end.textContent = '— You're all caught up —';
+    container.appendChild(end);
 }
 
 /* ── Delete post ── */
