@@ -155,21 +155,10 @@ img { max-width: 100%; display: block; }
    - stagger: grids of cards/items
    ════════════════════════════════════════════ */
 
-/* Base reveal — fade + lift */
-.reveal {
-    opacity: 0;
-    transform: translateY(18px);
-    transition: opacity .7s var(--ease-out), transform .7s var(--ease-out);
-}
-.reveal.active {
-    opacity: 1;
-    transform: translateY(0);
-}
-
 /* Section header reveal — slightly taller lift */
 .section-header.reveal {
     transform: translateY(24px);
-    transition: opacity .65s var(--ease-out), transform .65s var(--ease-out);
+    transition: opacity .65s var(--ease-out), transform .65s var(--ease-out), clip-path .75s var(--ease-out);
 }
 
 /* Fade only — for elements that shouldn't move */
@@ -219,6 +208,38 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     border-radius: 3px;
 }
 
+/* ── Cursor glow (hero) ── */
+.hero-cursor-glow {
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(143,184,166,.16) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    will-change: transform;
+    transition: opacity .4s ease;
+}
+
+/* ── Trust bar keyframe ── */
+@keyframes trustScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+/* ── Clip-path reveal base ── */
+.reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    clip-path: inset(0 0 100% 0);
+    transition: opacity .7s var(--ease-out), transform .7s var(--ease-out), clip-path .75s var(--ease-out);
+}
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0% 0);
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -226,7 +247,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
         transition-duration: .001ms !important;
         scroll-behavior: auto !important;
     }
-    .stagger-item, .reveal, .will-reveal, .reveal-fade { opacity: 1 !important; transform: none !important; }
+    .stagger-item, .reveal, .will-reveal, .reveal-fade { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+    .hero-cursor-glow { display: none; }
 }
 
 /* ── Utilities ── */
