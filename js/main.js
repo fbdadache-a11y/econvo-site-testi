@@ -1,6 +1,6 @@
 /* ==========================================================================
    ECONOVO — main.js
-   Navbar state, mobile menu, dark mode toggle, footer year.
+   Navbar state, mobile menu, dark mode toggle, footer year, auth session sync.
    No external dependency required for this file.
    ========================================================================== */
 
@@ -14,12 +14,45 @@
         initMobileMenu();
         initThemeToggle();
         initMobileJoinVisibility();
+        initAuthCheck(); // 👈 تم إضافة فحص حالة التسجيل هنا
         if (window.lucide) window.lucide.createIcons();
     });
 
     function initYear() {
         const el = document.getElementById('currentYear');
         if (el) el.textContent = new Date().getFullYear();
+    }
+
+    // --------------------------------------------------------------------------
+    // Auth Session Sync (الحفاظ على حالة التسجيل عند الـ Refresh)
+    // --------------------------------------------------------------------------
+    function initAuthCheck() {
+        const token = localStorage.getItem('econovo-token');
+        const userStr = localStorage.getItem('econovo-user');
+
+        if (!token || !userStr) return;
+
+        try {
+            // فحص تاريخ صلاحية التوكن (JWT Expire Check)
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const isExpired = payload.exp * 1000 < Date.now();
+
+            if (isExpired) {
+                localStorage.removeItem('econovo-token');
+                localStorage.removeItem('econovo-user');
+                return;
+            }
+
+            // إذا كان التوكن سارياً: تحديث أزرار التنقل (Desktop & Mobile)
+            const joinBtns = document.querySelectorAll('#nav-join-btn, .mobile-join a, .btn-join');
+            joinBtns.forEach(btn => {
+                btn.textContent = 'Dashboard';
+                btn.setAttribute('href', 'dashboard.html');
+            });
+
+        } catch (e) {
+            console.error('Error parsing auth session:', e);
+        }
     }
 
     function initNavbarScroll() {
