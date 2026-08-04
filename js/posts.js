@@ -467,7 +467,7 @@ async function loadPosts(container, token, currentUserId) {
     container.innerHTML = '<div class="posts-loading"><span class="posts-spinner"></span> Loading posts…</div>';
     try {
         const [rows, allImages] = await Promise.all([
-            pgGet('posts?order=created_at.desc&select=id,content,image_url,created_at,user_id,profiles(full_name,avatar_url)', token),
+            pgGet('posts?order=created_at.desc&select=id,content,image_url,created_at,user_id,full_name,profiles(full_name,avatar_url)', token),
             pgGet('post_images?select=post_id,url,position&order=position.asc', token).catch(() => []),
         ]);
 
@@ -492,7 +492,7 @@ async function loadPosts(container, token, currentUserId) {
         rows.forEach(row => {
             const card = renderPost({
                 ...row,
-                author_name: row.profiles?.full_name || 'Member',
+                author_name: row.profiles?.full_name || row.full_name || 'Member',
                 avatar_url:  row.profiles?.avatar_url || null,
                 images:      imagesByPost[row.id] || [],
             }, currentUserId);
@@ -589,7 +589,20 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
     submitBtn.innerHTML = '<span class="btn-spinner"></span> Posting…';
 
     try {
-        const [newPost] = await pgPost('posts', { user_id: currentUserId, content: content || '', image_url: null }, token);
+        /* Get full_name from localStorage to store in post */
+        let authorName = 'Member';
+        try {
+            const u = JSON.parse(localStorage.getItem('econovo-user') || '{}');
+            const m = u.user_metadata || {};
+            authorName = m.full_name || ((m.first_name || '') + ' ' + (m.last_name || '')).trim() || u.email || 'Member';
+        } catch(_) {}
+
+        const [newPost] = await pgPost('posts', {
+            user_id:   currentUserId,
+            content:   content || '',
+            image_url: null,
+            full_name: authorName,
+        }, token);
 
         if (pickedFiles.length) {
             const urls = await Promise.all(pickedFiles.map(f => uploadImage(f, token, BUCKET)));
@@ -693,7 +706,7 @@ async function handleAvatarUpload(file, token, userId, avatarPreviewEl) {
 
 window.initPostsFeed = function(token, currentUserId) {
     const feedContainer = document.getElementById('posts-feed');
-    const createForm    = document.getElementById('create-post-form');
+    const createForm    = document.getElementById('main-composer');
 
     /* Composer avatar — show real photo if available */
     try {
@@ -701,7 +714,7 @@ window.initPostsFeed = function(token, currentUserId) {
         const userObj = userRaw ? JSON.parse(userRaw) : {};
         const meta    = userObj.user_metadata || {};
         const name    = meta.full_name || meta.first_name || userObj.email || '';
-        const avatarEl = document.getElementById('create-post-avatar');
+        const avatarEl = document.getElementById('composer-av');
         if (avatarEl) {
             pgGet(`profiles?id=eq.${currentUserId}&select=avatar_url`, token)
                 .then(rows => {
@@ -744,18 +757,21 @@ window.initPostsFeed = function(token, currentUserId) {
     }
 
     /* Char counter */
-    const charEl = createForm.querySelector('#post-char-count');
+    const textarea = createForm.querySelector('#post-content');
+    const charEl   = createForm.querySelector('#post-char-count');
     if (textarea && charEl) {
         textarea.addEventListener('input', () => {
             charEl.textContent = textarea.value.length + ' / 1000';
         });
     }
 
-    /* Submit */
-    createForm.addEventListener('submit', async e => {
-        e.preventDefault();
-        await handleCreatePost(createForm, feedContainer, token, currentUserId);
-    });
+    /* Publish button click — composer is a div, not a form */
+    const publishBtn = document.getElementById('post-submit-btn');
+    if (publishBtn) {
+        publishBtn.addEventListener('click', async () => {
+            await handleCreatePost(createForm, feedContainer, token, currentUserId);
+        });
+    }
 
     /* Profile avatar upload */
     const avatarUploadInput = document.getElementById('avatar-upload-input');
