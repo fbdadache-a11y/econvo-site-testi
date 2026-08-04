@@ -8,7 +8,7 @@ const POSTS_URL     = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const POSTS_KEY     = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 const BUCKET        = 'post-images';
 const AVATAR_BUCKET = 'avatars';
-const MAX_IMAGES    = 50;
+const MAX_IMAGES    = 4;
 
 /* Emojis available in the composer picker — removed */
 
@@ -184,15 +184,13 @@ function openLightbox(images, startIndex) {
     let current = startIndex || 0;
     const overlay = document.createElement('div');
     overlay.id = 'post-lightbox';
-    
-    // خلفية مع backdrop-filter لدعم Blur وتعديل touch-action
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;touch-action:pan-y';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px';
 
     const img = document.createElement('img');
-    img.style.cssText = 'max-width:92vw;max-height:78vh;object-fit:contain;border-radius:8px;user-select:none;-webkit-user-drag:none';
+    img.style.cssText = 'max-width:92vw;max-height:78vh;object-fit:contain;border-radius:8px';
 
     const counter = document.createElement('div');
-    counter.style.cssText = 'color:rgba(255,255,255,.8);font-size:.85rem;letter-spacing:.05em;font-weight:600';
+    counter.style.cssText = 'color:rgba(255,255,255,.6);font-size:.82rem;letter-spacing:.05em';
 
     function show(i) {
         current = (i + images.length) % images.length;
@@ -200,59 +198,33 @@ function openLightbox(images, startIndex) {
         counter.textContent = `${current + 1} / ${images.length}`;
     }
 
-    function close() {
-        overlay.remove();
-        document.removeEventListener('keydown', handleKey);
-    }
-
-    function handleKey(e) {
-        if (e.key === 'Escape') close();
-        if (e.key === 'ArrowRight') show(current + 1);
-        if (e.key === 'ArrowLeft')  show(current - 1);
-    }
-
     const btnClose = document.createElement('button');
     btnClose.innerHTML = '&times;';
-    btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.8;z-index:9999';
-    btnClose.onclick = close;
+    btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
+    btnClose.onclick = () => overlay.remove();
 
     const btnPrev = document.createElement('button');
     btnPrev.innerHTML = '&#8592;';
-    btnPrev.style.cssText = 'position:absolute;left:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.8;z-index:9999';
+    btnPrev.style.cssText = 'position:absolute;left:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
     btnPrev.onclick = () => show(current - 1);
 
     const btnNext = document.createElement('button');
     btnNext.innerHTML = '&#8594;';
-    btnNext.style.cssText = 'position:absolute;right:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.8;z-index:9999';
+    btnNext.style.cssText = 'position:absolute;right:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
     btnNext.onclick = () => show(current + 1);
-
-    /* ── Touch Swiping للموبايل ── */
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    overlay.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-
-    overlay.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].screenX;
-        const diff = touchEndX - touchStartX;
-        if (Math.abs(diff) > 40) { // حد أدنى للتحريك 40px
-            if (diff < 0) show(current + 1); // سحب لليسار -> الصورة التالية
-            else show(current - 1);         // سحب لليمين -> الصورة السابقة
-        }
-    }, { passive: true });
 
     overlay.append(btnClose, img, counter);
     if (images.length > 1) overlay.append(btnPrev, btnNext);
-    
-    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-    document.addEventListener('keydown', handleKey);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    document.addEventListener('keydown', function esc(e) {
+        if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
+        if (e.key === 'ArrowRight') show(current + 1);
+        if (e.key === 'ArrowLeft')  show(current - 1);
+    });
 
     document.body.appendChild(overlay);
     show(current);
 }
-
 
 /* ══════════════════════════════════════════════════════════════
    REACTIONS
@@ -405,7 +377,7 @@ function renderPost(post, currentUserId) {
             </div>
             ${deleteBtn}
         </div>
-        ${post.content ? `<p class="post-body" dir="auto">${escHtml(post.content)}</p>` : ''}
+        ${post.content ? `<p class="post-body">${escHtml(post.content)}</p>` : ''}
         ${renderImageGallery(imageUrls)}
         <div class="post-footer">
             <div class="reaction-row" id="reactions-${post.id}"></div>
@@ -423,7 +395,7 @@ function renderPost(post, currentUserId) {
             <div class="comment-form-row">
                 <div class="comment-composer-avatar"></div>
                 <form class="comment-form" data-post-id="${post.id}">
-                    <input class="comment-input" type="text" placeholder="Write a comment…" maxlength="400" required autocomplete="off" dir="auto">
+                    <input class="comment-input" type="text" placeholder="Write a comment…" maxlength="400" required autocomplete="off">
                     <button type="submit" class="comment-submit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
