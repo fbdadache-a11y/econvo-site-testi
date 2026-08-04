@@ -184,13 +184,15 @@ function openLightbox(images, startIndex) {
     let current = startIndex || 0;
     const overlay = document.createElement('div');
     overlay.id = 'post-lightbox';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px';
+    
+    // خلفية مع backdrop-filter لدعم Blur وتعديل touch-action
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;touch-action:pan-y';
 
     const img = document.createElement('img');
-    img.style.cssText = 'max-width:92vw;max-height:78vh;object-fit:contain;border-radius:8px';
+    img.style.cssText = 'max-width:92vw;max-height:78vh;object-fit:contain;border-radius:8px;user-select:none;-webkit-user-drag:none';
 
     const counter = document.createElement('div');
-    counter.style.cssText = 'color:rgba(255,255,255,.6);font-size:.82rem;letter-spacing:.05em';
+    counter.style.cssText = 'color:rgba(255,255,255,.8);font-size:.85rem;letter-spacing:.05em;font-weight:600';
 
     function show(i) {
         current = (i + images.length) % images.length;
@@ -198,33 +200,59 @@ function openLightbox(images, startIndex) {
         counter.textContent = `${current + 1} / ${images.length}`;
     }
 
+    function close() {
+        overlay.remove();
+        document.removeEventListener('keydown', handleKey);
+    }
+
+    function handleKey(e) {
+        if (e.key === 'Escape') close();
+        if (e.key === 'ArrowRight') show(current + 1);
+        if (e.key === 'ArrowLeft')  show(current - 1);
+    }
+
     const btnClose = document.createElement('button');
     btnClose.innerHTML = '&times;';
-    btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
-    btnClose.onclick = () => overlay.remove();
+    btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.8;z-index:9999';
+    btnClose.onclick = close;
 
     const btnPrev = document.createElement('button');
     btnPrev.innerHTML = '&#8592;';
-    btnPrev.style.cssText = 'position:absolute;left:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
+    btnPrev.style.cssText = 'position:absolute;left:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.8;z-index:9999';
     btnPrev.onclick = () => show(current - 1);
 
     const btnNext = document.createElement('button');
     btnNext.innerHTML = '&#8594;';
-    btnNext.style.cssText = 'position:absolute;right:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.7';
+    btnNext.style.cssText = 'position:absolute;right:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;opacity:.8;z-index:9999';
     btnNext.onclick = () => show(current + 1);
+
+    /* ── Touch Swiping للموبايل ── */
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    overlay.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    overlay.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchEndX - touchStartX;
+        if (Math.abs(diff) > 40) { // حد أدنى للتحريك 40px
+            if (diff < 0) show(current + 1); // سحب لليسار -> الصورة التالية
+            else show(current - 1);         // سحب لليمين -> الصورة السابقة
+        }
+    }, { passive: true });
 
     overlay.append(btnClose, img, counter);
     if (images.length > 1) overlay.append(btnPrev, btnNext);
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-    document.addEventListener('keydown', function esc(e) {
-        if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
-        if (e.key === 'ArrowRight') show(current + 1);
-        if (e.key === 'ArrowLeft')  show(current - 1);
-    });
+    
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', handleKey);
 
     document.body.appendChild(overlay);
     show(current);
 }
+
 
 /* ══════════════════════════════════════════════════════════════
    REACTIONS
