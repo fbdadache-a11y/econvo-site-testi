@@ -377,7 +377,7 @@ function renderPost(post, currentUserId) {
             </div>
             ${deleteBtn}
         </div>
-        ${post.content ? `<p class="post-body">${escHtml(post.content)}</p>` : ''}
+        ${post.content ? `<p class="post-body" dir="auto">${escHtml(post.content)}</p>` : ''}
         ${renderImageGallery(imageUrls)}
         <div class="post-footer">
             <div class="reaction-row" id="reactions-${post.id}"></div>
@@ -395,7 +395,7 @@ function renderPost(post, currentUserId) {
             <div class="comment-form-row">
                 <div class="comment-composer-avatar"></div>
                 <form class="comment-form" data-post-id="${post.id}">
-                    <input class="comment-input" type="text" placeholder="Write a comment…" maxlength="400" required autocomplete="off">
+                    <input class="comment-input" type="text" placeholder="Write a comment…" maxlength="400" required autocomplete="off" dir="auto">
                     <button type="submit" class="comment-submit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
