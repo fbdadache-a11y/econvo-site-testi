@@ -1625,28 +1625,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function openGroupFeed(group) {
     if (!Icons) return;
-    // Build group feed view
+
     const hdr = document.getElementById('group-feed-hdr');
     hdr.innerHTML = `
       <div class="group-view-icon">${Icons.renderGroupIcon(group.iconKey, 52, 26)}</div>
       <div>
         <div class="group-view-name">${escH(group.name)}</div>
         <div class="group-view-desc">${escH(group.desc)}</div>
-        <div class="group-view-meta">${group.members} members</div>
+        <div class="group-view-meta" id="group-feed-member-count">${group.members} member${group.members !== 1 ? 's' : ''}</div>
       </div>
       <button style="margin-left:auto;padding:7px 16px;border:1px solid var(--line);border-radius:var(--r-md);font-size:.8rem;font-weight:600;color:var(--text-soft);cursor:pointer;" onclick="window.showView('groups')">← Back</button>
     `;
 
-    // Group composer (simplified)
+    // Composer
     const wrap = document.getElementById('group-composer-wrap');
     wrap.innerHTML = `
       <div class="composer-card" style="margin-bottom:16px;">
         <div class="composer-top">
           <div class="composer-av" id="group-composer-av"></div>
-          <textarea class="composer-input" id="group-post-content" placeholder="Share something in this group…" rows="2" maxlength="1000"></textarea>
+          <textarea class="composer-input" id="group-post-content" placeholder="Share something in this group…" rows="2" maxlength="1000" dir="auto"></textarea>
         </div>
+        <div id="group-post-alert" style="display:none;font-size:.82rem;color:#c84444;padding:4px 0;"></div>
         <div class="composer-footer">
-          <span class="char-count-sm">0 / 1000</span>
+          <span class="char-count-sm" id="group-char-count">0 / 1000</span>
           <button class="btn-publish" id="group-post-btn" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             Publish
@@ -1656,25 +1657,125 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
     fillAvatar(document.getElementById('group-composer-av'), cachedAvatarUrl, FULL_NAME);
 
-    const groupFeed = document.getElementById('group-posts-feed');
-    groupFeed.innerHTML = '<div class="feed-empty">No posts in this group yet. Start the conversation!</div>';
+    // Char counter
+    document.getElementById('group-post-content').addEventListener('input', function() {
+      document.getElementById('group-char-count').textContent = this.value.length + ' / 1000';
+    });
 
+    const groupFeed = document.getElementById('group-posts-feed');
+
+    /* ── تحميل منشورات المجموعة من group_posts ── */
+    async function loadGroupPosts() {
+      groupFeed.innerHTML = '<div class="feed-loading"><span class="eco-spinner"></span> Loading…</div>';
+      try {
+        const rows = await sbGet(
+          `group_posts?group_id=eq.${group.id}&order=created_at.desc&select=id,content,created_at,user_id,profiles(full_name,avatar_url)`
+        );
+        groupFeed.innerHTML = '';
+        if (!rows.length) {
+          groupFeed.innerHTML = '<div class="feed-empty">No posts in this group yet. Start the conversation!</div>';
+          return;
+        }
+        rows.forEach(row => {
+          const authorName = row.profiles?.full_name || 'Member';
+          const avatarUrl  = row.profiles?.avatar_url || null;
+          const isOwner    = row.user_id === USER_ID;
+
+          const card = document.createElement('article');
+          card.className = 'post-card';
+          card.style.marginBottom = '14px';
+          card.innerHTML = `
+            <div class="post-hdr">
+              <div class="gp-av-wrap"></div>
+              <div class="post-meta">
+                <span class="post-author">${escH(authorName)}</span>
+                <span class="post-time">${timeAgo(row.created_at)}</span>
+              </div>
+              ${isOwner ? `<button class="post-del-btn" data-id="${row.id}" aria-label="Delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                </svg>
+              </button>` : ''}
+            </div>
+            ${row.content ? `<p class="post-body" dir="auto">${escH(row.content)}</p>` : ''}
+          `;
+
+          // Avatar
+          const avWrap = card.querySelector('.gp-av-wrap');
+          avWrap.appendChild(makeGroupAvatar(avatarUrl, authorName));
+
+          // Delete
+          const delBtn = card.querySelector('.post-del-btn');
+          if (delBtn) {
+            delBtn.addEventListener('click', async () => {
+              if (!confirm('Delete this post?')) return;
+              try {
+                await sbDel(`group_posts?id=eq.${row.id}`);
+                card.style.opacity = '0';
+                card.style.transition = 'opacity .3s';
+                setTimeout(() => { card.remove(); }, 320);
+                toast('Post deleted.');
+              } catch(_) { toast('Could not delete.', 'err'); }
+            });
+          }
+
+          groupFeed.appendChild(card);
+        });
+      } catch(e) {
+        groupFeed.innerHTML = '<div class="feed-empty" style="border-color:rgba(200,80,80,.3);"><p style="color:#c94444;">Could not load posts. Please refresh.</p></div>';
+        console.error('loadGroupPosts:', e);
+      }
+    }
+
+    loadGroupPosts();
+
+    /* ── نشر منشور في المجموعة ← يُحفظ في group_posts ── */
     document.getElementById('group-post-btn').addEventListener('click', async () => {
-      const ta = document.getElementById('group-post-content');
-      const text = ta.value.trim();
+      const ta      = document.getElementById('group-post-content');
+      const alertEl = document.getElementById('group-post-alert');
+      const text    = ta.value.trim();
       if (!text) { ta.focus(); return; }
+
       const btn = document.getElementById('group-post-btn');
       btn.disabled = true;
+      alertEl.style.display = 'none';
+
       try {
-        await sbPost('posts', { user_id: USER_ID, content: `[${group.name}] ` + text, image_url: null });
+        await sbPost('group_posts', {
+          group_id:  group.id,
+          user_id:   USER_ID,
+          content:   text,
+        });
         ta.value = '';
+        document.getElementById('group-char-count').textContent = '0 / 1000';
         toast('Posted to ' + group.name + '! 🎉');
-        groupFeed.innerHTML = '<div class="feed-empty">Post published. Refresh to see it in the main feed.</div>';
-      } catch(e) { toast('Could not post.', 'err'); }
-      finally { btn.disabled = false; }
+        await loadGroupPosts();   // أعد التحميل فورًا لإظهار المنشور الجديد
+      } catch(e) {
+        alertEl.textContent = 'Could not post. Please try again.';
+        alertEl.style.display = 'block';
+        console.error('group post:', e);
+      } finally {
+        btn.disabled = false;
+      }
     });
 
     setView('group-feed');
+  }
+
+  /* avatar بسيط مخصص لبطاقات منشورات المجموعة */
+  function makeGroupAvatar(url, name) {
+    const el = document.createElement('div');
+    el.className = 'post-avatar';
+    if (url) {
+      const img = document.createElement('img');
+      img.src = url; img.alt = name;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+      img.onerror = () => { img.remove(); el.textContent = inits(name); };
+      el.appendChild(img);
+    } else {
+      el.textContent = inits(name);
+    }
+    return el;
   }
 
   function renderWidgetEvents() {
