@@ -1,20 +1,19 @@
 /* ==========================================================================
-   ECONOVO — main.js
+   ECONOVO — main.js  v2.0
    Navbar state, mobile menu, dark mode toggle, footer year, auth session sync.
-   No external dependency required for this file.
    ========================================================================== */
 
 (function () {
     'use strict';
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         initYear();
         initNavbarScroll();
         initScrollProgress();
         initMobileMenu();
         initThemeToggle();
         initMobileJoinVisibility();
-        initAuthCheck(); // 👈 تم إضافة فحص حالة التسجيل هنا
+        await initAuthCheck();   // async — waits for silent token refresh if needed
         if (window.lucide) window.lucide.createIcons();
     });
 
@@ -24,35 +23,25 @@
     }
 
     // --------------------------------------------------------------------------
-    // Auth Session Sync (الحفاظ على حالة التسجيل عند الـ Refresh)
+    // Auth Session Sync
+    // Uses Auth.ensureSession() which handles token refresh automatically.
+    // If the access_token is expired but refresh_token is valid, it silently
+    // gets a new access_token before deciding the user's login state.
     // --------------------------------------------------------------------------
-    function initAuthCheck() {
-        const token = localStorage.getItem('econovo-token');
-        const userStr = localStorage.getItem('econovo-user');
+    async function initAuthCheck() {
+        const Auth = window.EconovoAuth;
+        if (!Auth) return;
 
-        if (!token || !userStr) return;
+        const isValid = await Auth.ensureSession();
 
-        try {
-            // فحص تاريخ صلاحية التوكن (JWT Expire Check)
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const isExpired = payload.exp * 1000 < Date.now();
+        if (!isValid) return; // not logged in or session dead
 
-            if (isExpired) {
-                localStorage.removeItem('econovo-token');
-                localStorage.removeItem('econovo-user');
-                return;
-            }
-
-            // إذا كان التوكن سارياً: تحديث أزرار التنقل (Desktop & Mobile)
-            const joinBtns = document.querySelectorAll('#nav-join-btn, .mobile-join a, .btn-join');
-            joinBtns.forEach(btn => {
-                btn.textContent = 'Dashboard';
-                btn.setAttribute('href', 'dashboard.html');
-            });
-
-        } catch (e) {
-            console.error('Error parsing auth session:', e);
-        }
+        // Session is valid — update nav buttons
+        const joinBtns = document.querySelectorAll('#nav-join-btn, .mobile-join a, .btn-join');
+        joinBtns.forEach(btn => {
+            btn.textContent = 'Dashboard';
+            btn.setAttribute('href', 'dashboard.html');
+        });
     }
 
     function initNavbarScroll() {
@@ -80,38 +69,35 @@
         update();
     }
 
-    // Hide the floating "Join" bar while the in-page hero or CTA buttons are
-    // already visible, so mobile users never see two competing join buttons.
     function initMobileJoinVisibility() {
-        const bar = document.querySelector('.mobile-join');
+        const bar  = document.querySelector('.mobile-join');
         const hero = document.querySelector('.hero');
-        const cta = document.querySelector('.cta-section');
+        const cta  = document.querySelector('.cta-section');
         if (!bar || !hero) return;
 
         const hide = () => bar.classList.add('is-hidden');
         const show = () => bar.classList.remove('is-hidden');
-
-        hide(); // start hidden until we know we're past the hero
+        hide();
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.target === hero) entry.isIntersecting ? hide() : show();
                 if (cta && entry.target === cta) entry.isIntersecting ? hide() : show();
             });
-        }, { threshold: .2 });
+        }, { threshold: 0.2 });
 
         observer.observe(hero);
         if (cta) observer.observe(cta);
     }
 
     function initMobileMenu() {
-        const openBtn = document.getElementById('navToggle');
+        const openBtn  = document.getElementById('navToggle');
         const closeBtn = document.getElementById('mobileMenuClose');
-        const menu = document.getElementById('mobileMenu');
-        const overlay = document.getElementById('mobileMenuOverlay');
+        const menu     = document.getElementById('mobileMenu');
+        const overlay  = document.getElementById('mobileMenuOverlay');
         if (!openBtn || !menu || !overlay) return;
 
-        const open = () => { menu.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; };
+        const open  = () => { menu.classList.add('open');    overlay.classList.add('open');    document.body.style.overflow = 'hidden'; };
         const close = () => { menu.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; };
 
         openBtn.addEventListener('click', open);
@@ -121,12 +107,11 @@
     }
 
     function initThemeToggle() {
-        const btns = document.querySelectorAll('.js-theme-toggle');
-        const root = document.documentElement;
-        const stored = localStorage.getItem('econovo-theme');
+        const btns        = document.querySelectorAll('.js-theme-toggle');
+        const root        = document.documentElement;
+        const stored      = localStorage.getItem('econovo-theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const initial = stored || (prefersDark ? 'dark' : 'light');
-        applyTheme(initial);
+        applyTheme(stored || (prefersDark ? 'dark' : 'light'));
 
         if (!btns.length) return;
         btns.forEach(btn => btn.addEventListener('click', () => {
