@@ -1,12 +1,10 @@
 /* ==========================================================================
    ECONOVO — style.css
    Academic → Professional. Deep forest editorial with sage precision.
-   Philosophy: whitespace earns meaning, typography commands hierarchy,
-   borders replace shadows, motion serves the brand.
    ========================================================================== */
 
 :root {
-    /* ── Brand palette (Brand Book exact) ── */
+    /* ── Brand palette ── */
     --obsidian:    #0E2A24;
     --obsidian-2:  #163a32;
     --obsidian-3:  #0a1f1a;
@@ -26,8 +24,8 @@
     --bg-muted:    var(--chalk-2);
     --bg-sunken:   var(--chalk-2);
     --text:        var(--obsidian);
-    --text-soft:   rgba(14,42,36,.52);
-    --text-muted:  rgba(14,42,36,.35);
+    --text-soft:   rgba(14,42,36,.68);
+    --text-muted:  rgba(14,42,36,.52); /* تم زيادة الوضوح لسهولة القراءة */
     --line:        rgba(14,42,36,.10);
     --rule:        rgba(14,42,36,.10);
     --accent:      var(--sage);
@@ -55,7 +53,7 @@
     --font:         var(--font-sans);
     --font-current: var(--font-sans);
 
-    /* ── Spacing (8-pt grid) ── */
+    /* ── Spacing ── */
     --s1:  .5rem;
     --s2:  1rem;
     --s3:  1.5rem;
@@ -70,7 +68,7 @@
     --sp-32:var(--s4); --sp-48:var(--s5); --sp-64:var(--s6);
     --sp-96:var(--s7); --sp-128:var(--s8);
 
-    /* ── Motion — brand-tuned easing ── */
+    /* ── Motion ── */
     --ease:         cubic-bezier(.4,0,.2,1);
     --ease-out:     cubic-bezier(0,0,.2,1);
     --ease-in:      cubic-bezier(.4,0,1,1);
@@ -95,15 +93,15 @@
     --bg-muted:  #111111;
     --bg-sunken: #0f0f0f;
     --text:      #E8EFE9;
-    --text-soft: rgba(232,239,233,.55);
-    --text-muted:rgba(232,239,233,.3);
-    --line:      rgba(232,239,233,.09);
-    --rule:      rgba(232,239,233,.09);
+    --text-soft: rgba(232,239,233,.68);
+    --text-muted:rgba(232,239,233,.50); /* زيادة الوضوح */
+    --line:      rgba(232,239,233,.12);
+    --rule:      rgba(232,239,233,.12);
     --brand:     #0d0d0d;
     --brand-dark: #0d0d0d;
-    --obsidian:  #0d0d0d;
-    --obsidian-2:#0d0d0d;
-    --sage-dim:  rgba(143,184,166,.08);
+    --obsidian:  #0E2A24;   /* الاحتفاظ بالقيمة دون تغطيتها بالأسود */
+    --obsidian-2:#163a32;
+    --sage-dim:  rgba(143,184,166,.12);
     --gradient-primary: linear-gradient(155deg, #0c0c0c 0%, #0E2A24 100%);
     --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
     --shadow-md:   0 4px 16px rgba(0,0,0,.35);
@@ -147,59 +145,6 @@ img { max-width: 100%; display: block; }
     font-feature-settings: "tnum" 1;
 }
 
-/* ════════════════════════════════════════════
-   REVEAL SYSTEM — scroll-triggered entrances
-   All transitions are purposeful:
-   - fade + lift: content entering from below
-   - fade only: subtle sections
-   - stagger: grids of cards/items
-   ════════════════════════════════════════════ */
-
-/* Section header reveal — slightly taller lift */
-.section-header.reveal {
-    transform: translateY(24px);
-    transition: opacity .65s var(--ease-out), transform .65s var(--ease-out), clip-path .75s var(--ease-out);
-}
-
-/* Fade only — for elements that shouldn't move */
-.reveal-fade {
-    opacity: 0;
-    transition: opacity .65s var(--ease);
-}
-.reveal-fade.active { opacity: 1; }
-
-.delay-100 { transition-delay: .1s; }
-.delay-200 { transition-delay: .2s; }
-.delay-300 { transition-delay: .3s; }
-.delay-400 { transition-delay: .4s; }
-
-/* will-reveal — used by heroFadeIn and grid stagger */
-.will-reveal {
-    opacity: 0;
-    transform: translateY(14px);
-    transition: opacity .55s var(--ease-out), transform .55s var(--ease-out);
-}
-.will-reveal.revealed {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Stagger items */
-.stagger-item {
-    opacity: 0;
-    transform: translateY(16px);
-}
-.stagger-item.in {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity .5s var(--ease-out), transform .5s var(--ease-out);
-}
-
-/* Safety net */
-body:not(.js-ready) .reveal,
-body:not(.js-ready) .will-reveal { animation: forceReveal 0s 2s forwards; }
-@keyframes forceReveal { to { opacity: 1; transform: none; } }
-
 /* ── Focus ── */
 a:focus-visible, button:focus-visible,
 input:focus-visible, select:focus-visible, textarea:focus-visible {
@@ -208,26 +153,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     border-radius: 3px;
 }
 
-/* ── Cursor glow (hero) ── */
-.hero-cursor-glow {
-    position: absolute;
-    width: 400px; height: 400px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(143,184,166,.16) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0;
-    will-change: transform;
-    transition: opacity .4s ease;
-}
-
-/* ── Trust bar keyframe ── */
-@keyframes trustScroll {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-}
-
-/* ── Clip-path reveal base ── */
+/* ── Reveal & Utilities ── */
 .reveal {
     opacity: 0;
     transform: translateY(18px);
@@ -240,20 +166,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     clip-path: inset(0 0 0% 0);
 }
 
-/* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: .001ms !important;
         transition-duration: .001ms !important;
         scroll-behavior: auto !important;
     }
-    .stagger-item, .reveal, .will-reveal, .reveal-fade { opacity: 1 !important; transform: none !important; clip-path: none !important; }
-    .hero-cursor-glow { display: none; }
 }
-
-/* ── Utilities ── */
-.mb-8  { margin-bottom: var(--s1); }
-.mb-16 { margin-bottom: var(--s2); }
-.mb-24 { margin-bottom: var(--s3); }
-.mb-32 { margin-bottom: var(--s4); }
-.btn:active { transform: scale(.97); }
