@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ECONOVO — animations.js  v3.4.1 (Merged Hybrid Performance & Safety)
+   ECONOVO — animations.js  v3.4.2 (Fixed Reveal + Safe Fallbacks)
    Design language: editorial precision meets kinetic energy.
    Brand book: Obsidian #0E2A24 · Silver Sage #8FB8A6 · Chalk #F4F7F2
    ========================================================================== */
@@ -23,6 +23,38 @@
     const gridObservers = new WeakMap();
     let trustBarBound = false;
 
+    /* ── Helpers ── */
+    function forceVisible(el) {
+        if (!el) return;
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        el.style.clipPath = 'none';
+        el.style.visibility = 'visible';
+    }
+
+    function animateIn(el, from = { opacity: 0, y: 20 }, to = { opacity: 1, y: 0, duration: 0.6, ease: EASE_S }) {
+        if (!el) return;
+
+        el.classList.add('active');
+
+        if (window.gsap && !REDUCED) {
+            gsap.fromTo(el, from, to);
+        } else {
+            forceVisible(el);
+        }
+    }
+
+    function observeOrShow(observer, el, onShow) {
+        if (!el) return;
+
+        if (!observer) {
+            onShow(el);
+            return;
+        }
+
+        observer.observe(el);
+    }
+
     /* ── Init ── */
     document.addEventListener('DOMContentLoaded', () => {
         if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
@@ -31,7 +63,10 @@
         heroEntrance();
         idleFloat();
         heroParallax();
+
         initSingleReveal();
+        GRID_SELECTORS.forEach(sel => revealGrid(sel));
+
         initMagneticCards();
         initTimelineDrawIn();
         initTrustBar();
@@ -40,8 +75,8 @@
     });
 
     document.addEventListener('econovo:rendered', () => {
-        GRID_SELECTORS.forEach(sel => revealGrid(sel));
         initSingleReveal();
+        GRID_SELECTORS.forEach(sel => revealGrid(sel));
         initTimelineDrawIn();
         initTrustBar();
     });
@@ -90,7 +125,7 @@
     }
 
     /* ══════════════════════════════════════════════
-       2. HERO ENTRANCE — Immediate GSAP Timeline
+       2. HERO ENTRANCE
     ══════════════════════════════════════════════ */
     function heroEntrance() {
         const rule    = document.querySelector('.hero-rule');
@@ -104,13 +139,7 @@
         if (rule) setTimeout(() => rule.classList.add('revealed'), 50);
 
         if (REDUCED) {
-            [eyebrow, h1, desc, tags, actions, visual].forEach(el => {
-                if (el) {
-                    el.style.opacity = '1';
-                    el.style.transform = 'none';
-                    el.style.clipPath = 'none';
-                }
-            });
+            [eyebrow, h1, desc, tags, actions, visual].forEach(forceVisible);
             if (h1) h1.closest('.hero-content')?.classList.add('animate-done');
             return;
         }
@@ -166,13 +195,7 @@
                 );
             }
         } else {
-            [eyebrow, h1, desc, tags, actions, visual].forEach(el => {
-                if (el) {
-                    el.style.opacity = '1';
-                    el.style.transform = 'none';
-                    el.style.clipPath = 'none';
-                }
-            });
+            [eyebrow, h1, desc, tags, actions, visual].forEach(forceVisible);
             if (h1) h1.closest('.hero-content')?.classList.add('animate-done');
         }
     }
@@ -204,7 +227,7 @@
     }
 
     /* ══════════════════════════════════════════════
-       3. IDLE FLOAT — hero visual badges
+       3. IDLE FLOAT
     ══════════════════════════════════════════════ */
     function idleFloat() {
         if (!window.gsap || REDUCED) return;
@@ -243,9 +266,19 @@
     }
 
     /* ══════════════════════════════════════════════
-       5. SINGLE REVEAL — Safe Viewport Trigger
+       5. SINGLE REVEAL
     ══════════════════════════════════════════════ */
     function initSingleReveal() {
+        const targets = Array.from(document.querySelectorAll('.reveal:not(.active)'));
+        if (!targets.length) return;
+
+        const supportsIO = 'IntersectionObserver' in window;
+
+        if (!supportsIO) {
+            targets.forEach(el => animateSingle(el));
+            return;
+        }
+
         if (!singleObserver) {
             singleObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -259,7 +292,7 @@
             });
         }
 
-        document.querySelectorAll('.reveal:not(.active)').forEach(el => singleObserver.observe(el));
+        targets.forEach(el => singleObserver.observe(el));
     }
 
     function animateSingle(el) {
@@ -271,14 +304,12 @@
                 { opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)', duration: 0.65, ease: EASE_S }
             );
         } else {
-            el.style.opacity = '1';
-            el.style.transform = 'none';
-            el.style.clipPath = 'none';
+            forceVisible(el);
         }
     }
 
     /* ══════════════════════════════════════════════
-       6. BATCHED GRID STAGGER — Pre-load Margin
+       6. GRID REVEAL
     ══════════════════════════════════════════════ */
     function revealGrid(selector) {
         const container = document.querySelector(selector);
@@ -288,6 +319,14 @@
         if (previous) previous.disconnect();
 
         const children = Array.from(container.children);
+        const supportsIO = 'IntersectionObserver' in window;
+
+        if (!supportsIO) {
+            cascade(children);
+            if (selector === '#statsRow') animateCounters();
+            if (selector === '#timeline') drawTimeline();
+            return;
+        }
 
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -311,11 +350,7 @@
 
     function cascade(children) {
         if (REDUCED) {
-            children.forEach(c => {
-                c.style.opacity = '1';
-                c.style.transform = 'none';
-                c.style.clipPath = 'none';
-            });
+            children.forEach(forceVisible);
             return;
         }
 
@@ -325,11 +360,7 @@
                 { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: EASE_S }
             );
         } else {
-            children.forEach(c => {
-                c.style.opacity = '1';
-                c.style.transform = 'none';
-                c.style.clipPath = 'none';
-            });
+            children.forEach(forceVisible);
         }
     }
 
@@ -365,7 +396,7 @@
     }
 
     /* ══════════════════════════════════════════════
-       8. TIMELINE DRAW-IN LINE
+       8. TIMELINE DRAW-IN
     ══════════════════════════════════════════════ */
     function initTimelineDrawIn() {}
 
@@ -429,7 +460,7 @@
     }
 
     /* ══════════════════════════════════════════════
-       10. TRUST BAR — smooth infinite scroll
+       10. TRUST BAR
     ══════════════════════════════════════════════ */
     function initTrustBar() {
         const track = document.getElementById('trustTrack');
