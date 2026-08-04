@@ -246,11 +246,7 @@ img { display: block; max-width: 100%; }
   border: 1px solid var(--line); transition: var(--fast); cursor: pointer;
 }
 .group-pill:hover { border-color: var(--sage); background: var(--sage-dim); }
-.group-pill-icon {
-  width: 32px; height: 32px; border-radius: var(--r-md);
-  background: var(--sage-dim); display: flex; align-items: center;
-  justify-content: center; font-size: 1rem; flex-shrink: 0;
-}
+.group-pill-icon { flex-shrink: 0; }
 .group-pill-name { font-size: .82rem; font-weight: 700; color: var(--text); }
 .group-pill-count { font-size: .7rem; color: var(--text-muted); }
 
@@ -549,9 +545,14 @@ img { display: block; max-width: 100%; }
 }
 .group-card:hover { border-color: var(--sage); box-shadow: var(--shadow-sm); }
 .group-card-icon {
-  width: 40px; height: 40px; border-radius: var(--r-md);
-  background: var(--sage-dim); display: flex; align-items: center;
-  justify-content: center; font-size: 1.3rem; margin-bottom: 10px;
+  margin-bottom: 10px;
+}
+/* صندوق الأيقونة العام: لون الخلفية ولون الأيقونة يُحدَّدان inline حسب
+   فئة الأيقونة (انظر js/icons.js) — لا تُثبَّت الألوان هنا كي تبقى
+   الفئات متمايزة بصريًا. */
+.group-icon-box {
+  border-radius: var(--r-md); display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0;
 }
 .group-card-name { font-size: .9rem; font-weight: 700; margin-bottom: 3px; }
 .group-card-desc { font-size: .78rem; color: var(--text-soft); line-height: 1.45; margin-bottom: 10px; }
@@ -584,11 +585,7 @@ img { display: block; max-width: 100%; }
   border-radius: var(--r-card); padding: 20px; margin-bottom: 18px;
   display: flex; align-items: center; gap: 14px;
 }
-.group-view-icon {
-  width: 52px; height: 52px; border-radius: var(--r-md);
-  background: var(--sage-dim); display: flex; align-items: center;
-  justify-content: center; font-size: 1.6rem; flex-shrink: 0;
-}
+.group-view-icon { flex-shrink: 0; }
 .group-view-name { font-size: 1.2rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 3px; }
 .group-view-desc { font-size: .82rem; color: var(--text-soft); }
 .group-view-meta { font-size: .72rem; color: var(--text-muted); font-family: var(--mono); margin-top: 4px; }
@@ -603,8 +600,9 @@ img { display: block; max-width: 100%; }
 .modal-box {
   background: var(--card); border: 1px solid var(--line);
   border-radius: var(--r-card); padding: 28px; width: 100%;
-  max-width: 440px; box-shadow: var(--shadow-md);
+  max-width: 480px; box-shadow: var(--shadow-md);
   transform: translateY(12px); transition: transform .2s;
+  max-height: 88vh; overflow-y: auto;
 }
 .modal-overlay.open .modal-box { transform: translateY(0); }
 .modal-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -.02em; }
@@ -623,14 +621,28 @@ img { display: block; max-width: 100%; }
 }
 .modal-input:focus, .modal-textarea:focus { border-color: var(--sage); background: var(--card); }
 .modal-textarea { resize: vertical; min-height: 80px; }
-.modal-emoji-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
-.modal-emoji-pick {
-  width: 36px; height: 36px; border-radius: var(--r-md); border: 1.5px solid var(--line);
-  background: transparent; font-size: 1.1rem; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: border-color var(--fast), background var(--fast);
+/* ── Icon picker (يستبدل منتقي الإيموجي القديم) ──
+   شبكة أيقونات Lucide مصنّفة، كل فئة بلون خلفية/حدّ مأخوذ من
+   js/icons.js عبر متغيّرات CSS مضبوطة inline على كل زر. */
+.modal-icon-categories {
+  display: flex; flex-direction: column; gap: 12px; margin-top: 6px;
+  max-height: 260px; overflow-y: auto; padding-right: 2px;
 }
-.modal-emoji-pick.selected { border-color: var(--sage); background: var(--sage-dim); }
+.modal-icon-cat-label {
+  font-family: var(--mono); font-size: .6rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;
+  /* color set inline per category */
+}
+.modal-icon-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.modal-icon-pick {
+  width: 40px; height: 40px; border-radius: var(--r-md); border: 1.5px solid transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: border-color var(--fast), transform var(--fast);
+  /* background + color set inline per icon's category */
+}
+.modal-icon-pick:hover { transform: scale(1.08); }
+.modal-icon-pick.selected { border-color: currentColor; box-shadow: 0 0 0 2px var(--card), 0 0 0 4px currentColor; }
+.modal-icon-pick svg { width: 20px; height: 20px; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
 .btn-cancel {
   padding: 9px 18px; border: 1px solid var(--line); border-radius: var(--r-md);
@@ -791,6 +803,7 @@ img { display: block; max-width: 100%; }
 }
 </style>
 <link rel="stylesheet" href="../css/posts.css">
+<script src="../js/icons.js" defer></script>
 <script src="../js/posts.js" defer></script>
 </head>
 <body>
@@ -1122,7 +1135,7 @@ img { display: block; max-width: 100%; }
     <div class="modal-sub">Start a community around any topic that interests you.</div>
     <div class="modal-field">
       <label class="modal-label">Group Icon</label>
-      <div class="modal-emoji-row" id="group-emoji-row"></div>
+      <div class="modal-icon-categories" id="group-icon-categories"></div>
     </div>
     <div class="modal-field">
       <label class="modal-label" for="grp-name">Name *</label>
@@ -1189,13 +1202,10 @@ const ANNOUNCEMENTS = [
   { date:'Aug 1, 2026', title:'Welcome to the new Econovo portal!', body:'The community-first portal is live. Post, connect, create groups, and stay updated — all in one place.' },
   { date:'Jul 28, 2026', title:'Case Competition Registration Opens Aug 3', body:'The annual Econovo Business Case Competition is back. Teams of 2–4 students from any major are welcome. Registration opens August 3rd.' },
 ];
-const DEFAULT_GROUPS = [
-  { id:'g-fintech',  icon:'💳', name:'FinTech & Payments', desc:'Digital banking, crypto, and financial innovation.',   members: 24 },
-  { id:'g-startups', icon:'🚀', name:'Startups & Founders', desc:'Building, fundraising, and early-stage ideas.',         members: 18 },
-  { id:'g-ai',       icon:'🤖', name:'AI & Data Science',   desc:'ML, data analysis, and applied AI projects.',           members: 31 },
-  { id:'g-research', icon:'📊', name:'Economics Research',  desc:'Academic papers, debates, and economic analysis.',      members: 15 },
-];
-const GROUP_EMOJIS = ['💳','🚀','🤖','📊','🎨','📚','🌍','⚡','🔬','💡','🎯','🏆'];
+/* المجموعات لم تعد ثابتة في الذاكرة — تُحمَّل من Supabase (جدولا
+   groups + group_members، انظر groups_migration.sql) وتُخزَّن هنا
+   بعد كل تحميل فقط كـ cache محلي للعرض السريع بين التبويبات. */
+let GROUPS_CACHE = [];
 
 /* ═══ HELPERS ═══ */
 function toast(msg, type = 'ok') {
@@ -1302,9 +1312,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   /* Render static content */
   renderAnnouncements();
   renderEvents();
-  renderGroups();
   renderWidgetEvents();
-  renderWidgetGroups();
+  /* المجموعات تُحمَّل من Supabase الآن (كانت مصفوفة ثابتة) — تُحمَّل
+     مرة واحدة هنا ثم renderWidgetGroups تُعاد من GROUPS_CACHE مباشرة. */
+  loadGroups().then(() => { renderGroups(); renderWidgetGroups(); });
 
   /* Init posts feed — posts.js loaded via defer, guaranteed ready here */
   if (typeof window.initPostsFeed === 'function') {
@@ -1407,23 +1418,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch(_) { toast('Upload failed.', 'err'); }
   });
 
-  /* ══ GROUPS ══ */
+  /* ══ GROUPS ══
+     كل شيء هنا يقرأ/يكتب من Supabase (جدولا groups + group_members)
+     بدل مصفوفة DEFAULT_GROUPS الثابتة القديمة — هذا ما يجعل عداد
+     الأعضاء حقيقيًا: هو COUNT(*) فعلي على group_members، لا رقم مكتوب. */
   const groupModal = document.getElementById('modal-create-group');
-  let selectedGroupEmoji = GROUP_EMOJIS[0];
+  const Icons = window.EconovoIcons;
+  if (!Icons) {
+    // فشل تحميل js/icons.js (شبكة/مسار خاطئ) — لا نكسر باقي الصفحة،
+    // فقط نعطّل قسم المجموعات بدل توقف كل السكريبت بعد هذه النقطة.
+    console.error('EconovoIcons not loaded — group icons unavailable.');
+    document.getElementById('groups-grid').innerHTML =
+      '<div class="feed-empty">Could not load group icons. Please refresh.</div>';
+  }
+  let selectedIconKey = Icons ? Object.keys(Icons.ICON_LIBRARY)[0] : null;
 
-  // Populate emoji picker in modal
-  const emojiRow = document.getElementById('group-emoji-row');
-  GROUP_EMOJIS.forEach(em => {
-    const btn = document.createElement('button');
-    btn.className = 'modal-emoji-pick' + (em === selectedGroupEmoji ? ' selected' : '');
-    btn.textContent = em; btn.type = 'button';
-    btn.addEventListener('click', () => {
-      selectedGroupEmoji = em;
-      document.querySelectorAll('.modal-emoji-pick').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
+  /* يبني شبكة الأيقونات داخل المودال، مجمّعة حسب الفئة، كل فئة بلون واحد. */
+  function buildIconPicker() {
+    if (!Icons) return;
+    const wrap = document.getElementById('group-icon-categories');
+    wrap.innerHTML = '';
+    Object.entries(Icons.ICON_CATEGORIES).forEach(([catKey, cat]) => {
+      const section = document.createElement('div');
+      const label = document.createElement('div');
+      label.className = 'modal-icon-cat-label';
+      label.style.color = cat.color;
+      label.textContent = cat.label;
+      const row = document.createElement('div');
+      row.className = 'modal-icon-row';
+
+      Object.entries(Icons.ICON_LIBRARY)
+        .filter(([, meta]) => meta.category === catKey)
+        .forEach(([iconKey, meta]) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'modal-icon-pick' + (iconKey === selectedIconKey ? ' selected' : '');
+          btn.style.background = cat.color + '1f';
+          btn.style.color = cat.color;
+          btn.dataset.iconKey = iconKey;
+          btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${meta.paths}</svg>`;
+          btn.addEventListener('click', () => {
+            selectedIconKey = iconKey;
+            wrap.querySelectorAll('.modal-icon-pick').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+          });
+          row.appendChild(btn);
+        });
+
+      section.append(label, row);
+      wrap.appendChild(section);
     });
-    emojiRow.appendChild(btn);
-  });
+  }
+  buildIconPicker();
 
   document.getElementById('open-create-group').addEventListener('click', () => {
     groupModal.classList.add('open');
@@ -1432,17 +1478,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('cancel-create-group').addEventListener('click', () => groupModal.classList.remove('open'));
   groupModal.addEventListener('click', e => { if (e.target === groupModal) groupModal.classList.remove('open'); });
 
-  document.getElementById('confirm-create-group').addEventListener('click', () => {
+  document.getElementById('confirm-create-group').addEventListener('click', async () => {
     const name = document.getElementById('grp-name').value.trim();
     const desc = document.getElementById('grp-desc').value.trim();
     if (!name) { document.getElementById('grp-name').focus(); return; }
-    const newGroup = { id: 'g-' + Date.now(), icon: selectedGroupEmoji, name, desc, members: 1, joined: true };
-    DEFAULT_GROUPS.unshift(newGroup);
-    renderGroups(); renderWidgetGroups();
-    groupModal.classList.remove('open');
-    document.getElementById('grp-name').value = '';
-    document.getElementById('grp-desc').value = '';
-    toast('Group created! 🎉');
+    const btn = document.getElementById('confirm-create-group');
+    btn.disabled = true;
+    try {
+      const [newGroup] = await sbPost('groups', {
+        name, description: desc, icon_key: selectedIconKey, created_by: USER_ID,
+      });
+      // المنشئ يُسجَّل تلقائيًا كأول عضو حقيقي في المجموعة
+      await sbPost('group_members', { group_id: newGroup.id, user_id: USER_ID });
+
+      groupModal.classList.remove('open');
+      document.getElementById('grp-name').value = '';
+      document.getElementById('grp-desc').value = '';
+      toast('Group created! 🎉');
+
+      await loadGroups();
+      renderGroups(); renderWidgetGroups();
+    } catch (e) {
+      toast('Could not create group.', 'err');
+    } finally {
+      btn.disabled = false;
+    }
   });
 
   /* ══ RENDER STATIC CONTENT ══ */
@@ -1471,12 +1531,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     `).join('');
   }
 
+  /* يحمّل كل المجموعات + عدد أعضاء حقيقي لكل واحدة + هل المستخدم
+     الحالي عضو فيها. يُخزَّن الناتج في GROUPS_CACHE ليُعاد استخدامه
+     من renderGroups/renderWidgetGroups بدون طلب جديد كل مرة. */
+  async function loadGroups() {
+    try {
+      const [groups, memberships] = await Promise.all([
+        sbGet('groups?select=id,name,description,icon_key,created_at&order=created_at.asc'),
+        sbGet('group_members?select=group_id,user_id'),
+      ]);
+
+      const countByGroup = {};
+      const myGroupIds = new Set();
+      memberships.forEach(m => {
+        countByGroup[m.group_id] = (countByGroup[m.group_id] || 0) + 1;
+        if (m.user_id === USER_ID) myGroupIds.add(m.group_id);
+      });
+
+      GROUPS_CACHE = groups.map(g => ({
+        id: g.id,
+        name: g.name,
+        desc: g.description,
+        iconKey: g.icon_key,
+        members: countByGroup[g.id] || 0,
+        joined: myGroupIds.has(g.id),
+      }));
+    } catch (e) {
+      console.error('loadGroups:', e);
+      toast('Could not load groups.', 'err');
+    }
+  }
+
   function renderGroups() {
     const grid = document.getElementById('groups-grid');
-    if (!grid) return;
-    grid.innerHTML = DEFAULT_GROUPS.map(g => `
+    if (!grid || !Icons) return;
+
+    if (!GROUPS_CACHE.length) {
+      grid.innerHTML = '<div class="feed-empty">No groups yet. Create the first one!</div>';
+      return;
+    }
+
+    grid.innerHTML = GROUPS_CACHE.map(g => `
       <div class="group-card" data-gid="${g.id}">
-        <div class="group-card-icon">${g.icon}</div>
+        <div class="group-card-icon">${Icons.renderGroupIcon(g.iconKey, 40, 20)}</div>
         <div class="group-card-name">${escH(g.name)}</div>
         <div class="group-card-desc">${escH(g.desc)}</div>
         <div class="group-card-meta">
@@ -1492,30 +1589,46 @@ document.addEventListener('DOMContentLoaded', async () => {
       card.addEventListener('click', e => {
         if (e.target.closest('.btn-join-group')) return;
         const gid = card.dataset.gid;
-        const g = DEFAULT_GROUPS.find(x => x.id === gid);
+        const g = GROUPS_CACHE.find(x => x.id === gid);
         if (g) openGroupFeed(g);
       });
     });
 
     grid.querySelectorAll('.btn-join-group').forEach(btn => {
-      btn.addEventListener('click', e => {
+      btn.addEventListener('click', async e => {
         e.stopPropagation();
         const gid = btn.dataset.gid;
-        const g = DEFAULT_GROUPS.find(x => x.id === gid);
+        const g = GROUPS_CACHE.find(x => x.id === gid);
         if (!g) return;
-        g.joined = !g.joined;
-        g.members += g.joined ? 1 : -1;
-        renderGroups(); renderWidgetGroups();
-        toast(g.joined ? `Joined "${g.name}"!` : `Left "${g.name}".`);
+        btn.disabled = true;
+
+        try {
+          if (g.joined) {
+            await sbDel(`group_members?group_id=eq.${gid}&user_id=eq.${USER_ID}`);
+            g.joined = false;
+            g.members = Math.max(0, g.members - 1);
+          } else {
+            await sbPost('group_members', { group_id: gid, user_id: USER_ID });
+            g.joined = true;
+            g.members += 1;
+          }
+          renderGroups(); renderWidgetGroups();
+          toast(g.joined ? `Joined "${g.name}"!` : `Left "${g.name}".`);
+        } catch (err) {
+          toast('Could not update membership.', 'err');
+        } finally {
+          btn.disabled = false;
+        }
       });
     });
   }
 
   function openGroupFeed(group) {
+    if (!Icons) return;
     // Build group feed view
     const hdr = document.getElementById('group-feed-hdr');
     hdr.innerHTML = `
-      <div class="group-view-icon">${group.icon}</div>
+      <div class="group-view-icon">${Icons.renderGroupIcon(group.iconKey, 52, 26)}</div>
       <div>
         <div class="group-view-name">${escH(group.name)}</div>
         <div class="group-view-desc">${escH(group.desc)}</div>
@@ -1583,24 +1696,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function renderWidgetGroups() {
     const el = document.getElementById('widget-groups');
-    if (!el) return;
-    const joined = DEFAULT_GROUPS.filter(g => g.joined).slice(0, 4);
+    if (!el || !Icons) return;
+    const joined = GROUPS_CACHE.filter(g => g.joined).slice(0, 4);
     if (!joined.length) {
       el.innerHTML = '<p style="font-size:.78rem;color:var(--text-muted);">You haven\'t joined any groups yet.</p>';
       return;
     }
     el.innerHTML = joined.map(g => `
       <div class="group-pill" data-gid="${g.id}">
-        <div class="group-pill-icon">${g.icon}</div>
+        <div class="group-pill-icon">${Icons.renderGroupIcon(g.iconKey, 32, 16)}</div>
         <div>
           <div class="group-pill-name">${escH(g.name)}</div>
-          <div class="group-pill-count">${g.members} members</div>
+          <div class="group-pill-count">${g.members} member${g.members !== 1 ? 's' : ''}</div>
         </div>
       </div>
     `).join('');
     el.querySelectorAll('.group-pill').forEach(p => {
       p.addEventListener('click', () => {
-        const g = DEFAULT_GROUPS.find(x => x.id === p.dataset.gid);
+        const g = GROUPS_CACHE.find(x => x.id === p.dataset.gid);
         if (g) openGroupFeed(g);
       });
     });

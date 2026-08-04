@@ -849,4 +849,273 @@ document.getElementById('submit-btn').addEventListener('click', async () => {
 })();
 </script>
 </body>
+</html>erflow = 'hidden'; };
+            const close = () => { menu.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; };
+            openBtn.addEventListener('click', open);
+            closeBtn.addEventListener('click', close);
+            overlay.addEventListener('click', close);
+
+            // --- Multi-step form ---
+            let currentStep = 1;
+            const totalSteps = 3;
+
+            function showStep(n) {
+                document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+                const el = document.getElementById('step-' + n);
+                if (el) el.classList.add('active');
+                updateProgress(n);
+                currentStep = n;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function updateProgress(n) {
+                for (let i = 1; i <= totalSteps; i++) {
+                    const dot = document.getElementById('step-dot-' + i);
+                    dot.classList.remove('active', 'done');
+                    if (i < n) dot.classList.add('done');
+                    else if (i === n) dot.classList.add('active');
+                }
+                for (let i = 1; i < totalSteps; i++) {
+                    const line = document.getElementById('line-' + i + '-' + (i + 1));
+                    if (line) line.classList.toggle('done', i < n);
+                }
+            }
+
+            function showError(inputId, errId, show) {
+                const input = document.getElementById(inputId);
+                const err = document.getElementById(errId);
+                if (input) input.classList.toggle('error', show);
+                if (err) err.classList.toggle('visible', show);
+                return !show;
+            }
+
+            function validateStep1() {
+                const fn = document.getElementById('firstName').value.trim();
+                const ln = document.getElementById('lastName').value.trim();
+                const em = document.getElementById('email').value.trim();
+                const pw = document.getElementById('join-password').value;
+                const confirm = document.getElementById('join-confirm').value;
+                const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                let ok = true;
+                ok = showError('firstName', 'err-firstName', !fn) && ok;
+                ok = showError('lastName', 'err-lastName', !ln) && ok;
+                ok = showError('email', 'err-email', !emailRe.test(em)) && ok;
+                ok = showError('join-password', 'err-join-password', pw.length < 8) && ok;
+                ok = showError('join-confirm', 'err-join-confirm', pw !== confirm) && ok;
+                return ok;
+            }
+
+            // Toggle password visibility in join form
+            const joinPwBtn = document.getElementById('toggle-join-pw');
+            const joinPwInput = document.getElementById('join-password');
+            if (joinPwBtn && joinPwInput) {
+                joinPwBtn.addEventListener('click', () => {
+                    const show = joinPwInput.type === 'password';
+                    joinPwInput.type = show ? 'text' : 'password';
+                    const icon = document.getElementById('join-eye-icon');
+                    if (icon) {
+                        icon.innerHTML = show
+                            ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+                            : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+                    }
+                });
+            }
+
+            function validateStep2() {
+                const major = document.getElementById('major').value;
+                const year = document.getElementById('year').value;
+                let ok = true;
+                ok = showError('major', 'err-major', !major) && ok;
+                ok = showError('year', 'err-year', !year) && ok;
+                return ok;
+            }
+
+            function validateStep3() {
+                const mot = document.getElementById('motivation').value.trim();
+                return showError('motivation', 'err-motivation', mot.length < 30);
+            }
+
+            document.getElementById('next-1').addEventListener('click', () => {
+                if (validateStep1()) showStep(2);
+            });
+            document.getElementById('next-2').addEventListener('click', () => {
+                if (validateStep2()) showStep(3);
+            });
+            document.getElementById('back-2').addEventListener('click', () => showStep(1));
+            document.getElementById('back-3').addEventListener('click', () => showStep(2));
+
+            // Char counter
+            const motEl = document.getElementById('motivation');
+            const counter = document.getElementById('charCount');
+            motEl.addEventListener('input', () => { counter.textContent = motEl.value.length; });
+
+            // Submit
+            document.getElementById('submitBtn').addEventListener('click', async () => {
+                if (!validateStep3()) return;
+
+                const btn = document.getElementById('submitBtn');
+                btn.classList.add('loading');
+                btn.disabled = true;
+
+                // Real Supabase signup
+                const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
+                const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
+
+                const fname = document.getElementById('firstName').value.trim();
+                const lname = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('join-password').value;
+                const phone = document.getElementById('phone').value.trim();
+                const instagram = document.getElementById('instagram').value.trim();
+                const major = document.getElementById('major').value;
+                const year = document.getElementById('year').value;
+                const motivation = document.getElementById('motivation').value.trim();
+                const referral = document.getElementById('referral').value;
+                const interests = Array.from(document.querySelectorAll('input[type="checkbox"][value]'))
+                    .filter(cb => cb.checked).map(cb => cb.value);
+
+                try {
+                    const res = await fetch(SUPABASE_URL + '/auth/v1/signup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': 'Bearer ' + SUPABASE_KEY,
+                        },
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            data: {
+                                first_name: fname,
+                                last_name: lname,
+                                full_name: fname + ' ' + lname,
+                                phone,
+                                instagram,
+                                major,
+                                year,
+                                motivation,
+                                referral,
+                                interests,
+                                applied_at: new Date().toISOString(),
+                            }
+                        }),
+                    });
+
+                    const data = await res.json();
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+
+                    if (!res.ok) {
+                        const msg = (data.error_description || data.msg || data.message || '').toLowerCase();
+                        let friendlyMsg = 'Something went wrong. Please try again.';
+                        if (msg.includes('already registered') || msg.includes('user already')) {
+                            friendlyMsg = 'An account with this email already exists. Please sign in instead.';
+                        } else if (msg.includes('password')) {
+                            friendlyMsg = 'Password is too weak. Use at least 8 characters with letters and numbers.';
+                        }
+                        // Show error above submit
+                        let alertEl = document.getElementById('join-submit-alert');
+                        if (!alertEl) {
+                            alertEl = document.createElement('p');
+                            alertEl.id = 'join-submit-alert';
+                            alertEl.style.cssText = 'color:#c94444;font-weight:600;margin-bottom:12px;font-size:.9rem;';
+                            btn.parentNode.insertBefore(alertEl, btn);
+                        }
+                        alertEl.textContent = '⚠ ' + friendlyMsg;
+                        return;
+                    }
+
+                    // Save session if auto-confirmed
+                    if (data.access_token) {
+                        localStorage.setItem('econovo-token', data.access_token);
+                        if (data.user) localStorage.setItem('econovo-user', JSON.stringify(data.user));
+                    }
+
+                    // ── Insert application record into public.applications ──
+                    // We do this regardless of email-confirmation status so the
+                    // board can review applications even before the user confirms.
+                    const userId = data.user && data.user.id ? data.user.id : null;
+                    const availArr = Array.from(document.querySelectorAll('input[name="avail"]:checked'))
+                        .map(cb => cb.value);
+
+                    try {
+                        const appRes = await fetch(SUPABASE_URL + '/rest/v1/applications', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': SUPABASE_KEY,
+                                'Authorization': 'Bearer ' + (data.access_token || SUPABASE_KEY),
+                                'Prefer': 'return=minimal',
+                            },
+                            body: JSON.stringify({
+                                user_id:       userId,
+                                full_name:     fname + ' ' + lname,
+                                email:         email,
+                                faculty:       major,        // maps to "faculty" column
+                                department:    major,        // or a separate dept field
+                                academic_year: year,
+                                why_join:      motivation,
+                                skills:        interests.join(', '),
+                                availability:  availArr.join(', '),
+                                referral:      referral,
+                                phone:         phone,
+                                instagram:     instagram,
+                                status:        'pending',
+                                applied_at:    new Date().toISOString(),
+                            }),
+                        });
+                        if (!appRes.ok) {
+                            console.warn('Application record insert failed:', await appRes.text());
+                            // Non-fatal — account was still created
+                        }
+                    } catch (appErr) {
+                        console.warn('Application insert error (non-fatal):', appErr);
+                    }
+
+                    // Show success
+                    document.querySelectorAll('.form-step').forEach(s => s.style.display = 'none');
+                    document.getElementById('formProgress').style.display = 'none';
+                    document.querySelector('.form-heading').style.display = 'none';
+                    document.querySelector('.form-subheading').style.display = 'none';
+                    document.getElementById('formSuccess').classList.add('visible');
+
+                } catch (err) {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                    let alertEl = document.getElementById('join-submit-alert');
+                    if (!alertEl) {
+                        alertEl = document.createElement('p');
+                        alertEl.id = 'join-submit-alert';
+                        alertEl.style.cssText = 'color:#c94444;font-weight:600;margin-bottom:12px;font-size:.9rem;';
+                        btn.parentNode.insertBefore(alertEl, btn);
+                    }
+                    alertEl.textContent = '⚠ Network error. Please check your connection and try again.';
+                }
+            });
+
+            // Clear errors on input
+            document.querySelectorAll('.field-input, .field-select, .field-textarea').forEach(el => {
+                el.addEventListener('input', () => {
+                    el.classList.remove('error');
+                    const errId = 'err-' + el.id;
+                    const err = document.getElementById(errId);
+                    if (err) err.classList.remove('visible');
+                });
+            });
+        });
+    })();
+    </script>
+    <script>
+    // If already a member, redirect to dashboard
+    (function() {
+        if (localStorage.getItem('econovo-token') && localStorage.getItem('econovo-user')) {
+            // Show a message instead of a blank redirect
+            document.body.insertAdjacentHTML('afterbegin',
+                '<div style="position:fixed;top:80px;left:0;right:0;z-index:9999;background:var(--sage-dim,rgba(143,184,166,.15));border-bottom:1px solid rgba(143,184,166,.3);padding:14px 24px;text-align:center;font-weight:600;font-size:.9rem;">' +
+                'You\'re already a member! <a href="dashboard.html" style="color:var(--obsidian,#0E2A24);text-decoration:underline;font-weight:700;">Go to your Dashboard →</a></div>'
+            );
+        }
+    })();
+    </script>
+</body>
 </html>
