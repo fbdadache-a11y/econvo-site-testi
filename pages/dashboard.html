@@ -12,7 +12,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="../css/components.css">
-<link rel="stylesheet" href="../css/posts.css">
 <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
 <style>
 /* ── Portal design system extensions ── */
@@ -791,6 +790,8 @@ img { display: block; max-width: 100%; }
   .form-grid .span-2 { grid-column: 1; }
 }
 </style>
+<link rel="stylesheet" href="../css/posts.css">
+<script src="../js/posts.js" defer></script>
 </head>
 <body>
 
@@ -923,7 +924,7 @@ img { display: block; max-width: 100%; }
       <!-- HOME -->
       <div class="portal-view active" id="view-home">
         <!-- Composer -->
-        <form class="composer-card" id="create-post-form">
+        <div class="composer-card" id="main-composer">
           <div class="composer-top">
             <div class="composer-av" id="composer-av"></div>
             <textarea class="composer-input" id="post-content" placeholder="Share something with the community…" rows="2" maxlength="1000"></textarea>
@@ -938,13 +939,13 @@ img { display: block; max-width: 100%; }
                 Images
                 <input type="file" id="post-image" accept="image/*" multiple style="display:none;">
               </label>
-              <button class="btn-publish" id="post-submit-btn" type="submit">
+              <button class="btn-publish" id="post-submit-btn" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 Publish
               </button>
             </div>
           </div>
-        </form>
+        </div>
 
         <!-- Feed container -->
         <div id="posts-feed"></div>
@@ -1141,7 +1142,6 @@ img { display: block; max-width: 100%; }
 <!-- ── TOAST ── -->
 <div id="eco-toast"></div>
 
-<script src="../js/posts.js"></script>
 <script>
 (function () {
 'use strict';
@@ -1150,27 +1150,26 @@ img { display: block; max-width: 100%; }
 const SB_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const SB_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 
-/* ═══ AUTH GUARD ═══ */
-const TOKEN = localStorage.getItem('econovo-token');
+/* ═══ AUTH GUARD — stops execution on failure ═══ */
+const TOKEN    = localStorage.getItem('econovo-token');
 const USER_RAW = localStorage.getItem('econovo-user');
-if (!TOKEN || !USER_RAW) { window.location.replace('login.html'); }
-// Check token expiry — Supabase JWTs expire after 1 hour
+if (!TOKEN || !USER_RAW) { window.location.replace('login.html'); throw new Error('no-auth'); }
 try {
   const _payload = JSON.parse(atob(TOKEN.split('.')[1]));
   if (_payload.exp && _payload.exp * 1000 < Date.now()) {
     localStorage.removeItem('econovo-token');
     localStorage.removeItem('econovo-user');
-    window.location.replace('login.html');
+    window.location.replace('login.html'); throw new Error('token-expired');
   }
-} catch(_) {
-  localStorage.removeItem('econovo-token');
-  localStorage.removeItem('econovo-user');
-  window.location.replace('login.html');
+} catch(e) {
+  if (e.message === 'token-expired' || e.message === 'no-auth') throw e;
+  // malformed token
+  window.location.replace('login.html'); throw new Error('bad-token');
 }
 
 /* ═══ USER DATA ═══ */
 let USER = {}, META = {};
-try { USER = JSON.parse(USER_RAW); META = USER.user_metadata || {}; } catch(_) {}
+try { USER = JSON.parse(USER_RAW) || {}; META = USER.user_metadata || {}; } catch(_) {}
 const FULL_NAME = (META.first_name && META.last_name)
   ? (META.first_name + ' ' + META.last_name).trim()
   : (META.full_name || USER.email?.split('@')[0] || 'Member');
@@ -1229,31 +1228,19 @@ function escH(s) {
 }
 
 /* ═══ SUPABASE ═══ */
-// REST helpers — TOKEN is the real JWT from login, SB_KEY is the publishable key (apikey only)
 async function sbGet(path) {
   const r = await fetch(SB_URL + '/rest/v1/' + path, {
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + TOKEN,
-      'Prefer': '',
-    },
+    headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + TOKEN, 'Prefer': '' },
   });
-  if (!r.ok) {
-    if (r.status === 401) { localStorage.removeItem('econovo-token'); localStorage.removeItem('econovo-user'); window.location.replace('login.html'); }
-    throw new Error(await r.text());
-  }
+  if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 async function sbPost(path, body) {
   const r = await fetch(SB_URL + '/rest/v1/' + path, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + TOKEN,
-      'Prefer': 'return=representation',
-    },
+    headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + TOKEN, 'Prefer': 'return=representation' },
     body: JSON.stringify(body),
   });
   if (!r.ok) throw new Error(await r.text());
@@ -1262,11 +1249,8 @@ async function sbPost(path, body) {
 async function sbDel(path) {
   await fetch(SB_URL + '/rest/v1/' + path, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + TOKEN,
-    },
+    headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + TOKEN },
   });
 }
 
@@ -1283,29 +1267,15 @@ function fillAvatar(el, url, name) {
   } else { el.textContent = inits(name); }
 }
 
-/* Load avatar + name from profiles table */
+/* Load avatar from profiles table */
 let cachedAvatarUrl = null;
-let cachedFullName  = FULL_NAME;
 async function loadUserAvatar() {
   try {
-    const rows = await sbGet(`profiles?id=eq.${USER_ID}&select=avatar_url,full_name`);
+    const rows = await sbGet(`profiles?id=eq.${USER_ID}&select=avatar_url`);
     cachedAvatarUrl = rows[0]?.avatar_url || null;
-    /* إذا كان الاسم في جدول profiles أوفر من user_metadata، استخدمه */
-    if (rows[0]?.full_name) cachedFullName = rows[0].full_name;
   } catch(_) {}
-  /* تحديث الاسم في الواجهة إذا تغيّر */
-  if (cachedFullName !== FULL_NAME) {
-    ['nav-name','sb-name','profile-name'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el && (el.textContent === 'Member' || el.textContent === FULL_NAME)) {
-        el.textContent = id === 'nav-name'
-          ? (cachedFullName.split(' ')[0] || cachedFullName)
-          : cachedFullName;
-      }
-    });
-  }
   ['nav-av','sb-av','composer-av','profile-av'].forEach(id => {
-    fillAvatar(document.getElementById(id), cachedAvatarUrl, cachedFullName);
+    fillAvatar(document.getElementById(id), cachedAvatarUrl, FULL_NAME);
   });
 }
 
@@ -1336,8 +1306,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderWidgetEvents();
   renderWidgetGroups();
 
-  /* Init posts feed */
-  window.initPostsFeed(TOKEN, USER_ID);
+  /* Init posts feed — posts.js loaded via defer, guaranteed ready here */
+  if (typeof window.initPostsFeed === 'function') {
+    window.initPostsFeed(TOKEN, USER_ID);
+  } else {
+    document.getElementById('posts-feed').innerHTML =
+      '<div class="feed-empty">Could not load feed. Please refresh.</div>';
+  }
 
   /* ══ VIEW SWITCHING ══ */
   function setView(v) {
@@ -1611,7 +1586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!el) return;
     const joined = DEFAULT_GROUPS.filter(g => g.joined).slice(0, 4);
     if (!joined.length) {
-      el.innerHTML = '<p style="font-size:.78rem;color:var(--text-muted);">You haven't joined any groups yet.</p>';
+      el.innerHTML = '<p style="font-size:.78rem;color:var(--text-muted);">You haven\'t joined any groups yet.</p>';
       return;
     }
     el.innerHTML = joined.map(g => `
