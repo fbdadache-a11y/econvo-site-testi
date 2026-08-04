@@ -8,7 +8,7 @@ const POSTS_URL     = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const POSTS_KEY     = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 const BUCKET        = 'post-images';
 const AVATAR_BUCKET = 'avatars';
-const MAX_IMAGES    = 4;
+const MAX_IMAGES    = 50;
 
 /* Emojis available in the composer picker — removed */
 
