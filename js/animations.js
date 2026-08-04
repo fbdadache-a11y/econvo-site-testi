@@ -1,7 +1,17 @@
 /* ==========================================================================
-   ECONOVO — animations.js  v3.2 (Universal Desktop & Mobile Fix)
+   ECONOVO — animations.js  v3.0
    Design language: editorial precision meets kinetic energy.
    Brand book: Obsidian #0E2A24 · Silver Sage #8FB8A6 · Chalk #F4F7F2
+
+   Signature moves:
+   1. Hero headline text-scramble / character reveal (the centrepiece)
+   2. Cursor-tracking sage glow in the hero field
+   3. Clip-path wipe reveals for sections (not just fade+lift)
+   4. Magnetic card tilt with spring physics
+   5. Stat counters with number-slot animation
+   6. Timeline draw-in line
+   7. Trust bar auto-scroller (refined)
+   8. Floating badge parallax
    ========================================================================== */
 
 (function () {
@@ -33,7 +43,7 @@
         initMagneticCards();
         initTimelineDrawIn();
         initTrustBar();
-        document.body.classList.add('js-ready');
+        body.classList.add('js-ready');
     });
 
     document.addEventListener('econovo:rendered', () => {
@@ -42,6 +52,8 @@
         initTimelineDrawIn();
         initTrustBar();
     });
+
+    const body = document.body;
 
     /* ══════════════════════════════════════════════
        1. CURSOR GLOW — sage radial follows pointer
@@ -76,7 +88,7 @@
     }
 
     /* ══════════════════════════════════════════════
-       2. HERO ENTRANCE — Immediate & Safe Reveal
+       2. HERO ENTRANCE — scramble headline + clip reveals
     ══════════════════════════════════════════════ */
     function heroEntrance() {
         const rule    = document.querySelector('.hero-rule');
@@ -87,7 +99,10 @@
         const actions = document.querySelector('.hero-actions');
         const visual  = document.querySelector('.hero-visual');
 
-        if (rule) setTimeout(() => rule.classList.add('revealed'), 50);
+        /* Rule grows first */
+        if (rule) {
+            setTimeout(() => rule.classList.add('revealed'), 200);
+        }
 
         if (REDUCED) {
             [eyebrow, h1, desc, tags, actions, visual].forEach(el => {
@@ -97,60 +112,67 @@
             return;
         }
 
-        if (window.gsap) {
-            const tl = gsap.timeline({
-                defaults: { ease: EASE },
-                onComplete: () => {
-                    if (h1) h1.closest('.hero-content')?.classList.add('animate-done');
-                }
+        /* Eyebrow slides in */
+        if (eyebrow) {
+            eyebrow.style.cssText = 'opacity:0;transform:translateY(12px)';
+            setTimeout(() => {
+                eyebrow.style.transition = `opacity .6s ${EASE}, transform .6s ${EASE}`;
+                eyebrow.style.opacity = '1';
+                eyebrow.style.transform = 'none';
+            }, 300);
+        }
+
+        /* H1 text scramble */
+        if (h1) {
+            const originalHTML = h1.innerHTML;
+            const plainText    = h1.textContent;
+            h1.style.opacity   = '1'; // keep visible, scramble chars
+            scrambleText(h1, plainText, originalHTML, 500);
+        }
+
+        /* Desc clip-path wipe from left */
+        if (desc) {
+            desc.style.cssText = 'clip-path:inset(0 100% 0 0);opacity:1;';
+            setTimeout(() => {
+                desc.style.transition = `clip-path .75s ${EASE}`;
+                desc.style.clipPath   = 'inset(0 0% 0 0)';
+            }, 900);
+        }
+
+        /* Tags pop in one by one */
+        if (tags) {
+            Array.from(tags.children).forEach((tag, i) => {
+                tag.style.cssText = 'opacity:0;transform:scale(.88) translateY(6px)';
+                setTimeout(() => {
+                    tag.style.transition = `opacity .4s ${EASE}, transform .45s ${EASE}`;
+                    tag.style.opacity    = '1';
+                    tag.style.transform  = 'none';
+                }, 1100 + i * 80);
             });
+        }
 
-            if (eyebrow) {
-                tl.fromTo(eyebrow, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4 }, 0);
-            }
+        /* Actions slide up */
+        if (actions) {
+            actions.style.cssText = 'opacity:0;transform:translateY(16px)';
+            setTimeout(() => {
+                actions.style.transition = `opacity .5s ${EASE}, transform .5s ${EASE}`;
+                actions.style.opacity    = '1';
+                actions.style.transform  = 'none';
+            }, 1350);
+        }
 
-            if (h1) {
-                const originalHTML = h1.innerHTML;
-                const plainText    = h1.textContent;
-                tl.fromTo(h1, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.1);
-                tl.add(() => scrambleText(h1, plainText, originalHTML, 0), 0.1);
-            }
-
-            if (visual) {
-                tl.fromTo(visual, 
-                    { opacity: 0, scale: 0.96, y: 15 }, 
-                    { opacity: 1, scale: 1, y: 0, duration: 0.6 }, 
-                    0.15
-                );
-            }
-
-            if (desc) {
-                tl.fromTo(desc, 
-                    { opacity: 0, y: 15 }, 
-                    { opacity: 1, y: 0, duration: 0.5 }, 
-                    0.25
-                );
-            }
-
-            if (tags && tags.children.length) {
-                tl.fromTo(tags.children, 
-                    { opacity: 0, scale: 0.9, y: 8 }, 
-                    { opacity: 1, scale: 1, y: 0, duration: 0.3, stagger: 0.04 }, 
-                    0.35
-                );
-            }
-
-            if (actions) {
-                tl.fromTo(actions, 
-                    { opacity: 0, y: 15 }, 
-                    { opacity: 1, y: 0, duration: 0.4 }, 
-                    0.45
-                );
-            }
-        } else {
-            [eyebrow, h1, desc, tags, actions, visual].forEach(el => {
-                if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
-            });
+        /* Hero visual — scale in from slightly small */
+        if (visual) {
+            visual.style.cssText = 'opacity:0;transform:scale(.96) translateY(14px)';
+            setTimeout(() => {
+                visual.style.transition = `opacity .8s ${EASE}, transform .9s ${EASE}`;
+                visual.style.opacity    = '1';
+                visual.style.transform  = 'none';
+            }, 350);
+            /* Em underline triggers after visual settles */
+            setTimeout(() => {
+                h1 && h1.closest('.hero-content')?.classList.add('animate-done');
+            }, 1200);
         }
     }
 
@@ -158,15 +180,15 @@
     function scrambleText(el, plainText, originalHTML, delay = 0) {
         const chars = CHARS;
         const words = plainText.split('');
-        let iterations = 0;
-        const maxIter = plainText.length * 2.5;
+        let frame = 0, iterations = 0;
+        const maxIter = plainText.length * 3;
 
         setTimeout(() => {
             const iv = setInterval(() => {
                 el.textContent = words
                     .map((char, i) => {
                         if (char === ' ') return ' ';
-                        if (i < Math.floor(iterations / 2.5)) return char;
+                        if (i < Math.floor(iterations / 3)) return char;
                         return chars[Math.floor(Math.random() * chars.length)];
                     })
                     .join('');
@@ -174,9 +196,9 @@
                 iterations++;
                 if (iterations >= maxIter) {
                     clearInterval(iv);
-                    el.innerHTML = originalHTML;
+                    el.innerHTML = originalHTML; // restore em/spans
                 }
-            }, 25);
+            }, 28);
         }, delay);
     }
 
@@ -216,7 +238,7 @@
     }
 
     /* ══════════════════════════════════════════════
-       5. SINGLE REVEAL — Safe Viewport Trigger
+       5. SINGLE REVEAL — clip-path wipe (not just fade)
     ══════════════════════════════════════════════ */
     function initSingleReveal() {
         if (!singleObserver) {
@@ -226,10 +248,7 @@
                     animateSingle(entry.target);
                     singleObserver.unobserve(entry.target);
                 });
-            }, { 
-                threshold: 0, 
-                rootMargin: '200px 0px 100px 0px' 
-            });
+            }, { threshold: .1, rootMargin: '0px 0px -50px 0px' });
         }
         document.querySelectorAll('.reveal:not(.active)').forEach(el => singleObserver.observe(el));
     }
@@ -238,17 +257,14 @@
         el.classList.add('active');
         if (window.gsap && !REDUCED) {
             gsap.fromTo(el,
-                { opacity: 0, y: 20 },
-                { opacity: 1, y: 0, duration: 0.6, ease: EASE_S }
+                { opacity: 0, y: 28, clipPath: 'inset(0 0 100% 0)' },
+                { opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)', duration: .75, ease: EASE_S }
             );
-        } else {
-            el.style.opacity = '1';
-            el.style.transform = 'none';
         }
     }
 
     /* ══════════════════════════════════════════════
-       6. BATCHED GRID STAGGER — Pre-load Margin
+       6. BATCHED GRID STAGGER
     ══════════════════════════════════════════════ */
     function revealGrid(selector) {
         const container = document.querySelector(selector);
@@ -259,6 +275,14 @@
 
         const children = Array.from(container.children);
 
+        if (!REDUCED) {
+            if (window.gsap) {
+                gsap.set(children, { opacity: 0, y: 32, scale: .97 });
+            } else {
+                children.forEach(c => { c.style.opacity = '0'; c.style.transform = 'translateY(32px)'; });
+            }
+        }
+
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (!entry.isIntersecting) return;
@@ -268,10 +292,7 @@
                 obs.disconnect();
                 gridObservers.delete(container);
             });
-        }, { 
-            threshold: 0, 
-            rootMargin: '200px 0px 100px 0px' 
-        });
+        }, { threshold: .08, rootMargin: '0px 0px -60px 0px' });
 
         gridObservers.set(container, obs);
         obs.observe(container);
@@ -283,20 +304,22 @@
             return;
         }
         if (window.gsap) {
-            gsap.fromTo(children, 
-                { opacity: 0, y: 20 },
-                { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: EASE_S }
-            );
+            gsap.to(children, {
+                opacity: 1, y: 0, scale: 1,
+                duration: .65, stagger: .07,
+                ease: EASE_S
+            });
         } else {
-            children.forEach((c) => {
-                c.style.opacity = '1';
-                c.style.transform = 'none';
+            const easeOut = 'cubic-bezier(.16,1,.3,1)';
+            children.forEach((c, i) => {
+                c.style.transition = `opacity .5s ${easeOut} ${i*.07}s, transform .55s ${easeOut} ${i*.07}s`;
+                requestAnimationFrame(() => { c.style.opacity='1'; c.style.transform='none'; });
             });
         }
     }
 
     /* ══════════════════════════════════════════════
-       7. STAT COUNTERS
+       7. STAT COUNTERS — number slot machine effect
     ══════════════════════════════════════════════ */
     function animateCounters() {
         document.querySelectorAll('#statsRow .stat-value').forEach(el => {
@@ -309,7 +332,7 @@
             if (window.gsap && !REDUCED) {
                 const obj = { v: 0 };
                 gsap.to(obj, {
-                    v: target, duration: 1.4, ease: 'power1.out',
+                    v: target, duration: 1.6, ease: 'power1.out',
                     onUpdate() { el.textContent = Math.round(obj.v) + suffix; },
                     onComplete() { el.textContent = target + suffix; }
                 });
@@ -322,12 +345,14 @@
     /* ══════════════════════════════════════════════
        8. TIMELINE DRAW-IN LINE
     ══════════════════════════════════════════════ */
-    function initTimelineDrawIn() {}
+    function initTimelineDrawIn() {
+        /* Handled inside revealGrid for #timeline */
+    }
 
     function drawTimeline() {
         const line = document.querySelector('.timeline-line');
         if (!line || REDUCED) return;
-        line.style.cssText = 'transform-origin:top;transform:scaleY(0);transition:transform 0.8s cubic-bezier(.16,1,.3,1) .1s;';
+        line.style.cssText = 'transform-origin:top;transform:scaleY(0);transition:transform 1s cubic-bezier(.16,1,.3,1) .2s;';
         requestAnimationFrame(() => { line.style.transform = 'scaleY(1)'; });
     }
 
@@ -372,9 +397,11 @@
         const track = document.getElementById('trustTrack');
         if (!track || !track.children.length) return;
 
+        /* Stop any existing animation */
         track.style.animation = 'none';
         void track.offsetWidth;
 
+        /* Clone once for seamless loop */
         if (!track.dataset.cloned) {
             const clone = track.innerHTML;
             track.insertAdjacentHTML('beforeend', clone);
