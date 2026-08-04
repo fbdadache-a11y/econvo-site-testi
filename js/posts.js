@@ -8,7 +8,7 @@ const POSTS_URL     = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const POSTS_KEY     = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 const BUCKET        = 'post-images';
 const AVATAR_BUCKET = 'avatars';
-const MAX_IMAGES    = 4;
+const MAX_IMAGES    = 50;
 
 /* Emojis available in the composer picker — removed */
 
@@ -786,10 +786,9 @@ async function loadPosts(container, token, currentUserId) {
 function appendEndMarker(container) {
     const end = document.createElement('div');
     end.className = 'feed-end-marker';
-    end.textContent = '— You're all caught up —';
+    end.textContent = "— You're all caught up —";
     container.appendChild(end);
-}
-
+       }
 /* ── Delete post ── */
 
 async function deletePost(postId, cardEl, token) {
