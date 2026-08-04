@@ -136,7 +136,7 @@
             setTimeout(() => {
                 desc.style.transition = `clip-path .75s ${EASE}`;
                 desc.style.clipPath   = 'inset(0 0% 0 0)';
-            }, 900);
+            }, 300);
         }
 
         /* Tags pop in one by one */
@@ -158,7 +158,7 @@
                 actions.style.transition = `opacity .5s ${EASE}, transform .5s ${EASE}`;
                 actions.style.opacity    = '1';
                 actions.style.transform  = 'none';
-            }, 1350);
+            }, 600);
         }
 
         /* Hero visual — scale in from slightly small */
@@ -292,7 +292,7 @@
                 obs.disconnect();
                 gridObservers.delete(container);
             });
-        }, { threshold: .08, rootMargin: '0px 0px 30px 0px' });
+        }, { threshold: .02, rootMargin: '0px 0px 30px 0px' });
 
         gridObservers.set(container, obs);
         obs.observe(container);
