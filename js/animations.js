@@ -147,7 +147,7 @@
                     tag.style.transition = `opacity .4s ${EASE}, transform .45s ${EASE}`;
                     tag.style.opacity    = '1';
                     tag.style.transform  = 'none';
-                }, 1100 + i * 80);
+                }, 450 + i * 80);
             });
         }
 
