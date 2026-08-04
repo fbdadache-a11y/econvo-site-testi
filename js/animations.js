@@ -248,7 +248,7 @@
                     animateSingle(entry.target);
                     singleObserver.unobserve(entry.target);
                 });
-            }, { threshold: .1, rootMargin: '0px 0px -50px 0px' });
+            }, { threshold: .02, rootMargin: '0px 0px 30px 0px' });
         }
         document.querySelectorAll('.reveal:not(.active)').forEach(el => singleObserver.observe(el));
     }
