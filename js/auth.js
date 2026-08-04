@@ -1,9 +1,5 @@
 // ============================================================
-//  Econovo — Supabase Auth Helper  v2.0 (Persistent Sessions)
-//
-//  FIX: access_token expires after 1 hour.
-//  Solution: save refresh_token, auto-refresh 5 min before
-//  expiry, and on every page load call Auth.ensureSession().
+//  Econovo — Supabase Auth Helper  v2.1 (Fixed Persistent Sessions)
 // ============================================================
 'use strict';
 
@@ -11,14 +7,26 @@ const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 
 // ── low-level fetch wrapper ──────────────────────────────────
+// FIX: Auth endpoints (/auth/v1/token, /auth/v1/signup, /auth/v1/recover)
+// must use apikey only — NOT the SUPABASE_KEY as Bearer (it's not a JWT).
+// Bearer token is only used for REST API calls AFTER login.
 async function supaFetch(path, options = {}) {
     const url = SUPABASE_URL + path;
+    const isAuthEndpoint = path.startsWith('/auth/v1/');
+
+    // For auth endpoints: only send apikey header.
+    // For REST endpoints: send apikey + user's real access_token as Bearer.
+    const accessToken = localStorage.getItem('econovo-token');
+    const authHeader = (!isAuthEndpoint && accessToken)
+        ? { 'Authorization': 'Bearer ' + accessToken }
+        : {};
+
     const res = await fetch(url, {
         ...options,
         headers: {
             'Content-Type': 'application/json',
             'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            ...authHeader,
             ...(options.headers || {}),
         },
     });
@@ -58,9 +66,13 @@ const Auth = {
     async signOut() {
         const token = Auth.getToken();
         if (token) {
-            await supaFetch('/auth/v1/logout', {
+            await fetch(SUPABASE_URL + '/auth/v1/logout', {
                 method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + token },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + token,
+                },
             }).catch(() => {});
         }
         Auth._clear();
@@ -76,8 +88,6 @@ const Auth = {
     },
 
     // ── Refresh access_token using refresh_token ─────────────
-    // Supabase refresh_tokens last weeks/months.
-    // This exchanges the stored refresh_token for a fresh access_token.
     async refreshSession() {
         const refreshToken = localStorage.getItem('econovo-refresh-token');
         if (!refreshToken) {
@@ -103,8 +113,6 @@ const Auth = {
     },
 
     // ── Ensure valid session on page load ────────────────────
-    // Call once on DOMContentLoaded (done in main.js).
-    // Returns true if session is valid (or was silently refreshed).
     async ensureSession() {
         const token        = Auth.getToken();
         const refreshToken = localStorage.getItem('econovo-refresh-token');
@@ -114,19 +122,17 @@ const Auth = {
         if (token) {
             try {
                 const payload   = JSON.parse(atob(token.split('.')[1]));
-                const expiresAt = payload.exp * 1000;     // convert to ms
+                const expiresAt = payload.exp * 1000;
                 const now       = Date.now();
-                const buffer    = 5 * 60 * 1000;          // 5 min buffer
+                const buffer    = 5 * 60 * 1000; // 5 min buffer
 
                 if (expiresAt - now > buffer) {
-                    // Token is still fresh — schedule next refresh
                     Auth._scheduleAutoRefresh(expiresAt - now - buffer);
                     return true;
                 }
             } catch { /* malformed token — fall through to refresh */ }
         }
 
-        // Token is missing or expired — try refresh_token
         if (refreshToken) {
             const refreshed = await Auth.refreshSession();
             return !!refreshed;
@@ -155,7 +161,6 @@ const Auth = {
         if (data.refresh_token) localStorage.setItem('econovo-refresh-token', data.refresh_token);
         if (data.user)          localStorage.setItem('econovo-user',          JSON.stringify(data.user));
 
-        // Schedule next silent refresh 5 min before expiry
         if (data.expires_in) {
             const msUntilRefresh = (data.expires_in - 300) * 1000;
             Auth._scheduleAutoRefresh(Math.max(msUntilRefresh, 30_000));
@@ -169,7 +174,6 @@ const Auth = {
         Auth._stopAutoRefresh();
     },
 
-    // ── Internal: background silent refresh ──────────────────
     _refreshTimer: null,
 
     _scheduleAutoRefresh(msFromNow) {
