@@ -292,7 +292,7 @@
                 obs.disconnect();
                 gridObservers.delete(container);
             });
-        }, { threshold: .08, rootMargin: '0px 0px -60px 0px' });
+        }, { threshold: .08, rootMargin: '0px 0px 30px 0px' });
 
         gridObservers.set(container, obs);
         obs.observe(container);
