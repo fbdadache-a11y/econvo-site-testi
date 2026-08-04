@@ -178,63 +178,54 @@ function renderImageGallery(images) {
     return `<div class="post-gallery ${cls}" data-images='${JSON.stringify(images)}'>${imgs}</div>`;
 }
 
-/* ── Lightbox — glassmorphism + touch swipe ── */
+/* ── Lightbox ── */
 
 function openLightbox(images, startIndex) {
-    // Remove any existing lightbox
     document.getElementById('post-lightbox')?.remove();
 
-    let current   = (startIndex || 0 + images.length) % images.length;
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let isDragging  = false;
-    let dragOffsetX = 0;
+    let current     = ((startIndex || 0) + images.length) % images.length;
+    let touchStartX = 0, touchStartY = 0, isDragging = false;
 
-    /* ── DOM structure ── */
-    const overlay = document.createElement('div');
-    overlay.id = 'post-lightbox';
+    /* ── Elements ── */
+    const overlay   = document.createElement('div');
+    overlay.id      = 'post-lightbox';
 
-    // Blurred glass background
     const glassBack = document.createElement('div');
     glassBack.className = 'lb-glass-back';
 
-    // Image stage (swipeable)
-    const stage = document.createElement('div');
+    const stage     = document.createElement('div');
     stage.className = 'lb-stage';
 
-    const imgEl = document.createElement('img');
+    const imgEl     = document.createElement('img');
     imgEl.className = 'lb-img';
     imgEl.draggable = false;
 
-    // Thumbnail strip (only when >1 image)
+    const counter   = document.createElement('div');
+    counter.className = 'lb-counter';
+
     const thumbStrip = document.createElement('div');
     thumbStrip.className = 'lb-thumbs';
 
-    const counter = document.createElement('div');
-    counter.className = 'lb-counter';
-
-    // Arrows
-    const btnClose = document.createElement('button');
+    const btnClose  = document.createElement('button');
     btnClose.className = 'lb-btn lb-close';
-    btnClose.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    btnClose.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 
-    const btnPrev = document.createElement('button');
+    const btnPrev   = document.createElement('button');
     btnPrev.className = 'lb-btn lb-prev';
-    btnPrev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><polyline points="15 18 9 12 15 6"/></svg>';
+    btnPrev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><polyline points="15 18 9 12 15 6"/></svg>';
 
-    const btnNext = document.createElement('button');
+    const btnNext   = document.createElement('button');
     btnNext.className = 'lb-btn lb-next';
-    btnNext.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><polyline points="9 18 15 12 9 6"/></svg>';
+    btnNext.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><polyline points="9 18 15 12 9 6"/></svg>';
 
     /* ── Show image i ── */
-    function show(i, animated = true) {
+    function show(i, animated) {
         const prev = current;
         current = ((i % images.length) + images.length) % images.length;
-
         if (animated && prev !== current) {
             const dir = current > prev ? 1 : -1;
             imgEl.style.transition = 'none';
-            imgEl.style.transform  = `translateX(${dir * 60}px)`;
+            imgEl.style.transform  = `translateX(${dir * 55}px)`;
             imgEl.style.opacity    = '0';
             requestAnimationFrame(() => {
                 imgEl.style.transition = 'transform .28s cubic-bezier(.16,1,.3,1), opacity .22s ease';
@@ -246,101 +237,76 @@ function openLightbox(images, startIndex) {
             imgEl.style.transform  = 'translateX(0)';
             imgEl.style.opacity    = '1';
         }
-
         imgEl.src = images[current];
-        updateGlassBackground(images[current]);
+        glassBack.style.backgroundImage = `url(${images[current]})`;
         counter.textContent = images.length > 1 ? `${current + 1} / ${images.length}` : '';
-
-        // Update thumb strip
-        thumbStrip.querySelectorAll('.lb-thumb').forEach((t, idx) => {
-            t.classList.toggle('active', idx === current);
-        });
-
-        // Show/hide arrows
+        thumbStrip.querySelectorAll('.lb-thumb').forEach((t, idx) =>
+            t.classList.toggle('active', idx === current)
+        );
         btnPrev.style.display = images.length > 1 ? '' : 'none';
         btnNext.style.display = images.length > 1 ? '' : 'none';
     }
 
-    /* ── Blurred background from current image ── */
-    function updateGlassBackground(src) {
-        glassBack.style.backgroundImage = `url(${src})`;
-    }
-
     /* ── Close ── */
     function close() {
-        overlay.style.opacity = '0';
+        overlay.style.opacity   = '0';
         overlay.style.transform = 'scale(.97)';
-        setTimeout(() => { overlay.remove(); document.body.style.overflow = ''; }, 220);
+        document.body.style.overflow = '';
         document.removeEventListener('keydown', onKey);
+        setTimeout(() => overlay.remove(), 220);
     }
 
     /* ── Keyboard ── */
     function onKey(e) {
-        if (e.key === 'Escape')      close();
-        if (e.key === 'ArrowRight')  show(current + 1);
-        if (e.key === 'ArrowLeft')   show(current - 1);
+        if (e.key === 'Escape')     close();
+        if (e.key === 'ArrowRight') show(current + 1, true);
+        if (e.key === 'ArrowLeft')  show(current - 1, true);
     }
+    document.addEventListener('keydown', onKey);
 
-    /* ── Touch / Pointer swipe ── */
+    /* ── Touch swipe ── */
     stage.addEventListener('pointerdown', e => {
-        if (e.pointerType === 'mouse' && e.button !== 0) return;
-        touchStartX  = e.clientX;
-        touchStartY  = e.clientY;
-        isDragging   = true;
-        dragOffsetX  = 0;
+        touchStartX = e.clientX; touchStartY = e.clientY; isDragging = true;
         stage.setPointerCapture(e.pointerId);
     }, { passive: true });
-
     stage.addEventListener('pointermove', e => {
         if (!isDragging) return;
-        dragOffsetX = e.clientX - touchStartX;
-        const dampened = dragOffsetX * 0.4;
         imgEl.style.transition = 'none';
-        imgEl.style.transform  = `translateX(${dampened}px)`;
+        imgEl.style.transform  = `translateX(${(e.clientX - touchStartX) * 0.4}px)`;
     }, { passive: true });
-
     stage.addEventListener('pointerup', e => {
         if (!isDragging) return;
         isDragging = false;
-        const dx   = e.clientX - touchStartX;
-        const dy   = Math.abs(e.clientY - touchStartY);
-
-        imgEl.style.transition = 'transform .3s cubic-bezier(.16,1,.3,1), opacity .2s';
+        const dx = e.clientX - touchStartX;
+        const dy = Math.abs(e.clientY - touchStartY);
+        imgEl.style.transition = 'transform .3s cubic-bezier(.16,1,.3,1)';
         imgEl.style.transform  = 'translateX(0)';
-
-        if (Math.abs(dx) > 48 && dy < 80) {
-            if (dx < 0) show(current + 1);
-            else        show(current - 1);
-        }
+        if (Math.abs(dx) > 48 && dy < 80) show(dx < 0 ? current + 1 : current - 1, true);
     }, { passive: true });
 
-    /* ── Thumb strip ── */
+    /* ── Thumbnails ── */
     if (images.length > 1) {
         images.forEach((url, i) => {
             const t = document.createElement('button');
             t.className = 'lb-thumb';
             t.style.backgroundImage = `url(${url})`;
-            t.onclick = () => show(i);
+            t.onclick = () => show(i, true);
             thumbStrip.appendChild(t);
         });
     }
 
-    /* ── Build overlay ── */
+    /* ── Assemble ── */
     btnClose.onclick = close;
-    btnPrev.onclick  = () => show(current - 1);
-    btnNext.onclick  = () => show(current + 1);
-
+    btnPrev.onclick  = () => show(current - 1, true);
+    btnNext.onclick  = () => show(current + 1, true);
     stage.appendChild(imgEl);
-    overlay.append(glassBack, btnClose, stage, counter, thumbStrip);
-    if (images.length > 1) overlay.append(btnPrev, btnNext);
-
+    overlay.append(glassBack, btnClose, stage, counter, thumbStrip, btnPrev, btnNext);
     overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-    document.addEventListener('keydown', onKey);
 
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
 
-    // Entrance
+    /* Entrance */
     overlay.style.opacity   = '0';
     overlay.style.transform = 'scale(.96)';
     requestAnimationFrame(() => {
@@ -597,98 +563,25 @@ async function loadComments(postId, token) {
     }
 }
 
-/* ── Load posts — Infinite Scroll ── */
-
-const POSTS_PAGE_SIZE = 10;
-
-/* Attach a card's interactive events */
-function attachPostEvents(card, row, token, currentUserId) {
-    const reactionBarEl = card.querySelector(`#reactions-${row.id}`);
-    if (reactionBarEl) loadReactions(row.id, token, currentUserId, reactionBarEl);
-
-    const delBtn = card.querySelector('.post-delete-btn');
-    if (delBtn) delBtn.addEventListener('click', () => deletePost(row.id, card, token));
-
-    const toggleBtn    = card.querySelector('.post-comment-toggle');
-    const commentsEl   = card.querySelector('.post-comments');
-    let commentsLoaded = false;
-    toggleBtn?.addEventListener('click', () => {
-        const open = commentsEl.style.display === 'block';
-        commentsEl.style.display = open ? 'none' : 'block';
-        if (!open && !commentsLoaded) { commentsLoaded = true; loadComments(row.id, token); }
-    });
-
-    const form = card.querySelector('.comment-form');
-    form?.addEventListener('submit', async e => {
-        e.preventDefault();
-        const input     = form.querySelector('.comment-input');
-        const text      = input.value.trim();
-        if (!text) return;
-        const submitBtn = form.querySelector('.comment-submit');
-        submitBtn.disabled = true;
-        try {
-            await pgPost('comments', { post_id: row.id, user_id: currentUserId, content: text }, token);
-            input.value = '';
-            commentsLoaded = true;
-            await loadComments(row.id, token);
-        } catch { toast('Could not post comment.', 'err'); }
-        finally   { submitBtn.disabled = false; }
-    });
-}
-
-/* Render a batch of rows into the feed */
-function appendRows(rows, imagesByPost, container, token, currentUserId) {
-    rows.forEach(row => {
-        const card = renderPost({
-            ...row,
-            author_name: row.profiles?.full_name || row.full_name || 'Member',
-            avatar_url:  row.profiles?.avatar_url || null,
-            images:      imagesByPost[row.id] || [],
-        }, currentUserId);
-
-        // Entrance animation
-        card.style.opacity   = '0';
-        card.style.transform = 'translateY(16px)';
-        container.appendChild(card);
-        requestAnimationFrame(() => {
-            card.style.transition = 'opacity .35s ease, transform .35s cubic-bezier(.16,1,.3,1)';
-            card.style.opacity    = '1';
-            card.style.transform  = 'translateY(0)';
-        });
-
-        attachPostEvents(card, row, token, currentUserId);
-    });
-}
+/* ── Load posts ── */
 
 async function loadPosts(container, token, currentUserId) {
-    // Clear old infinite-scroll observer if any
-    if (container._infiniteObs) { container._infiniteObs.disconnect(); container._infiniteObs = null; }
-    container._feedExhausted = false;
-    container._feedOffset    = 0;
-    container._feedLoading   = false;
-    container._allImages     = null;   // cached images map
-
     container.innerHTML = '<div class="posts-loading"><span class="posts-spinner"></span> Loading posts…</div>';
-
     try {
-        // Load all post_images once — they're small metadata rows
-        const allImages = await pgGet('post_images?select=post_id,url,position&order=position.asc', token).catch(() => []);
+        const [rows, allImages] = await Promise.all([
+            pgGet('posts?order=created_at.desc&select=id,content,image_url,created_at,user_id,full_name,profiles(full_name,avatar_url)', token),
+            pgGet('post_images?select=post_id,url,position&order=position.asc', token).catch(() => []),
+        ]);
+
         const imagesByPost = {};
         allImages.forEach(img => {
             if (!imagesByPost[img.post_id]) imagesByPost[img.post_id] = [];
             imagesByPost[img.post_id].push(img.url);
         });
-        container._allImages = imagesByPost;
-
-        // First page
-        const firstPage = await pgGet(
-            `posts?order=created_at.desc&limit=${POSTS_PAGE_SIZE}&offset=0&select=id,content,image_url,created_at,user_id,full_name,profiles(full_name,avatar_url)`,
-            token
-        );
 
         container.innerHTML = '';
 
-        if (!firstPage.length) {
+        if (!rows.length) {
             container.innerHTML = `<div class="posts-empty">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="opacity:.25;margin:0 auto 12px">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -698,83 +591,22 @@ async function loadPosts(container, token, currentUserId) {
             return;
         }
 
-        appendRows(firstPage, imagesByPost, container, token, currentUserId);
-        container._feedOffset = firstPage.length;
+        rows.forEach(row => {
+            const card = renderPost({
+                ...row,
+                author_name: row.profiles?.full_name || row.full_name || 'Member',
+                avatar_url:  row.profiles?.avatar_url || null,
+                images:      imagesByPost[row.id] || [],
+            }, currentUserId);
 
-        if (firstPage.length < POSTS_PAGE_SIZE) {
-            container._feedExhausted = true;
-            appendEndMarker(container);
-            return;
-        }
+            attachPostEvents(card, row, token, currentUserId);
 
-        // Sentinel element — when visible, load next page
-        const sentinel = document.createElement('div');
-        sentinel.className = 'feed-sentinel';
-        sentinel.innerHTML = '<span class="posts-spinner"></span>';
-        container.appendChild(sentinel);
+            // Reactions bar — load async
+            const reactionBarEl = card.querySelector(`#reactions-${row.id}`);
+            if (reactionBarEl) loadReactions(row.id, token, currentUserId, reactionBarEl);
 
-        const obs = new IntersectionObserver(async entries => {
-            if (!entries[0].isIntersecting) return;
-            if (container._feedLoading || container._feedExhausted) return;
-
-            container._feedLoading = true;
-            try {
-                const nextPage = await pgGet(
-                    `posts?order=created_at.desc&limit=${POSTS_PAGE_SIZE}&offset=${container._feedOffset}&select=id,content,image_url,created_at,user_id,full_name,profiles(full_name,avatar_url)`,
-                    token
-                );
-
-                if (!nextPage.length) {
-                    container._feedExhausted = true;
-                    sentinel.remove();
-                    appendEndMarker(container);
-                    obs.disconnect();
-                    return;
-                }
-
-                // Insert before sentinel
-                const frag = document.createDocumentFragment();
-                nextPage.forEach(row => {
-                    const card = renderPost({
-                        ...row,
-                        author_name: row.profiles?.full_name || row.full_name || 'Member',
-                        avatar_url:  row.profiles?.avatar_url || null,
-                        images:      container._allImages[row.id] || [],
-                    }, currentUserId);
-                    card.style.opacity   = '0';
-                    card.style.transform = 'translateY(16px)';
-                    frag.appendChild(card);
-                    attachPostEvents(card, row, token, currentUserId);
-                });
-                container.insertBefore(frag, sentinel);
-
-                // Animate new cards
-                container.querySelectorAll('.post-card[style*="opacity: 0"]').forEach(c => {
-                    requestAnimationFrame(() => {
-                        c.style.transition = 'opacity .35s ease, transform .35s cubic-bezier(.16,1,.3,1)';
-                        c.style.opacity    = '1';
-                        c.style.transform  = 'translateY(0)';
-                    });
-                });
-
-                container._feedOffset += nextPage.length;
-                if (nextPage.length < POSTS_PAGE_SIZE) {
-                    container._feedExhausted = true;
-                    sentinel.remove();
-                    appendEndMarker(container);
-                    obs.disconnect();
-                }
-            } catch (err) {
-                console.error('infinite scroll page load:', err);
-                toast('Could not load more posts.', 'err');
-            } finally {
-                container._feedLoading = false;
-            }
-        }, { rootMargin: '300px' });
-
-        obs.observe(sentinel);
-        container._infiniteObs = obs;
-
+            container.appendChild(card);
+        });
     } catch (e) {
         container.innerHTML = `<div class="posts-empty" style="border-color:rgba(200,80,80,.3);">
             <p style="color:#c94444;">Could not load posts. Please refresh.</p>
@@ -783,22 +615,14 @@ async function loadPosts(container, token, currentUserId) {
     }
 }
 
-function appendEndMarker(container) {
-    const end = document.createElement('div');
-    end.className = 'feed-end-marker';
-    end.textContent = "— You're all caught up —";
-    container.appendChild(end);
-       }
 /* ── Delete post ── */
 
 async function deletePost(postId, cardEl, token) {
     if (!confirm('Delete this post? This cannot be undone.')) return;
     try {
         await pgDelete(`posts?id=eq.${postId}`, token);
-        cardEl.style.transition = 'opacity .3s, transform .3s';
-        cardEl.style.opacity = '0';
-        cardEl.style.transform = 'translateX(-8px)';
-        setTimeout(() => cardEl.remove(), 320);
+        // Local removal — realtime handles removal for other users
+        onRemoteDeletePost(postId);
         toast('Post deleted.');
     } catch (err) {
         toast('Could not delete post.', 'err');
@@ -859,7 +683,35 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
         window._pickedPostFiles = [];
         renderPickedPreviews(form);
         toast('Post published! 🎉');
-        await loadPosts(feedContainer, token, currentUserId);
+
+        /* Fetch and prepend OUR own post (realtime skips self-events) */
+        try {
+            const rows = await pgGet(
+                `posts?id=eq.${newPost.id}&select=id,content,image_url,created_at,user_id,full_name,profiles(full_name,avatar_url)`,
+                token
+            );
+            if (rows.length) {
+                const imgRows = pickedFiles.length
+                    ? await pgGet(`post_images?post_id=eq.${newPost.id}&select=url,position&order=position.asc`, token).catch(() => [])
+                    : [];
+                const row  = rows[0];
+                const card = renderPost({
+                    ...row,
+                    author_name: row.profiles?.full_name || row.full_name || authorName,
+                    avatar_url:  row.profiles?.avatar_url || null,
+                    images:      imgRows.map(r => r.url),
+                }, currentUserId);
+
+                card.style.cssText += ';opacity:0;transform:translateY(-20px);transition:opacity .4s ease,transform .4s cubic-bezier(.16,1,.3,1)';
+                const first = feedContainer.querySelector('.post-card');
+                if (first) feedContainer.insertBefore(card, first);
+                else        feedContainer.prepend(card);
+                requestAnimationFrame(() => { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; });
+                attachPostEvents(card, row, token, currentUserId);
+                const reactionBarEl = card.querySelector(`#reactions-${row.id}`);
+                if (reactionBarEl) loadReactions(row.id, token, currentUserId, reactionBarEl);
+            }
+        } catch(e) { console.warn('self-post prepend failed:', e); }
 
     } catch (err) {
         if (alertEl) { alertEl.textContent = 'Failed to post. Please try again.'; alertEl.style.display = 'block'; }
@@ -938,6 +790,354 @@ async function handleAvatarUpload(file, token, userId, avatarPreviewEl) {
     }
 }
 
+
+/* ══════════════════════════════════════════════════════════════
+   REALTIME ENGINE — Supabase Realtime WebSocket
+   ──────────────────────────────────────────────────────────────
+   Uses Supabase Realtime Protocol (phoenix channels over WSS).
+   Listens to postgres_changes on:
+     • posts      → INSERT (new post from anyone) / DELETE (removed)
+     • comments   → INSERT (new comment on any post)
+     • reactions  → INSERT / DELETE (reaction added/removed)
+
+   Architecture:
+   - One persistent WebSocket per page session
+   - Events dispatched to the live DOM — no full reload
+   - My own INSERT/DELETE already reflected optimistically,
+     so we skip self-events using user_id comparison
+   ══════════════════════════════════════════════════════════════ */
+
+let _rtSocket   = null;   // WebSocket instance
+let _rtRef      = 1;      // message ref counter
+let _rtToken    = null;
+let _rtUserId   = null;
+let _rtFeed     = null;   // feed container el
+let _rtHbTimer  = null;   // heartbeat interval
+let _rtChannels = [];     // joined channel names
+
+const RT_URL = POSTS_URL.replace('https://', 'wss://') + '/realtime/v1/websocket?vsn=1.0.0&apikey=' + POSTS_KEY;
+
+function rtSend(msg) {
+    if (_rtSocket && _rtSocket.readyState === WebSocket.OPEN) {
+        _rtSocket.send(JSON.stringify(msg));
+    }
+}
+
+function rtJoinChannel(table) {
+    _rtRef++;
+    // Supabase Realtime v2 channel format
+    const topic = `realtime:${table}`;
+    rtSend({
+        topic,
+        event: 'phx_join',
+        payload: {
+            config: {
+                broadcast:     { self: false },
+                presence:      { key: '' },
+                postgres_changes: [{ event: '*', schema: 'public', table }],
+            },
+            access_token: _rtToken,
+        },
+        ref: String(_rtRef),
+        join_ref: String(_rtRef),
+    });
+    _rtChannels.push(topic);
+}
+
+function initRealtime(token, userId, feedContainer) {
+    _rtToken  = token;
+    _rtUserId = userId;
+    _rtFeed   = feedContainer;
+
+    // Clean up any existing socket
+    if (_rtSocket) { _rtSocket.close(); _rtSocket = null; }
+    clearInterval(_rtHbTimer);
+
+    const ws = new WebSocket(RT_URL);
+    _rtSocket = ws;
+
+    ws.onopen = () => {
+        // Join postgres_changes channels (pass table name)
+        rtJoinChannel('posts');
+        rtJoinChannel('comments');
+        rtJoinChannel('reactions');
+
+        // Heartbeat every 25s (Supabase requires <30s)
+        _rtHbTimer = setInterval(() => {
+            _rtRef++;
+            rtSend({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: String(_rtRef) });
+        }, 25000);
+    };
+
+    ws.onmessage = (e) => {
+        let msg;
+        try { msg = JSON.parse(e.data); } catch { return; }
+
+        // Supabase Realtime v2 wraps events in phx_reply / broadcast
+        // Actual postgres_changes arrive as:
+        //   { event: 'postgres_changes', payload: { type: 'INSERT'|'UPDATE'|'DELETE', table, record, old_record } }
+        // OR legacy v1:
+        //   { event: 'INSERT'|'DELETE'|'UPDATE', topic: 'realtime:public:posts', payload: { record, old_record } }
+
+        let type, table, record, old;
+
+        if (msg.event === 'postgres_changes') {
+            // v2 format
+            type   = msg.payload?.type;
+            table  = msg.payload?.table;
+            record = msg.payload?.record      || {};
+            old    = msg.payload?.old_record  || {};
+        } else if (msg.event === 'INSERT' || msg.event === 'UPDATE' || msg.event === 'DELETE') {
+            // v1 legacy format
+            type   = msg.event;
+            table  = msg.topic?.split(':')[2];
+            record = msg.payload?.record      || {};
+            old    = msg.payload?.old_record  || {};
+        } else {
+            return;  // heartbeat reply, join_ok, etc.
+        }
+
+        if (!type || !table) return;
+
+        if (table === 'posts') {
+            if (type === 'INSERT') onRemotePost(record);
+            if (type === 'DELETE') onRemoteDeletePost(old.id || record.id);
+        }
+        if (table === 'comments') {
+            if (type === 'INSERT') onRemoteComment(record);
+        }
+        if (table === 'reactions') {
+            if (type === 'INSERT') onRemoteReaction(record, 'add');
+            if (type === 'DELETE') onRemoteReaction(old,    'remove');
+        }
+    };
+
+    ws.onerror = () => {};
+    ws.onclose = () => {
+        clearInterval(_rtHbTimer);
+        // Auto-reconnect after 4s
+        setTimeout(() => {
+            if (document.visibilityState !== 'hidden') {
+                initRealtime(_rtToken, _rtUserId, _rtFeed);
+            }
+        }, 4000);
+    };
+
+    // Pause/resume on tab visibility
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && (!_rtSocket || _rtSocket.readyState > 1)) {
+            initRealtime(_rtToken, _rtUserId, _rtFeed);
+        }
+    });
+}
+
+/* ── Handle remote new post ── */
+async function onRemotePost(record) {
+    if (!_rtFeed) return;
+    // Skip if it's our own post (already rendered optimistically)
+    if (record.user_id === _rtUserId) return;
+    // Skip if card already exists in DOM
+    if (_rtFeed.querySelector(`[data-post-id="${record.id}"]`)) return;
+
+    // Fetch full post with profile join
+    try {
+        const rows = await pgGet(
+            `posts?id=eq.${record.id}&select=id,content,image_url,created_at,user_id,full_name,profiles(full_name,avatar_url)`,
+            _rtToken
+        );
+        if (!rows.length) return;
+        const row      = rows[0];
+        const imgRows  = await pgGet(`post_images?post_id=eq.${row.id}&select=url,position&order=position.asc`, _rtToken).catch(() => []);
+        const images   = imgRows.map(r => r.url);
+
+        const card = renderPost({
+            ...row,
+            author_name: row.profiles?.full_name || row.full_name || 'Member',
+            avatar_url:  row.profiles?.avatar_url || null,
+            images,
+        }, _rtUserId);
+
+        // Slide-in from top
+        card.style.cssText += ';opacity:0;transform:translateY(-20px);transition:opacity .4s ease,transform .4s cubic-bezier(.16,1,.3,1)';
+
+        // Insert at top of feed (before first post-card)
+        const first = _rtFeed.querySelector('.post-card');
+        if (first) _rtFeed.insertBefore(card, first);
+        else _rtFeed.prepend(card);
+
+        requestAnimationFrame(() => {
+            card.style.opacity   = '1';
+            card.style.transform = 'translateY(0)';
+        });
+
+        attachPostEvents(card, row, _rtToken, _rtUserId);
+
+        // Load reactions for the new card
+        const reactionBarEl = card.querySelector(`#reactions-${row.id}`);
+        if (reactionBarEl) loadReactions(row.id, _rtToken, _rtUserId, reactionBarEl);
+
+    } catch(e) { console.warn('onRemotePost fetch failed:', e); }
+}
+
+/* ── Handle remote post delete ── */
+function onRemoteDeletePost(postId) {
+    if (!postId) return;
+    const card = _rtFeed?.querySelector(`[data-post-id="${postId}"]`);
+    if (!card) return;
+    card.style.transition = 'opacity .35s ease, transform .35s ease, max-height .4s ease';
+    card.style.opacity    = '0';
+    card.style.transform  = 'scale(.97)';
+    card.style.overflow   = 'hidden';
+    card.style.maxHeight  = card.offsetHeight + 'px';
+    requestAnimationFrame(() => { card.style.maxHeight = '0'; card.style.marginBottom = '0'; });
+    setTimeout(() => card.remove(), 420);
+}
+
+/* ── Handle remote new comment ── */
+async function onRemoteComment(record) {
+    const postId   = record.post_id;
+    const listEl   = document.getElementById('comments-list-' + postId);
+    if (!listEl) return;   // comments section not open for this post
+    if (record.user_id === _rtUserId) return;  // own comment — already added optimistically
+
+    // Fetch with profile join
+    try {
+        const rows = await pgGet(
+            `comments?id=eq.${record.id}&select=id,content,created_at,user_id,profiles(full_name,avatar_url)`,
+            _rtToken
+        );
+        if (!rows.length) return;
+        const c    = rows[0];
+        const node = renderComment({
+            ...c,
+            author_name: c.profiles?.full_name || 'Member',
+            avatar_url:  c.profiles?.avatar_url || null,
+        });
+
+        node.style.opacity = '0';
+        node.style.transform = 'translateY(8px)';
+        node.style.transition = 'opacity .3s ease, transform .3s ease';
+
+        // Remove "no comments" placeholder if present
+        const empty = listEl.querySelector('.no-comments');
+        if (empty) empty.remove();
+        listEl.appendChild(node);
+
+        requestAnimationFrame(() => { node.style.opacity = '1'; node.style.transform = 'translateY(0)'; });
+
+        // Update comment count label
+        const countEl = document.querySelector(`.comment-count-label[data-id="${postId}"]`);
+        if (countEl) {
+            const n = listEl.querySelectorAll('.comment-item').length;
+            countEl.textContent = n + (n === 1 ? ' Comment' : ' Comments');
+        }
+    } catch(e) { console.warn('onRemoteComment fetch failed:', e); }
+}
+
+/* ── Handle remote reaction change ── */
+function onRemoteReaction(record, action) {
+    const postId = record.post_id;
+    const key    = record.emoji;
+    if (!postId || !key) return;
+    if (record.user_id === _rtUserId) return;  // own reaction — already updated optimistically
+
+    const barEl = document.getElementById('reactions-' + postId);
+    if (!barEl) return;
+
+    const btn    = barEl.querySelector(`.reaction-btn[data-key="${key}"]`);
+    if (!btn) return;
+
+    let countEl = btn.querySelector('.reaction-count');
+    let count   = parseInt(countEl?.textContent || '0');
+
+    if (action === 'add') {
+        count++;
+        if (!countEl) {
+            countEl = document.createElement('span');
+            countEl.className = 'reaction-count';
+            btn.appendChild(countEl);
+        }
+        countEl.textContent = count;
+        // Subtle pulse so other users see the change
+        btn.animate(
+            [{ transform: 'scale(1)' }, { transform: 'scale(1.2)' }, { transform: 'scale(1)' }],
+            { duration: 300, easing: 'cubic-bezier(.34,1.56,.64,1)' }
+        );
+    } else {
+        count = Math.max(0, count - 1);
+        if (count === 0) countEl?.remove();
+        else if (countEl) countEl.textContent = count;
+    }
+}
+
+/* ── attachPostEvents (needed by onRemotePost) ── */
+function attachPostEvents(card, row, token, currentUserId) {
+    const delBtn = card.querySelector('.post-delete-btn');
+    if (delBtn) delBtn.addEventListener('click', () => deletePost(row.id, card, token));
+
+    const toggleBtn    = card.querySelector('.post-comment-toggle');
+    const commentsEl   = card.querySelector('.post-comments');
+    let commentsLoaded = false;
+    toggleBtn?.addEventListener('click', () => {
+        const open = commentsEl.style.display === 'block';
+        commentsEl.style.display = open ? 'none' : 'block';
+        if (!open && !commentsLoaded) { commentsLoaded = true; loadComments(row.id, token); }
+    });
+
+    const form = card.querySelector('.comment-form');
+    form?.addEventListener('submit', async e => {
+        e.preventDefault();
+        const input     = form.querySelector('.comment-input');
+        const text      = input.value.trim();
+        if (!text) return;
+        const submitBtn = form.querySelector('.comment-submit');
+        submitBtn.disabled = true;
+
+        // Optimistic comment render
+        const listEl = document.getElementById('comments-list-' + row.id);
+        if (listEl) {
+            let userRaw = {};
+            try { userRaw = JSON.parse(localStorage.getItem('econovo-user') || '{}'); } catch {}
+            const meta = userRaw.user_metadata || {};
+            const name = meta.full_name || ((meta.first_name || '') + ' ' + (meta.last_name || '')).trim() || 'Me';
+            const avatarUrl = null;  // we don't have it here easily
+            const optimistic = renderComment({
+                id: 'optimistic-' + Date.now(),
+                content: text,
+                created_at: new Date().toISOString(),
+                author_name: name,
+                avatar_url:  avatarUrl,
+            });
+            optimistic.style.opacity   = '0';
+            optimistic.style.transform = 'translateY(8px)';
+            optimistic.style.transition = 'opacity .25s ease, transform .25s ease';
+            const empty = listEl.querySelector('.no-comments');
+            if (empty) empty.remove();
+            commentsLoaded = true;
+            listEl.appendChild(optimistic);
+            requestAnimationFrame(() => { optimistic.style.opacity = '1'; optimistic.style.transform = 'translateY(0)'; });
+        }
+
+        input.value = '';
+        // Update count label immediately
+        const countEl = document.querySelector(`.comment-count-label[data-id="${row.id}"]`);
+        if (countEl && listEl) {
+            const n = listEl.querySelectorAll('.comment-item').length;
+            countEl.textContent = n + (n === 1 ? ' Comment' : ' Comments');
+        }
+
+        try {
+            await pgPost('comments', { post_id: row.id, user_id: currentUserId, content: text }, token);
+            // Reload comments to get the real DB record (replaces optimistic)
+            await loadComments(row.id, token);
+        } catch {
+            toast('Could not post comment.', 'err');
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+}
+
 /* ══════════════════════════════════════════════════════════════
    INIT
    ══════════════════════════════════════════════════════════════ */
@@ -974,6 +1174,7 @@ window.initPostsFeed = function(token, currentUserId) {
 
     if (!feedContainer) return;
     loadPosts(feedContainer, token, currentUserId);
+    initRealtime(token, currentUserId, feedContainer);   // ← start live updates
     if (!createForm) return;
 
     /* Multi-image picker */
