@@ -1285,7 +1285,10 @@ async function loadUserAvatar() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('click', e => {
+    const spoiler = e.target.closest('.md-spoiler');
+    if (spoiler) spoiler.classList.toggle('revealed');
+});
 
   /* User info */
   document.getElementById('nav-name').textContent      = META.first_name || FULL_NAME;
