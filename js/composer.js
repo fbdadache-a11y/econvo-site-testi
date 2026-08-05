@@ -358,7 +358,7 @@ window.createRichComposer = function createRichComposer(opts = {}) {
     function getValue() { return ta.value; }
     function setValue(v) {
         ta.value = v || '';
-        charCount.textContent = `${ta.value.length} / ${maxLength}`;
+        charCount.textContent = `${ta.value.length}`;
     }
     function reset() { setValue(''); }
     function focus() { ta.focus(); }
