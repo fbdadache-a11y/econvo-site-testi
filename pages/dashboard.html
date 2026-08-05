@@ -1406,42 +1406,6 @@ document.addEventListener('click', async e => {
   document.getElementById('theme-btn').addEventListener('click', () => {
     applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   });
-function upgradeMainComposer() {
-    const oldTa = document.getElementById('post-content');
-    if (!oldTa || !window.createRichComposer) return;
-
-    const parent = oldTa.closest('.composer-top');
-    if (!parent) return;
-
-    // Create rich composer
-    const rich = window.createRichComposer({
-        placeholder: 'Share something with the community… (**bold**, *italic*, `code`)',
-        maxLength: 1000,
-        className: 'main-rte',
-    });
-
-    // Give the textarea the same id so posts.js finds it
-    rich.textarea.id = 'post-content';
-    // Replace old textarea
-    oldTa.replaceWith(rich.el);
-
-    // Char count sync (posts.js also listens to #post-char-count)
-    const charDisplay = document.getElementById('post-char-count');
-    if (charDisplay) {
-        rich.textarea.addEventListener('input', () => {
-            charDisplay.textContent = rich.textarea.value.length + ' / 1000';
-        });
-    }
-}
-function applyMarkdownToPostBodies() {
-    document.querySelectorAll('.post-body:not([data-md-done])').forEach(el => {
-        if (typeof window.parseMarkdown === 'function') {
-            el.innerHTML = window.parseMarkdown(el.textContent || '');
-            el.classList.add('md-post-body');
-            el.setAttribute('data-md-done', '1');
-        }
-    });
-}
 
 const mdObserver = new MutationObserver(() => applyMarkdownToPostBodies());
 mdObserver.observe(document.body, { childList: true, subtree: true });
@@ -1989,6 +1953,33 @@ function openEditGroupModal(group) {
       });
     });
   }
+function upgradeMainComposer() {
+    const oldTa = document.getElementById('post-content');
+    if (!oldTa || !window.createRichComposer) return;
+
+    const parent = oldTa.closest('.composer-top');
+    if (!parent) return;
+
+    // Create rich composer
+    const rich = window.createRichComposer({
+        placeholder: 'Share something with the community… (**bold**, *italic*, `code`)',
+        maxLength: 1000,
+        className: 'main-rte',
+    });
+
+    // Give the textarea the same id so posts.js finds it
+    rich.textarea.id = 'post-content';
+    // Replace old textarea
+    oldTa.replaceWith(rich.el);
+
+    // Char count sync (posts.js also listens to #post-char-count)
+    const charDisplay = document.getElementById('post-char-count');
+    if (charDisplay) {
+        rich.textarea.addEventListener('input', () => {
+            charDisplay.textContent = rich.textarea.value.length + ' / 1000';
+        });
+    }
+}
 
 });
 })();
