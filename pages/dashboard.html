@@ -1625,66 +1625,73 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function renderGroups() {
+function renderGroups() {
     const grid = document.getElementById('groups-grid');
     if (!grid || !Icons) return;
 
     if (!GROUPS_CACHE.length) {
-      grid.innerHTML = '<div class="feed-empty">No groups yet. Create the first one!</div>';
-      return;
+        grid.innerHTML = '<div class="feed-empty">No groups yet. Create the first one!</div>';
+        return;
     }
 
-    grid.innerHTML = GROUPS_CACHE.map(g => `
-      <div class="group-card" data-gid="${g.id}">
-        <div class="group-card-icon">${Icons.renderGroupIcon(g.iconKey, 40, 20)}</div>
-        <div class="group-card-name">${escH(g.name)}</div>
-        <div class="group-card-desc">${escH(g.desc)}</div>
-        <div class="group-card-meta">
-          <span>${g.members} member${g.members !== 1 ? 's' : ''}</span>
-          <button class="btn-join-group ${g.joined ? 'joined' : ''}" data-gid="${g.id}">
-            ${g.joined ? 'Joined ✓' : 'Join'}
-          </button>
-        </div>
-      </div>
-    `).join('');
+    grid.innerHTML = '';   // clear
 
-    grid.querySelectorAll('.group-card').forEach(card => {
-      card.addEventListener('click', e => {
-        if (e.target.closest('.btn-join-group')) return;
-        const gid = card.dataset.gid;
-        const g = GROUPS_CACHE.find(x => x.id === gid);
-        if (g) openGroupFeed(g);
-      });
-    });
+    GROUPS_CACHE.forEach(g => {
+        const card = document.createElement('div');
+        card.className = 'group-card';
+        card.dataset.gid = g.id;
 
-    grid.querySelectorAll('.btn-join-group').forEach(btn => {
-      btn.addEventListener('click', async e => {
-        e.stopPropagation();
-        const gid = btn.dataset.gid;
-        const g = GROUPS_CACHE.find(x => x.id === gid);
-        if (!g) return;
-        btn.disabled = true;
+        // Thumbnail (illustration + icon)
+        card.innerHTML = Icons.renderGroupThumbnail(g.iconKey, 0, 90) +
+            `<div class="group-card-body">
+                <div class="group-card-name">${escH(g.name)}</div>
+                <div class="group-card-desc">${escH(g.desc || '')}</div>
+                <div class="group-card-meta">
+                    <span>${g.members} member${g.members !== 1 ? 's' : ''}</span>
+                    <button class="btn-join-group ${g.joined ? 'joined' : ''}" data-gid="${g.id}">
+                        ${g.joined ? 'Joined ✓' : 'Join'}
+                    </button>
+                </div>
+            </div>`;
 
-        try {
-          if (g.joined) {
-            await sbDel(`group_members?group_id=eq.${gid}&user_id=eq.${USER_ID}`);
-            g.joined = false;
-            g.members = Math.max(0, g.members - 1);
-          } else {
-            await sbPost('group_members', { group_id: gid, user_id: USER_ID });
-            g.joined = true;
-            g.members += 1;
-          }
-          renderGroups(); renderWidgetGroups();
-          toast(g.joined ? `Joined "${g.name}"!` : `Left "${g.name}".`);
-        } catch (err) {
-          toast('Could not update membership.', 'err');
-        } finally {
-          btn.disabled = false;
+        // Fix thumbnail width (100% of card)
+        const thumb = card.querySelector('.group-thumbnail');
+        if (thumb) {
+            thumb.style.width = '100%';
+            thumb.style.borderRadius = '12px 12px 0 0';
         }
-      });
+
+        // Click → open group feed
+        card.addEventListener('click', e => {
+            if (e.target.closest('.btn-join-group')) return;
+            openGroupFeed(g);
+        });
+
+        // Join / Leave
+        const joinBtn = card.querySelector('.btn-join-group');
+        joinBtn?.addEventListener('click', async e => {
+            e.stopPropagation();
+            joinBtn.disabled = true;
+            try {
+                if (g.joined) {
+                    await sbDel(`group_members?group_id=eq.${g.id}&user_id=eq.${USER_ID}`);
+                    g.joined = false;
+                    g.members = Math.max(0, g.members - 1);
+                } else {
+                    await sbPost('group_members', { group_id: g.id, user_id: USER_ID });
+                    g.joined = true;
+                    g.members++;
+                }
+                renderGroups(); renderWidgetGroups();
+                toast(g.joined ? `Joined "${g.name}"! 🎉` : `Left "${g.name}".`);
+            } catch { toast('Could not update membership.', 'err'); }
+            finally { joinBtn.disabled = false; }
+        });
+
+        grid.appendChild(card);
     });
-  }
+}
+
 
   function openGroupFeed(group) {
     if (!Icons) return;
