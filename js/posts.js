@@ -638,7 +638,7 @@ function renderPost(post, currentUserId, opts = {}) {
             </div>
             ${ownerMenu}
         </div>
-        ${post.content ? `<p class="post-body" data-post-body="${escHtml(post.id)}">${escHtml(post.content)}</p>` : ''}
+${post.content ? `<p class="post-body md-post-body" data-post-body="${escHtml(post.id)}">${typeof window.parseMarkdown === 'function' ? window.parseMarkdown(post.content) : escHtml(post.content)}</p>` : ''}
         ${renderImageGallery(imageUrls)}
         <div class="link-preview-zone" id="lp-${post.id}"></div>
         <div class="post-footer">
