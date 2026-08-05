@@ -215,14 +215,6 @@ function parseTableRow(line) {
     return line.replace(/^\||\|$/g, '').split('|').map(cell => cell.trim());
 }
 
-/* ── هروب HTML آمن ── */
-function escH(s) {
-    if (!s) return '';
-    return String(s)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
 
 /* ══════════════════════════════════════════════════════════════
    TOOLBAR DEFINITION
@@ -262,11 +254,10 @@ const TOOLBAR_ACTIONS = [
 
 /* ══════════════════════════════════════════════════════════════
    createRichComposer(opts) → { el, getValue, setValue, reset }
-   opts: { placeholder, maxLength, onInput, className }
+   opts: { placeholder, onInput, className }
    ══════════════════════════════════════════════════════════════ */
 
 window.createRichComposer = function createRichComposer(opts = {}) {
-    const maxLength   = opts.maxLength   || 9999999;
     const placeholder = opts.placeholder || 'Write something…';
 
     /* ── Wrapper ── */
@@ -299,28 +290,19 @@ window.createRichComposer = function createRichComposer(opts = {}) {
     const ta = document.createElement('textarea');
     ta.className = 'rte-textarea';
     ta.placeholder = placeholder;
-    ta.maxLength = maxLength;
     ta.rows = 3;
-    ta.setAttribute('dir', 'auto');          // bidi-stable per-paragraph
+    ta.setAttribute('dir', 'auto');
     ta.setAttribute('autocomplete', 'off');
     ta.setAttribute('spellcheck', 'true');
 
-    /* ── Char counter ── */
-    const charCount = document.createElement('span');
-    charCount.className = 'rte-char-count';
-    charCount.textContent = `0` ;
-
     /* ── Assemble ── */
-    const footer = document.createElement('div');
-    footer.className = 'rte-footer';
-    footer.appendChild(charCount);
-    wrap.append(toolbar, ta, footer);
+    wrap.append(toolbar, ta);
 
     /* ── Toolbar click handler ── */
     toolbar.addEventListener('mousedown', (e) => {
         const btn = e.target.closest('.rte-tool-btn');
         if (!btn) return;
-        e.preventDefault();   // don't blur the textarea
+        e.preventDefault();
         const actionId = btn.dataset.action;
         const def = TOOLBAR_ACTIONS.find(a => a.id === actionId);
         if (!def) return;
@@ -346,19 +328,14 @@ window.createRichComposer = function createRichComposer(opts = {}) {
         }
     });
 
-    /* ── Char count update ── */
+    /* ── Input handler ── */
     ta.addEventListener('input', () => {
-        const len = ta.value.length;
-        charCount.textContent = `${len}`;
         if (opts.onInput) opts.onInput(ta.value);
     });
 
     /* ── Public API ── */
     function getValue() { return ta.value; }
-    function setValue(v) {
-        ta.value = v || '';
-        charCount.textContent = `${ta.value.length}`;
-    }
+    function setValue(v) { ta.value = v || ''; }
     function reset() { setValue(''); }
     function focus() { ta.focus(); }
 
