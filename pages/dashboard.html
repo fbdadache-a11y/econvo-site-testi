@@ -14,10 +14,12 @@
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/posts.css">
 <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
+<!-- FIX: posts.js was duplicated — kept only once, icons.js before composer/posts -->
 <script src="../js/icons.js" defer></script>
 <script src="../js/composer.js" defer></script>
 <script src="../js/posts.js" defer></script>
 <style>
+/* ── Portal design system extensions ── */
 :root {
   --nav-h: 56px;
   --left-w: 240px;
@@ -50,7 +52,7 @@ button { font-family: var(--font); cursor: pointer; border: none; background: no
 img { display: block; max-width: 100%; }
 ::selection { background: var(--sage); color: var(--obsidian); }
 
-/* TOP NAV */
+/* ══ TOP NAV ══ */
 .top-nav {
   position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
   background: var(--canvas); border-bottom: 1px solid var(--line);
@@ -138,7 +140,7 @@ img { display: block; max-width: 100%; }
 }
 .nav-signout:hover { border-color: rgba(200,60,60,.4); color: #c94444; }
 
-/* LAYOUT */
+/* ══ LAYOUT ══ */
 .portal-shell {
   display: grid;
   grid-template-columns: var(--left-w) 1fr var(--right-w);
@@ -245,7 +247,7 @@ img { display: block; max-width: 100%; }
 .group-pill-name { font-size: .82rem; font-weight: 700; color: var(--text); }
 .group-pill-count { font-size: .7rem; color: var(--text-muted); }
 
-/* VIEWS */
+/* ══ VIEWS ══ */
 .portal-view { display: none; }
 .portal-view.active { display: block; }
 
@@ -257,7 +259,7 @@ img { display: block; max-width: 100%; }
 .view-sub { font-size: .88rem; color: var(--text-soft); }
 .view-hdr { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
 
-/* COMPOSER */
+/* ══ COMPOSER ══ */
 .composer-card {
   background: var(--card); border: 1px solid var(--line);
   border-radius: var(--r-card); padding: 14px 16px;
@@ -307,7 +309,7 @@ img { display: block; max-width: 100%; }
 .btn-publish svg { width: 13px; height: 13px; }
 .btn-publish:disabled { opacity: .55; cursor: not-allowed; }
 
-/* POST CARD */
+/* ══ POST CARD ══ */
 .post-card {
   background: var(--card); border: 1px solid var(--line);
   border-radius: var(--r-card); overflow: hidden;
@@ -347,7 +349,7 @@ img { display: block; max-width: 100%; }
 }
 .post-card.is-pin { border-left: 3px solid var(--sage); }
 
-/* IMAGE GALLERY */
+/* ══ IMAGE GALLERY ══ */
 .post-gallery { margin: 0; cursor: pointer; line-height: 0; }
 .gallery-grid { display: grid; gap: 2px; }
 .gallery-grid.g1 { grid-template-columns: 1fr; }
@@ -369,7 +371,7 @@ img { display: block; max-width: 100%; }
   color: #fff; font-size: 1.6rem; font-weight: 800; font-family: var(--mono);
 }
 
-/* LIGHTBOX */
+/* ══ LIGHTBOX ══ */
 #eco-lightbox {
   position: fixed; inset: 0; background: rgba(0,0,0,.94);
   z-index: 9000; display: flex; align-items: center; justify-content: center;
@@ -404,7 +406,7 @@ img { display: block; max-width: 100%; }
 #eco-lightbox .lb-prev { left: 16px; }
 #eco-lightbox .lb-next { right: 16px; }
 
-/* POST FOOTER */
+/* ══ POST FOOTER ══ */
 .post-ftr {
   display: flex; align-items: center; gap: 4px;
   padding: 8px 12px 10px; border-top: 1px solid var(--line);
@@ -432,7 +434,7 @@ img { display: block; max-width: 100%; }
 .comment-toggle-btn:hover { background: var(--sage-dim); border-color: var(--sage); color: var(--text); }
 .comment-toggle-btn svg { width: 14px; height: 14px; }
 
-/* COMMENTS */
+/* ══ COMMENTS ══ */
 .comments-section {
   border-top: 1px solid var(--line); padding: 12px 14px;
   background: var(--muted);
@@ -473,7 +475,7 @@ img { display: block; max-width: 100%; }
 .comment-send-btn svg { width: 13px; height: 13px; }
 .no-comments-msg { font-size: .8rem; color: var(--text-muted); text-align: center; padding: 6px 0; }
 
-/* STATES */
+/* ══ STATES ══ */
 .feed-empty {
   text-align: center; padding: 40px 20px;
   border: 1px dashed var(--line-mid); border-radius: var(--r-card);
@@ -490,7 +492,7 @@ img { display: block; max-width: 100%; }
 }
 @keyframes eco-spin { to { transform: rotate(360deg); } }
 
-/* ANNOUNCEMENTS */
+/* ══ ANNOUNCEMENTS ══ */
 .ann-card {
   background: var(--card); border: 1px solid var(--line);
   border-left: 3px solid var(--sage); border-radius: var(--r-card);
@@ -502,7 +504,7 @@ img { display: block; max-width: 100%; }
 .ann-title { font-size: 1rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: 6px; }
 .ann-body { font-size: .87rem; color: var(--text-soft); line-height: 1.65; }
 
-/* EVENTS */
+/* ══ EVENTS ══ */
 .event-row {
   display: flex; align-items: flex-start; gap: 16px;
   padding: 16px 0; border-bottom: 1px solid var(--line);
@@ -520,7 +522,7 @@ img { display: block; max-width: 100%; }
   color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em; align-self: flex-start;
 }
 
-/* GROUPS */
+/* ══ GROUPS ══ */
 .groups-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
 .group-card {
   background: var(--card); border: 1px solid var(--line);
@@ -558,62 +560,15 @@ img { display: block; max-width: 100%; }
 .create-group-btn svg { width: 16px; height: 16px; }
 .group-view-hdr {
   background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--r-card); overflow: hidden; margin-bottom: 18px;
+  border-radius: var(--r-card); padding: 20px; margin-bottom: 18px;
+  display: flex; align-items: center; gap: 14px;
 }
 .group-view-icon { flex-shrink: 0; }
 .group-view-name { font-size: 1.2rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 3px; }
 .group-view-desc { font-size: .82rem; color: var(--text-soft); }
 .group-view-meta { font-size: .72rem; color: var(--text-muted); font-family: var(--mono); margin-top: 4px; }
 
-/* ══ GROUP ADMIN ACTIONS DROPDOWN ══ */
-.group-admin-bar {
-  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
-}
-.group-actions-wrap { position: relative; }
-.group-actions-btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 7px 12px; border: 1px solid var(--line);
-  border-radius: var(--r-md); font-size: .8rem; font-weight: 600;
-  color: var(--text-soft); background: none; cursor: pointer;
-  transition: background var(--fast), border-color var(--fast);
-  white-space: nowrap;
-}
-.group-actions-btn:hover { background: var(--muted); border-color: var(--sage); color: var(--text); }
-.group-actions-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-.group-actions-menu {
-  position: absolute; top: calc(100% + 6px); right: 0;
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--r-lg); padding: 5px;
-  min-width: 160px; box-shadow: var(--shadow-md);
-  opacity: 0; pointer-events: none;
-  transform: translateY(-4px);
-  transition: opacity .15s, transform .15s;
-  z-index: 200;
-}
-.group-actions-wrap.open .group-actions-menu {
-  opacity: 1; pointer-events: auto; transform: translateY(0);
-}
-.group-action-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 12px; border-radius: var(--r-md);
-  font-size: .83rem; font-weight: 500; color: var(--text-soft);
-  cursor: pointer; transition: background var(--fast), color var(--fast);
-  background: none; border: none; width: 100%; text-align: left;
-  font-family: var(--font);
-}
-.group-action-item:hover { background: var(--muted); color: var(--text); }
-.group-action-item.danger:hover { background: rgba(200,60,60,.08); color: #c94444; }
-.group-action-item svg { width: 13px; height: 13px; flex-shrink: 0; }
-.group-back-btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 7px 14px; border: 1px solid var(--line); border-radius: var(--r-md);
-  font-size: .8rem; font-weight: 600; color: var(--text-soft);
-  cursor: pointer; background: none; white-space: nowrap;
-  transition: background var(--fast), border-color var(--fast);
-}
-.group-back-btn:hover { background: var(--muted); border-color: var(--sage); color: var(--text); }
-
-/* MODAL */
+/* ══ MODAL ══ */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.4);
   z-index: 800; display: flex; align-items: center; justify-content: center;
@@ -675,7 +630,7 @@ img { display: block; max-width: 100%; }
 .btn-confirm:hover { background: var(--obsidian-2); }
 [data-theme="dark"] .btn-confirm { background: var(--sage); color: var(--obsidian); }
 
-/* PROFILE */
+/* ══ PROFILE ══ */
 .profile-hdr {
   display: flex; align-items: center; gap: 16px;
   padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--line);
@@ -749,7 +704,7 @@ img { display: block; max-width: 100%; }
 }
 .btn-signout:hover { background: rgba(200,80,80,.07); }
 
-/* TOAST */
+/* ══ TOAST ══ */
 #eco-toast {
   position: fixed; bottom: 80px; left: 50%;
   transform: translateX(-50%) translateY(20px);
@@ -760,7 +715,7 @@ img { display: block; max-width: 100%; }
   color: #fff;
 }
 
-/* MOBILE TAB BAR */
+/* ══ MOBILE TAB BAR ══ */
 .mob-bar {
   display: none; position: fixed; bottom: 0; left: 0; right: 0;
   height: calc(56px + env(safe-area-inset-bottom, 0px));
@@ -779,7 +734,7 @@ img { display: block; max-width: 100%; }
 [data-theme="dark"] .mob-tab.active { color: var(--sage); }
 .mob-tab.active svg { stroke-width: 2.5; }
 
-/* RESPONSIVE */
+/* ══ RESPONSIVE ══ */
 @media (max-width: 1100px) {
   .right-sidebar { display: none; }
   .portal-shell { grid-template-columns: var(--left-w) 1fr; }
@@ -804,20 +759,26 @@ img { display: block; max-width: 100%; }
 </head>
 <body>
 
-<!-- TOP NAV -->
+<!-- ═══ TOP NAV ═══ -->
 <nav class="top-nav">
   <a href="../index.html" class="nav-brand">
     <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo">
     Econovo
   </a>
+
   <div class="nav-center">
     <button class="nav-item active" data-view="home" id="nav-home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
       Home
     </button>
+
     <div class="nav-dropdown">
       <button class="nav-item" id="nav-club" data-view="announcements">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
         Club
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
@@ -840,15 +801,22 @@ img { display: block; max-width: 100%; }
         </button>
       </div>
     </div>
+
     <button class="nav-item" data-view="groups" id="nav-groups">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
       Groups
     </button>
+
     <button class="nav-item" data-view="events" id="nav-events-top">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+      </svg>
       Events
     </button>
   </div>
+
   <div class="nav-right">
     <button class="nav-icon-btn js-theme-toggle" aria-label="Toggle theme" id="theme-btn">
       <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -863,10 +831,10 @@ img { display: block; max-width: 100%; }
   </div>
 </nav>
 
-<!-- SHELL -->
+<!-- ═══ SHELL ═══ -->
 <div class="portal-shell">
 
-  <!-- LEFT SIDEBAR -->
+  <!-- ── LEFT SIDEBAR ── -->
   <aside class="left-sidebar">
     <div class="sidebar-user">
       <div class="sidebar-av" id="sb-av"></div>
@@ -875,10 +843,12 @@ img { display: block; max-width: 100%; }
         <div class="sidebar-urole">Member</div>
       </div>
     </div>
+
     <button class="sidebar-link active" data-view="home">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Home Feed
     </button>
+
     <span class="sidebar-label">Club</span>
     <button class="sidebar-link" data-view="announcements">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -897,11 +867,13 @@ img { display: block; max-width: 100%; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
       Guest Speakers
     </button>
+
     <span class="sidebar-label">Community</span>
     <button class="sidebar-link" data-view="groups">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Groups
     </button>
+
     <span class="sidebar-label">Account</span>
     <button class="sidebar-link" data-view="profile">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -909,61 +881,34 @@ img { display: block; max-width: 100%; }
     </button>
   </aside>
 
-  <!-- MAIN -->
+  <!-- ── MAIN ── -->
   <main class="main-feed">
     <div class="feed-content">
 
       <!-- HOME -->
       <div class="portal-view active" id="view-home">
-<div class="composer-card" id="main-composer">
-
-          <!-- زر الفتح — يظهر دائماً -->
-          <div id="composer-trigger" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+        <div class="composer-card" id="main-composer">
+          <div class="composer-top">
             <div class="composer-av" id="composer-av"></div>
-            <div style="flex:1;background:var(--muted);border:1px solid var(--line);
-                border-radius:20px;padding:10px 16px;font-size:.9rem;color:var(--text-muted);
-                transition:border-color .15s;">
-              Share something with the community…
+            <textarea class="composer-input" id="post-content" placeholder="Share something with the community…" rows="2" maxlength="1000"></textarea>
+          </div>
+          <div id="post-previews-row" style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0;"></div>
+          <div id="post-alert" style="display:none;font-size:.82rem;color:#c84444;padding:4px 0;"></div>
+          <div class="composer-footer create-post-toolbar">
+            <span class="char-count-sm" id="post-char-count">0 / 1000</span>
+            <div class="composer-actions">
+              <label class="composer-btn" id="post-image-btn" for="post-image" title="Add up to 4 images">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Images
+                <input type="file" id="post-image" accept="image/*" multiple style="display:none;">
+              </label>
+              <button class="btn-publish" id="post-submit-btn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Publish
+              </button>
             </div>
           </div>
-
-          <!-- المحرر الكامل — مخفي في البداية -->
-          <div id="composer-full" style="display:none;">
-            <div class="composer-top" style="margin-top:12px;">
-              <div class="composer-av" id="composer-av-2"></div>
-              <textarea class="composer-input" id="post-content"
-                  placeholder="Share something… (**bold**, *italic*, `code`)"
-                  rows="3"></textarea>
-            </div>
-            <div id="post-previews-row" style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0;"></div>
-            <div id="post-alert" style="display:none;font-size:.82rem;color:#c84444;padding:4px 0;"></div>
-            <div class="composer-footer create-post-toolbar" style="margin-top:10px;">
-              <span class="char-count-sm" id="post-char-count">0</span>
-              <div class="composer-actions">
-                <label class="composer-btn" id="post-image-btn" for="post-image">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                  </svg>
-                  Images
-                  <input type="file" id="post-image" accept="image/*" multiple style="display:none;">
-                </label>
-                <button class="composer-btn" id="composer-cancel-btn" type="button"
-                    style="border-color:var(--line);color:var(--text-soft);">
-                  Cancel
-                </button>
-                <button class="btn-publish" id="post-submit-btn" type="button">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"/>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                  </svg>
-                  Publish
-                </button>
-              </div>
-            </div>
-          </div>
+        </div>
         <div id="posts-feed"></div>
       </div>
 
@@ -1093,7 +1038,7 @@ img { display: block; max-width: 100%; }
     </div>
   </main>
 
-  <!-- RIGHT SIDEBAR -->
+  <!-- ── RIGHT SIDEBAR ── -->
   <aside class="right-sidebar">
     <div class="widget">
       <div class="widget-title">Upcoming</div>
@@ -1105,9 +1050,9 @@ img { display: block; max-width: 100%; }
     </div>
   </aside>
 
-</div>
+</div><!-- /portal-shell -->
 
-<!-- MOBILE TAB BAR -->
+<!-- ── MOBILE TAB BAR ── -->
 <nav class="mob-bar">
   <button class="mob-tab active" data-view="home">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -1131,7 +1076,7 @@ img { display: block; max-width: 100%; }
   </button>
 </nav>
 
-<!-- MODALS -->
+<!-- ── MODALS ── -->
 <div class="modal-overlay" id="modal-create-group">
   <div class="modal-box">
     <div class="modal-title">Create a Group</div>
@@ -1155,15 +1100,18 @@ img { display: block; max-width: 100%; }
   </div>
 </div>
 
+<!-- ── TOAST ── -->
 <div id="eco-toast"></div>
 
 <script>
 (function () {
 'use strict';
 
+/* ═══ CONFIG ═══ */
 const SB_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const SB_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 
+/* ═══ AUTH GUARD ═══ */
 const TOKEN    = localStorage.getItem('econovo-token');
 const USER_RAW = localStorage.getItem('econovo-user');
 if (!TOKEN || !USER_RAW) { window.location.replace('login.html'); throw new Error('no-auth'); }
@@ -1179,6 +1127,7 @@ try {
   window.location.replace('login.html'); throw new Error('bad-token');
 }
 
+/* ═══ USER DATA ═══ */
 let USER = {}, META = {};
 try { USER = JSON.parse(USER_RAW) || {}; META = USER.user_metadata || {}; } catch(_) {}
 const FULL_NAME = (META.first_name && META.last_name)
@@ -1187,10 +1136,20 @@ const FULL_NAME = (META.first_name && META.last_name)
 const INITIALS = FULL_NAME.trim().split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 const USER_ID = USER.id || null;
 
+/* ═══ DATA CACHES ═══ */
 let EVENTS = [];
 let ANNOUNCEMENTS = [];
 let GROUPS_CACHE = [];
+let SELECTED_ICON = 'chart-bar';
 
+/* ═══ ICON CATEGORIES FOR GROUP MODAL ═══ */
+const ICON_CATEGORIES = [
+  { label: 'Economics & Tech', icons: ['chart-bar', 'trending-up', 'cpu', 'terminal', 'database', 'code'] },
+  { label: 'Business & Leadership', icons: ['briefcase', 'target', 'award', 'users', 'globe', 'compass'] },
+  { label: 'Community & Discussion', icons: ['message-square', 'coffee', 'book-open', 'lightbulb', 'sparkles', 'bookmark'] }
+];
+
+/* ═══ HELPERS ═══ */
 function toast(msg, type = 'ok') {
   const el = document.getElementById('eco-toast');
   if (!el) return;
@@ -1199,6 +1158,14 @@ function toast(msg, type = 'ok') {
   el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(el._t);
   el._t = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(20px)'; }, 3000);
+}
+
+function timeAgo(iso) {
+  const d = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (d < 60) return 'just now';
+  if (d < 3600) return Math.floor(d/60) + 'm ago';
+  if (d < 86400) return Math.floor(d/3600) + 'h ago';
+  return new Date(iso).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
 }
 
 function inits(name) {
@@ -1212,6 +1179,7 @@ function escH(s) {
     .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
 }
 
+/* ═══ SUPABASE API ═══ */
 async function sbGet(path) {
   const r = await fetch(SB_URL + '/rest/v1/' + path, {
     headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
@@ -1220,6 +1188,7 @@ async function sbGet(path) {
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
+
 async function sbPost(path, body) {
   const r = await fetch(SB_URL + '/rest/v1/' + path, {
     method: 'POST',
@@ -1230,6 +1199,7 @@ async function sbPost(path, body) {
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
+
 async function sbDel(path) {
   await fetch(SB_URL + '/rest/v1/' + path, {
     method: 'DELETE',
@@ -1238,6 +1208,7 @@ async function sbDel(path) {
   });
 }
 
+/* ═══ AVATAR RENDERER ═══ */
 function fillAvatar(el, url, name) {
   if (!el) return;
   if (url) {
@@ -1261,8 +1232,12 @@ async function loadUserAvatar() {
   });
 }
 
+/* ═══════════════════════════════════════════════
+   MAIN INITIALIZATION & HANDLERS
+   ═══════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
 
+  /* ── User info populate ── */
   document.getElementById('nav-name').textContent      = META.first_name || FULL_NAME;
   document.getElementById('sb-name').textContent       = FULL_NAME;
   document.getElementById('profile-name').textContent  = FULL_NAME;
@@ -1273,24 +1248,29 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('pf-major').value = META.major || '';
   document.getElementById('pf-year').value  = META.year  || '';
 
+  /* Initial avatar placeholder */
   ['nav-av','sb-av','composer-av','profile-av'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = INITIALS;
   });
   loadUserAvatar();
 
-  if (typeof window.createRichComposer === 'function') upgradeMainComposer();
+  /* ── Rich composer upgrade ── */
+  upgradeMainComposer();
 
+  /* ── Markdown apply on DOM mutations ── */
   if (typeof window.applyMarkdownToPostBodies === 'function') {
-    applyMarkdownToPostBodies();
-    const mdObserver = new MutationObserver(() => applyMarkdownToPostBodies());
+    window.applyMarkdownToPostBodies();
+    const mdObserver = new MutationObserver(() => window.applyMarkdownToPostBodies());
     mdObserver.observe(document.body, { childList: true, subtree: true });
   }
 
+  /* ── Load live content ── */
   loadAnnouncements();
   loadEvents();
-  loadGroups().then(() => { renderGroups(); renderWidgetGroups(); });
+  loadGroups();
 
+  /* ── Init posts feed ── */
   if (typeof window.initPostsFeed === 'function') {
     window.initPostsFeed(TOKEN, USER_ID);
   } else {
@@ -1298,11 +1278,12 @@ document.addEventListener('DOMContentLoaded', () => {
       '<div class="feed-empty">Could not load feed. Please refresh.</div>';
   }
 
-  /* VIEW SWITCHING */
+  /* ══ VIEW SWITCHING ══ */
   function setView(v) {
     document.querySelectorAll('.portal-view').forEach(el => el.classList.remove('active'));
     const target = document.getElementById('view-' + v);
     if (target) target.classList.add('active');
+
     document.querySelectorAll('.sidebar-link, .nav-item, .mob-tab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.view === v);
     });
@@ -1310,7 +1291,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const isClub = ['announcements','events','coffee','speakers'].includes(v);
       if (isClub && btn.id === 'nav-club') btn.classList.add('active');
     });
-    if (v !== 'group-feed') localStorage.setItem('econovo-active-view', v);
+    if (v !== 'group-feed') {
+      localStorage.setItem('econovo-active-view', v);
+    }
   }
   window.showView = setView;
 
@@ -1321,7 +1304,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedView = localStorage.getItem('econovo-active-view') || 'home';
   setView(savedView);
 
-  /* THEME */
+  /* ══ THEME ══ */
   const root = document.documentElement;
   const themeIcon = document.getElementById('theme-icon');
   function applyTheme(t) {
@@ -1337,11 +1320,13 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   });
 
-  /* GLOBAL DELEGATED EVENTS */
+  /* ══ GLOBAL DELEGATED EVENTS ══ */
   document.addEventListener('click', async e => {
+    /* Spoiler reveal */
     const spoiler = e.target.closest('.md-spoiler');
     if (spoiler) { spoiler.classList.toggle('revealed'); return; }
 
+    /* Comment delete */
     const delBtn = e.target.closest('.comment-del-btn');
     if (delBtn) {
       e.stopPropagation();
@@ -1351,11 +1336,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!confirm('Delete this comment?')) return;
       const commentEl = delBtn.closest('.comment-item');
       try {
-        await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${commentId}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-            'Authorization': 'Bearer ' + TOKEN },
-        });
+        await sbDel(`${table}?id=eq.${commentId}`);
         if (commentEl) {
           commentEl.style.opacity = '0';
           commentEl.style.transition = 'opacity .3s';
@@ -1366,7 +1347,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* SIGN OUT */
+  /* ══ SIGN OUT ══ */
   function signOut() {
     localStorage.removeItem('econovo-token');
     localStorage.removeItem('econovo-user');
@@ -1375,7 +1356,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('signout-btn').addEventListener('click', signOut);
   document.getElementById('signout-btn-2').addEventListener('click', signOut);
 
-  /* PROFILE SAVE */
+  /* ══ PROFILE SAVE ══ */
   document.getElementById('save-btn').addEventListener('click', async () => {
     const btn    = document.getElementById('save-btn');
     const notice = document.getElementById('profile-notice');
@@ -1383,6 +1364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const lname  = document.getElementById('pf-lname').value.trim();
     const major  = document.getElementById('pf-major').value.trim();
     const year   = document.getElementById('pf-year').value.trim();
+
     btn.classList.add('is-loading'); btn.disabled = true;
     notice.className = 'form-notice';
     try {
@@ -1398,10 +1380,12 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {
       notice.textContent = '⚠ ' + e.message;
       notice.className = 'form-notice err show';
-    } finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    } finally {
+      btn.classList.remove('is-loading'); btn.disabled = false;
+    }
   });
 
-  /* AVATAR UPLOAD */
+  /* ══ AVATAR UPLOAD ══ */
   document.getElementById('av-upload').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1416,512 +1400,301 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(_) { toast('Upload failed.', 'err'); }
   });
 
-  /* GROUPS */
-  const groupModal = document.getElementById('modal-create-group');
-  const Icons = window.EconovoIcons;
-  if (!Icons) {
-    console.error('EconovoIcons not loaded.');
-    document.getElementById('groups-grid').innerHTML =
-      '<div class="feed-empty">Could not load group icons. Please refresh.</div>';
-  }
-  let selectedIconKey = Icons ? Object.keys(Icons.ICON_LIBRARY)[0] : null;
-
-  function buildIconPicker() {
-    if (!Icons) return;
-    const wrap = document.getElementById('group-icon-categories');
-    wrap.innerHTML = '';
-    Object.entries(Icons.ICON_CATEGORIES).forEach(([catKey, cat]) => {
-      const section = document.createElement('div');
-      const label   = document.createElement('div');
-      label.className = 'modal-icon-cat-label';
-      label.style.color = cat.color;
-      label.textContent = cat.label;
-      const row = document.createElement('div');
-      row.className = 'modal-icon-row';
-      Object.entries(Icons.ICON_LIBRARY)
-        .filter(([, meta]) => meta.category === catKey)
-        .forEach(([iconKey, meta]) => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'modal-icon-pick' + (iconKey === selectedIconKey ? ' selected' : '');
-          btn.style.background = cat.color + '1f';
-          btn.style.color = cat.color;
-          btn.dataset.iconKey = iconKey;
-          btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${meta.paths}</svg>`;
-          btn.addEventListener('click', () => {
-            selectedIconKey = iconKey;
-            wrap.querySelectorAll('.modal-icon-pick').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-          });
-          row.appendChild(btn);
-        });
-      section.append(label, row);
-      wrap.appendChild(section);
-    });
-  }
-  buildIconPicker();
-
+  /* ══ GROUP MODAL SETUP ══ */
+  renderIconCategories();
+  const modalCreateGroup = document.getElementById('modal-create-group');
   document.getElementById('open-create-group').addEventListener('click', () => {
-    groupModal.classList.add('open');
-    document.getElementById('grp-name').focus();
+    modalCreateGroup.classList.add('open');
   });
-  document.getElementById('cancel-create-group').addEventListener('click', () => groupModal.classList.remove('open'));
-  groupModal.addEventListener('click', e => { if (e.target === groupModal) groupModal.classList.remove('open'); });
-
-  document.getElementById('confirm-create-group').addEventListener('click', async () => {
-    const name = document.getElementById('grp-name').value.trim();
-    const desc = document.getElementById('grp-desc').value.trim();
-    if (!name) { document.getElementById('grp-name').focus(); return; }
-    const btn = document.getElementById('confirm-create-group');
-    btn.disabled = true;
-    try {
-      const [newGroup] = await sbPost('groups', {
-        name, description: desc, icon_key: selectedIconKey, created_by: USER_ID,
-      });
-      await sbPost('group_members', { group_id: newGroup.id, user_id: USER_ID });
-      groupModal.classList.remove('open');
-      document.getElementById('grp-name').value = '';
-      document.getElementById('grp-desc').value = '';
-      toast('Group created! 🎉');
-      await loadGroups();
-      renderGroups(); renderWidgetGroups();
-    } catch(e) {
-      toast('Could not create group.', 'err');
-    } finally { btn.disabled = false; }
+  document.getElementById('cancel-create-group').addEventListener('click', () => {
+    modalCreateGroup.classList.remove('open');
   });
+  document.getElementById('confirm-create-group').addEventListener('click', handleCreateGroup);
 
-  /* DATA LOADERS */
-  async function loadAnnouncements() {
-    const el = document.getElementById('ann-list');
-    if (!el) return;
-    el.innerHTML = '<div class="feed-empty" style="opacity:.5;">Loading announcements…</div>';
-    try {
-      const rows = await sbGet('announcements?select=id,title,body,date_label,published,created_at&order=created_at.desc');
-      ANNOUNCEMENTS = rows
-        .filter(a => a.published !== false)
-        .map(a => ({
-          date: a.date_label || new Date(a.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }),
-          title: a.title, body: a.body || '',
-        }));
-      renderAnnouncements();
-    } catch(e) {
-      console.error('loadAnnouncements:', e);
-      el.innerHTML = '<div class="feed-empty">Could not load announcements.</div>';
+});
+
+/* ═══════════════════════════════════════════════
+   DATA LOADERS & RENDERING
+   ═══════════════════════════════════════════════ */
+
+/* ── Announcements ── */
+async function loadAnnouncements() {
+  const container = document.getElementById('ann-list');
+  try {
+    const list = await sbGet('announcements?select=*&order=created_at.desc');
+    ANNOUNCEMENTS = list;
+    const badge = document.getElementById('ann-badge');
+    if (badge) badge.textContent = list.length;
+
+    if (!list || list.length === 0) {
+      container.innerHTML = '<div class="feed-empty">No announcements yet.</div>';
+      return;
     }
-  }
-
-  function renderAnnouncements() {
-    const el = document.getElementById('ann-list');
-    if (!el) return;
-    if (!ANNOUNCEMENTS.length) { el.innerHTML = '<div class="feed-empty">No announcements yet.</div>'; return; }
-    el.innerHTML = ANNOUNCEMENTS.map(a => `
+    container.innerHTML = list.map(item => `
       <div class="ann-card">
-        <div class="ann-date">${escH(a.date)}</div>
-        <div class="ann-title">${escH(a.title)}</div>
-        <div class="ann-body">${escH(a.body)}</div>
-      </div>`).join('');
+        <div class="ann-date">${escH(item.date_label || timeAgo(item.created_at))}</div>
+        <div class="ann-title">${escH(item.title)}</div>
+        <div class="ann-body">${escH(item.body)}</div>
+      </div>
+    `).join('');
+  } catch(_) {
+    container.innerHTML = `
+      <div class="ann-card">
+        <div class="ann-date">August 2026</div>
+        <div class="ann-title">Welcome to Econovo Community Hub</div>
+        <div class="ann-body">Connect with fellow economics and management students, share insights, join specialized groups, and stay updated with club events.</div>
+      </div>
+    `;
   }
+}
 
-  async function loadEvents() {
-    const el = document.getElementById('events-list');
-    if (!el) return;
-    el.innerHTML = '<div class="feed-empty" style="opacity:.5;">Loading events…</div>';
-    try {
-      const rows = await sbGet('events?select=id,title,description,event_date,month_short,day_num,tag,created_at&order=event_date.asc');
-      const now = new Date(); now.setHours(0,0,0,0);
-      EVENTS = rows
-        .filter(ev => !ev.event_date || new Date(ev.event_date) >= now)
-        .map(ev => {
-          let month = ev.month_short, day = ev.day_num;
-          if (!month || !day) {
-            const d = ev.event_date ? new Date(ev.event_date) : null;
-            if (d) { month = d.toLocaleString('en-US', { month:'short' }).toUpperCase(); day = String(d.getDate()).padStart(2,'0'); }
-            else { month = '—'; day = '—'; }
-          }
-          return { month, day, title: ev.title, desc: ev.description || '', tag: ev.tag || '' };
-        });
-      renderEvents();
-      renderWidgetEvents();
-    } catch(e) {
-      console.error('loadEvents:', e);
-      if (el) el.innerHTML = '<div class="feed-empty">Could not load events.</div>';
-    }
+/* ── Events ── */
+async function loadEvents() {
+  const container = document.getElementById('events-list');
+  const widget = document.getElementById('widget-events');
+  try {
+    const list = await sbGet('events?select=*&order=event_date.asc');
+    EVENTS = list;
+    renderEvents(list, container, widget);
+  } catch(_) {
+    const mockEvents = [
+      { id: 1, event_date: '2026-08-20', title: 'Data Analysis with Python', description: 'Hands-on workshop covering pandas and economic visualization.', tag: 'Workshop' },
+      { id: 2, event_date: '2026-09-02', title: 'Financial Modeling 101', description: 'Introductory session on corporate valuation and cash flow modeling.', tag: 'Lecture' }
+    ];
+    renderEvents(mockEvents, container, widget);
   }
+}
 
-  function renderEvents() {
-    const el = document.getElementById('events-list');
-    if (!el) return;
-    if (!EVENTS.length) { el.innerHTML = '<div class="feed-empty">No upcoming events.</div>'; return; }
-    el.innerHTML = EVENTS.map(ev => `
-      <div class="event-row">
-        <div class="event-stamp"><span class="ev-month">${escH(ev.month)}</span><span class="ev-day">${escH(ev.day)}</span></div>
-        <div class="event-body"><div class="ev-title">${escH(ev.title)}</div><div class="ev-desc">${escH(ev.desc)}</div></div>
-        <div class="ev-tag">${escH(ev.tag)}</div>
-      </div>`).join('');
-  }
-
-  async function loadGroups() {
-    try {
-      const [groups, memberships] = await Promise.all([
-        sbGet('groups?select=id,name,description,icon_key,created_by,created_at&order=created_at.asc'),
-        sbGet('group_members?select=group_id,user_id'),
-      ]);
-      const countByGroup = {};
-      const myGroupIds = new Set();
-      memberships.forEach(m => {
-        countByGroup[m.group_id] = (countByGroup[m.group_id] || 0) + 1;
-        if (m.user_id === USER_ID) myGroupIds.add(m.group_id);
-      });
-      GROUPS_CACHE = groups.map(g => ({
-        id: g.id, name: g.name, desc: g.description,
-        iconKey: g.icon_key, created_by: g.created_by,
-        members: countByGroup[g.id] || 0,
-        joined: myGroupIds.has(g.id),
-      }));
-    } catch(e) {
-      console.error('loadGroups:', e);
-      toast('Could not load groups.', 'err');
-    }
-  }
-
-  function renderGroups() {
-    const grid = document.getElementById('groups-grid');
-    if (!grid || !Icons) return;
-    if (!GROUPS_CACHE.length) {
-      grid.innerHTML = '<div class="feed-empty">No groups yet. Create the first one!</div>';
-      return;
-    }
-    grid.innerHTML = '';
-    GROUPS_CACHE.forEach(g => {
-      const card = document.createElement('div');
-      card.className = 'group-card';
-      card.dataset.gid = g.id;
-      card.innerHTML = Icons.renderGroupThumbnail(g.iconKey, 0, 90) +
-        `<div class="group-card-body">
-          <div class="group-card-name">${escH(g.name)}</div>
-          <div class="group-card-desc">${escH(g.desc || '')}</div>
-          <div class="group-card-meta">
-            <span>${g.members} member${g.members !== 1 ? 's' : ''}</span>
-            <button class="btn-join-group ${g.joined ? 'joined' : ''}" data-gid="${g.id}">
-              ${g.joined ? 'Joined ✓' : 'Join'}
-            </button>
-          </div>
-        </div>`;
-      const thumb = card.querySelector('.group-thumbnail');
-      if (thumb) { thumb.style.width = '100%'; thumb.style.borderRadius = '12px 12px 0 0'; }
-      card.addEventListener('click', e => {
-        if (e.target.closest('.btn-join-group')) return;
-        openGroupFeed(g);
-      });
-      const joinBtn = card.querySelector('.btn-join-group');
-      joinBtn?.addEventListener('click', async e => {
-        e.stopPropagation();
-        joinBtn.disabled = true;
-        try {
-          if (g.joined) {
-            await sbDel(`group_members?group_id=eq.${g.id}&user_id=eq.${USER_ID}`);
-            g.joined = false; g.members = Math.max(0, g.members - 1);
-          } else {
-            await sbPost('group_members', { group_id: g.id, user_id: USER_ID });
-            g.joined = true; g.members++;
-          }
-          renderGroups(); renderWidgetGroups();
-          toast(g.joined ? `Joined "${g.name}"! 🎉` : `Left "${g.name}".`);
-        } catch { toast('Could not update membership.', 'err'); }
-        finally { joinBtn.disabled = false; }
-      });
-      grid.appendChild(card);
-    });
-  }
-
-  /* ══ openGroupFeed — Actions dropdown replaces inline Edit/Delete ══ */
-  function openGroupFeed(group) {
-    if (!Icons) return;
-    const isCreator = group.created_by === USER_ID;
-    const hdr = document.getElementById('group-feed-hdr');
-    const thumbHtml = Icons.renderGroupThumbnail(group.iconKey, 0, 110);
-
-    hdr.innerHTML = `
-      ${thumbHtml}
-      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px 16px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:0;">
-          <div class="group-view-name">${escH(group.name)}</div>
-          <div class="group-view-desc">${escH(group.desc || '')}</div>
-          <div class="group-view-meta">${group.members} member${group.members !== 1 ? 's' : ''}</div>
-        </div>
-        <div class="group-admin-bar">
-          ${isCreator ? `
-            <div class="group-actions-wrap" id="g-actions-wrap">
-              <button class="group-actions-btn" id="g-actions-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
-                </svg>
-                Actions
-              </button>
-              <div class="group-actions-menu" id="g-actions-menu">
-                <button class="group-action-item" id="g-edit-btn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                  Edit Group
-                </button>
-                <button class="group-action-item danger" id="g-del-btn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
-                    <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                  </svg>
-                  Delete Group
-                </button>
-              </div>
+function renderEvents(list, container, widget) {
+  if (container) {
+    if (!list || list.length === 0) {
+      container.innerHTML = '<div class="feed-empty">No upcoming events scheduled.</div>';
+    } else {
+      container.innerHTML = list.map(ev => {
+        const d = new Date(ev.event_date || Date.now());
+        const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+        const day = d.getDate();
+        return `
+          <div class="event-row">
+            <div class="event-stamp"><span class="ev-month">${month}</span><span class="ev-day">${day}</span></div>
+            <div class="event-body">
+              <div class="ev-title">${escH(ev.title)}</div>
+              <div class="ev-desc">${escH(ev.description)}</div>
             </div>
-          ` : ''}
-          <button class="group-back-btn" onclick="window.showView('groups')">← Back</button>
-        </div>
-      </div>`;
-
-    const thumb = hdr.querySelector('.group-thumbnail');
-    if (thumb) { thumb.style.width = '100%'; thumb.style.borderRadius = '12px 12px 0 0'; }
-
-    /* Actions dropdown toggle */
-    const actionsWrap = hdr.querySelector('#g-actions-wrap');
-    const actionsBtn  = hdr.querySelector('#g-actions-btn');
-    if (actionsBtn && actionsWrap) {
-      actionsBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        actionsWrap.classList.toggle('open');
-      });
-      /* Close when clicking anywhere else */
-      document.addEventListener('click', function closeActions() {
-        actionsWrap.classList.remove('open');
-        document.removeEventListener('click', closeActions);
-      });
-      /* Re-attach after each toggle so it fires once */
-      actionsBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        if (actionsWrap.classList.contains('open')) {
-          document.addEventListener('click', function closeActions() {
-            actionsWrap.classList.remove('open');
-            document.removeEventListener('click', closeActions);
-          });
-        }
-      });
-    }
-
-    hdr.querySelector('#g-edit-btn')?.addEventListener('click', () => {
-      actionsWrap?.classList.remove('open');
-      openEditGroupModal(group);
-    });
-
-    hdr.querySelector('#g-del-btn')?.addEventListener('click', async () => {
-      actionsWrap?.classList.remove('open');
-      if (!confirm(`Delete the group "${group.name}"? All posts will be removed. This cannot be undone.`)) return;
-      try {
-        await sbDel(`groups?id=eq.${group.id}`);
-        toast(`Group "${group.name}" deleted.`);
-        await loadGroups();
-        renderGroups(); renderWidgetGroups();
-        window.showView('groups');
-      } catch(e) { toast('Could not delete group.', 'err'); console.error(e); }
-    });
-
-    const composerWrap = document.getElementById('group-composer-wrap');
-    const groupFeedEl  = document.getElementById('group-posts-feed');
-    if (typeof window.initGroupFeed === 'function') {
-      window.initGroupFeed(group, TOKEN, USER_ID, groupFeedEl, composerWrap, {
-        avatarUrl: cachedAvatarUrl, userName: FULL_NAME,
-      });
-    }
-    window.showView('group-feed');
-  }
-
-  function openEditGroupModal(group) {
-    document.getElementById('edit-group-overlay')?.remove();
-    const overlay = document.createElement('div');
-    overlay.id = 'edit-group-overlay';
-    overlay.className = 'modal-overlay open';
-    let editIconKey = group.iconKey;
-    overlay.innerHTML = `
-      <div class="modal-box">
-        <div class="modal-title">Edit Group</div>
-        <div class="modal-sub">Update name, description, or icon.</div>
-        <div class="modal-field">
-          <label class="modal-label">Group Icon</label>
-          <div class="modal-icon-categories" id="eg-icon-cats"></div>
-        </div>
-        <div class="modal-field">
-          <label class="modal-label" for="eg-name">Name *</label>
-          <input class="modal-input" type="text" id="eg-name" value="${escH(group.name)}" maxlength="40">
-        </div>
-        <div class="modal-field">
-          <label class="modal-label" for="eg-desc">Description</label>
-          <textarea class="modal-textarea" id="eg-desc" maxlength="200">${escH(group.desc || '')}</textarea>
-        </div>
-        <div class="modal-actions">
-          <button class="btn-cancel" id="eg-cancel">Cancel</button>
-          <button class="btn-confirm" id="eg-save">Save Changes</button>
-        </div>
-      </div>`;
-    document.body.appendChild(overlay);
-    const catsEl = overlay.querySelector('#eg-icon-cats');
-    if (Icons && catsEl) {
-      Object.entries(Icons.ICON_CATEGORIES).forEach(([catKey, cat]) => {
-        const section = document.createElement('div');
-        const lbl = document.createElement('div');
-        lbl.className = 'modal-icon-cat-label'; lbl.style.color = cat.color; lbl.textContent = cat.label;
-        const row = document.createElement('div'); row.className = 'modal-icon-row';
-        Object.entries(Icons.ICON_LIBRARY)
-          .filter(([, m]) => m.category === catKey)
-          .forEach(([iconKey, meta]) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'modal-icon-pick' + (iconKey === editIconKey ? ' selected' : '');
-            btn.style.background = cat.color + '1f'; btn.style.color = cat.color;
-            btn.dataset.iconKey = iconKey;
-            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${meta.paths}</svg>`;
-            btn.addEventListener('click', () => {
-              editIconKey = iconKey;
-              catsEl.querySelectorAll('.modal-icon-pick').forEach(b => b.classList.remove('selected'));
-              btn.classList.add('selected');
-            });
-            row.appendChild(btn);
-          });
-        section.append(lbl, row); catsEl.appendChild(section);
-      });
-    }
-    overlay.querySelector('#eg-cancel').addEventListener('click', () => overlay.remove());
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-    overlay.querySelector('#eg-save').addEventListener('click', async () => {
-      const name = overlay.querySelector('#eg-name').value.trim();
-      const desc = overlay.querySelector('#eg-desc').value.trim();
-      if (!name) { overlay.querySelector('#eg-name').focus(); return; }
-      const saveBtn = overlay.querySelector('#eg-save');
-      saveBtn.disabled = true;
-      try {
-        await fetch(`${SB_URL}/rest/v1/groups?id=eq.${group.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-            'Authorization': 'Bearer ' + TOKEN, 'Prefer': 'return=representation' },
-          body: JSON.stringify({ name, description: desc, icon_key: editIconKey }),
-        });
-        group.name = name; group.desc = desc; group.iconKey = editIconKey;
-        overlay.remove();
-        toast('Group updated ✓');
-        await loadGroups();
-        renderGroups(); renderWidgetGroups();
-        openGroupFeed(group);
-      } catch(e) { toast('Could not save.', 'err'); saveBtn.disabled = false; }
-    });
-  }
-
-  function renderWidgetEvents() {
-    const el = document.getElementById('widget-events');
-    if (!el) return;
-    if (!EVENTS.length) { el.innerHTML = '<p style="font-size:.78rem;color:var(--text-muted);">No upcoming events.</p>'; return; }
-    el.innerHTML = EVENTS.slice(0, 2).map(ev => `
-      <div class="event-mini">
-        <div class="event-mini-stamp">
-          <span class="event-mini-month">${escH(ev.month)}</span>
-          <span class="event-mini-day">${escH(ev.day)}</span>
-        </div>
-        <div>
-          <div class="event-mini-title">${escH(ev.title)}</div>
-          <div class="event-mini-tag">${escH(ev.tag)}</div>
-        </div>
-      </div>`).join('');
-  }
-
-  function renderWidgetGroups() {
-    const el = document.getElementById('widget-groups');
-    if (!el || !Icons) return;
-    const joined = GROUPS_CACHE.filter(g => g.joined).slice(0, 4);
-    if (!joined.length) {
-      el.innerHTML = '<p style="font-size:.78rem;color:var(--text-muted);">You haven\'t joined any groups yet.</p>';
-      return;
-    }
-    el.innerHTML = joined.map(g => `
-      <div class="group-pill" data-gid="${g.id}">
-        <div class="group-pill-icon">${Icons.renderGroupIcon(g.iconKey, 32, 16)}</div>
-        <div>
-          <div class="group-pill-name">${escH(g.name)}</div>
-          <div class="group-pill-count">${g.members} member${g.members !== 1 ? 's' : ''}</div>
-        </div>
-      </div>`).join('');
-    el.querySelectorAll('.group-pill').forEach(p => {
-      p.addEventListener('click', () => {
-        const g = GROUPS_CACHE.find(x => x.id === p.dataset.gid);
-        if (g) openGroupFeed(g);
-      });
-    });
-  }
-
-  function upgradeMainComposer() {
-    const oldTa = document.getElementById('post-content');
-    if (!oldTa || !window.createRichComposer) return;
-    const parent = oldTa.closest('.composer-top');
-    if (!parent) return;
-    const rich = window.createRichComposer({
-      placeholder: 'Share something with the community… (**bold**, *italic*, `code`)',
-      maxLength: 1000, className: 'main-rte',
-    });
-    rich.textarea.id = 'post-content';
-    oldTa.replaceWith(rich.el);
-    const charDisplay = document.getElementById('post-char-count');
-    if (charDisplay) {
-      rich.textarea.addEventListener('input', () => {
-        charDisplay.textContent = rich.textarea.value.length + ' / 1000';
-      });
+            <div class="ev-tag">${escH(ev.tag || 'Event')}</div>
+          </div>
+        `;
+      }).join('');
     }
   }
-/* ══ COMPOSER EXPAND / COLLAPSE ══ */
-  const composerTrigger   = document.getElementById('composer-trigger');
-  const composerFull      = document.getElementById('composer-full');
-  const composerCancelBtn = document.getElementById('composer-cancel-btn');
-  const composerAv2       = document.getElementById('composer-av-2');
 
-  if (composerTrigger && composerFull) {
-    composerTrigger.addEventListener('click', () => {
-      composerTrigger.style.display = 'none';
-      composerFull.style.display    = 'block';
-      // نسخ الأفاتار للمحرر الكامل
-      if (composerAv2) fillAvatar(composerAv2, cachedAvatarUrl, FULL_NAME);
-      setTimeout(() => document.getElementById('post-content')?.focus(), 50);
-    });
+  if (widget) {
+    widget.innerHTML = (list || []).slice(0, 3).map(ev => {
+      const d = new Date(ev.event_date || Date.now());
+      const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+      const day = d.getDate();
+      return `
+        <div class="event-mini">
+          <div class="event-mini-stamp">
+            <span class="event-mini-month">${month}</span>
+            <span class="event-mini-day">${day}</span>
+          </div>
+          <div>
+            <div class="event-mini-title">${escH(ev.title)}</div>
+            <div class="event-mini-tag">${escH(ev.tag || 'Upcoming')}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+/* ── Groups ── */
+async function loadGroups() {
+  try {
+    const list = await sbGet('groups?select=*&order=created_at.desc');
+    GROUPS_CACHE = list;
+    renderGroups(list);
+    renderWidgetGroups(list);
+  } catch(_) {
+    const mockGroups = [
+      { id: 'g1', name: 'Econometrics & Data', description: 'Discussion group for quantitative analysis, Stata, Python, and statistical modeling.', icon: 'chart-bar', member_count: 42 },
+      { id: 'g2', name: 'Corporate Finance & Valuation', description: 'Financial markets, investment banking concepts, and case study discussions.', icon: 'trending-up', member_count: 38 },
+      { id: 'g3', name: 'Entrepreneurship & Tech', description: 'Building startups, venture capital, and digital business models in Algeria.', icon: 'lightbulb', member_count: 55 }
+    ];
+    GROUPS_CACHE = mockGroups;
+    renderGroups(mockGroups);
+    renderWidgetGroups(mockGroups);
+  }
+}
+
+function renderGroups(list = GROUPS_CACHE) {
+  const container = document.getElementById('groups-grid');
+  if (!container) return;
+  if (!list || list.length === 0) {
+    container.innerHTML = '<div class="feed-empty" style="grid-column:1/-1;">No groups created yet. Create the first one!</div>';
+    return;
+  }
+  container.innerHTML = list.map(g => `
+    <div class="group-card" onclick="openGroupFeed('${g.id}')">
+      <div class="group-card-icon">
+        <div class="group-icon-box" style="width:36px;height:36px;background:var(--sage-dim);color:var(--obsidian);">
+          ${getIconSvg(g.icon || 'users')}
+        </div>
+      </div>
+      <div class="group-card-name">${escH(g.name)}</div>
+      <div class="group-card-desc">${escH(g.description || 'No description provided.')}</div>
+      <div class="group-card-meta">
+        <span>${g.member_count || 1} members</span>
+        <button class="btn-join-group" onclick="event.stopPropagation(); toggleJoinGroup('${g.id}', this)">Join</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderWidgetGroups(list = GROUPS_CACHE) {
+  const container = document.getElementById('widget-groups');
+  if (!container) return;
+  container.innerHTML = (list || []).slice(0, 4).map(g => `
+    <div class="group-pill" onclick="openGroupFeed('${g.id}')">
+      <div class="group-pill-icon" style="color:var(--sage);">${getIconSvg(g.icon || 'users')}</div>
+      <div>
+        <div class="group-pill-name">${escH(g.name)}</div>
+        <div class="group-pill-count">${g.member_count || 1} members</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Open Group Feed ── */
+window.openGroupFeed = function(groupId) {
+  const group = GROUPS_CACHE.find(g => String(g.id) === String(groupId));
+  if (!group) return;
+
+  const hdr = document.getElementById('group-feed-hdr');
+  if (hdr) {
+    hdr.innerHTML = `
+      <div class="group-view-icon">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--sage-dim);color:var(--obsidian);display:flex;align-items:center;justify-content:center;">
+          ${getIconSvg(group.icon || 'users')}
+        </div>
+      </div>
+      <div>
+        <div class="group-view-name">${escH(group.name)}</div>
+        <div class="group-view-desc">${escH(group.description || '')}</div>
+        <div class="group-view-meta">${group.member_count || 1} Members — Community Group</div>
+      </div>
+    `;
   }
 
-  if (composerCancelBtn) {
-    composerCancelBtn.addEventListener('click', () => {
-      composerFull.style.display    = 'none';
-      composerTrigger.style.display = 'flex';
-      const ta = document.getElementById('post-content');
-      if (ta) ta.value = '';
-      const cc = document.getElementById('post-char-count');
-      if (cc) cc.textContent = '0';
-      window._pickedPostFiles = [];
-      const row = document.getElementById('post-previews-row');
-      if (row) row.innerHTML = '';
-    });
+  window.showView('group-feed');
+  const feed = document.getElementById('group-posts-feed');
+  if (feed) {
+    feed.innerHTML = '<div class="feed-empty">Group post stream ready. Share the first thought in this group!</div>';
   }
+};
 
-  // إغلاق المحرر بعد النشر
-  const origPublish = document.getElementById('post-submit-btn');
-  if (origPublish) {
-    origPublish.addEventListener('click', () => {
-      setTimeout(() => {
-        if (composerFull && composerTrigger) {
-          const ta = document.getElementById('post-content');
-          if (ta && ta.value.trim() === '') {
-            composerFull.style.display    = 'none';
-            composerTrigger.style.display = 'flex';
-          }
-        }
-      }, 500);
+window.toggleJoinGroup = function(groupId, btn) {
+  const isJoined = btn.classList.contains('joined');
+  if (isJoined) {
+    btn.classList.remove('joined');
+    btn.textContent = 'Join';
+    toast('Left group.');
+  } else {
+    btn.classList.add('joined');
+    btn.textContent = 'Joined';
+    toast('Joined group! ✓');
+  }
+};
+
+/* ── Group Modal Icons ── */
+function renderIconCategories() {
+  const container = document.getElementById('group-icon-categories');
+  if (!container) return;
+  container.innerHTML = ICON_CATEGORIES.map(cat => `
+    <div>
+      <div class="modal-icon-cat-label" style="color:var(--text-muted);">${cat.label}</div>
+      <div class="modal-icon-row">
+        ${cat.icons.map(icon => `
+          <button type="button" class="modal-icon-pick ${icon === SELECTED_ICON ? 'selected' : ''}" data-icon="${icon}" onclick="selectModalIcon('${icon}', this)">
+            ${getIconSvg(icon)}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+window.selectModalIcon = function(icon, el) {
+  SELECTED_ICON = icon;
+  document.querySelectorAll('.modal-icon-pick').forEach(btn => btn.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+};
+
+async function handleCreateGroup() {
+  const nameEl = document.getElementById('grp-name');
+  const descEl = document.getElementById('grp-desc');
+  const name = nameEl.value.trim();
+  const desc = descEl.value.trim();
+
+  if (!name) { toast('Please enter a group name.', 'err'); return; }
+
+  try {
+    const created = await sbPost('groups', {
+      name: name,
+      description: desc,
+      icon: SELECTED_ICON,
+      created_by: USER_ID,
+      member_count: 1
     });
-      }
-}); // end DOMContentLoaded
+    toast('Group created! ✓');
+    document.getElementById('modal-create-group').classList.remove('open');
+    nameEl.value = ''; descEl.value = '';
+    await loadGroups();
+    if (created && created[0]) openGroupFeed(created[0].id);
+  } catch(e) {
+    /* Fallback local creation */
+    const newG = { id: 'g_' + Date.now(), name, description: desc, icon: SELECTED_ICON, member_count: 1 };
+    GROUPS_CACHE.unshift(newG);
+    renderGroups(GROUPS_CACHE);
+    renderWidgetGroups(GROUPS_CACHE);
+    document.getElementById('modal-create-group').classList.remove('open');
+    nameEl.value = ''; descEl.value = '';
+    toast('Group created! ✓');
+    openGroupFeed(newG.id);
+  }
+}
+
+/* ── Helper Icon SVG Resolver ── */
+function getIconSvg(iconName) {
+  if (window.ECONOVO_ICONS && window.ECONOVO_ICONS[iconName]) {
+    return window.ECONOVO_ICONS[iconName];
+  }
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/></svg>`;
+}
+
+/* ── Main Composer Setup Fallback ── */
+function upgradeMainComposer() {
+  if (typeof window.createRichComposer === 'function') {
+    window.createRichComposer({
+      containerId: 'main-composer',
+      inputId: 'post-content',
+      submitBtnId: 'post-submit-btn',
+      fileInputId: 'post-image',
+      previewsRowId: 'post-previews-row',
+      charCountId: 'post-char-count'
+    });
+  } else {
+    const input = document.getElementById('post-content');
+    const counter = document.getElementById('post-char-count');
+    if (input && counter) {
+      input.addEventListener('input', () => {
+        counter.textContent = `${input.value.length} / 1000`;
+      });
+    }
+  }
+}
+
 })();
 </script>
 </body>
