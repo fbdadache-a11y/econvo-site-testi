@@ -1982,7 +1982,7 @@ window.initPostsFeed = function(token, currentUserId) {
     const textarea = createForm.querySelector('#post-content');
     const charEl   = createForm.querySelector('#post-char-count');
     if (textarea && charEl) {
-        textarea.addEventListener('input', () => { charEl.textContent = textarea.value.length + ' / 1000'; });
+        textarea.addEventListener('input', () => { charEl.textContent = textarea.value.length + `${len} / ∞`; });
     }
 
     /* Publish */
