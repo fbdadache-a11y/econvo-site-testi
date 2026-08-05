@@ -591,9 +591,9 @@ function renderPost(post, currentUserId, opts = {}) {
                     <circle cx="12" cy="19" r="1"/>
                 </svg>
             </button>
-            <div class="post-menu-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 4px);
+            <div class="post-menu-dropdown" style="display:none;position:fixed;
                 background:var(--bg-raised,#fff);border:1px solid var(--line);border-radius:10px;
-                padding:5px;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:100;">
+                padding:5px;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:9999;">
                 <button class="post-edit-btn menu-item-btn" data-id="${post.id}"
                     style="display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;
                            border:none;background:none;cursor:pointer;font-size:.82rem;
@@ -1624,9 +1624,9 @@ function renderGroupPostCard(row, images, currentUserId, token, group) {
                     <circle cx="12" cy="19" r="1"/>
                 </svg>
             </button>
-            <div class="post-menu-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 4px);
+<div class="post-menu-dropdown" style="display:none;position:fixed;
                 background:var(--bg-raised,#fff);border:1px solid var(--line);border-radius:10px;
-                padding:5px;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:100;">
+                padding:5px;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:9999;">
                 <button class="gpost-edit-btn menu-item-btn" data-id="${row.id}"
                     style="display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;
                            border:none;background:none;cursor:pointer;font-size:.82rem;
