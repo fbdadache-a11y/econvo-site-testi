@@ -12,8 +12,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/posts.css">
 <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
-  
+<!-- FIX: posts.js was duplicated — kept only once, icons.js before composer/posts -->
+<script src="../js/icons.js" defer></script>
+<script src="../js/composer.js" defer></script>
+<script src="../js/posts.js" defer></script>
 <style>
 /* ── Portal design system extensions ── */
 :root {
@@ -66,7 +70,6 @@ img { display: block; max-width: 100%; }
 .nav-brand img { width: 26px; height: 26px; object-fit: contain; }
 .nav-center { flex: 1; display: flex; align-items: center; gap: 2px; padding: 0 8px; }
 
-/* Nav items */
 .nav-item {
   display: flex; align-items: center; gap: 6px;
   padding: 7px 12px; border-radius: var(--r-md);
@@ -84,7 +87,6 @@ img { display: block; max-width: 100%; }
 }
 .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; stroke-width: 2; }
 
-/* Club dropdown */
 .nav-dropdown { position: relative; }
 .nav-dropdown-menu {
   position: absolute; top: calc(100% + 10px); left: 0;
@@ -107,7 +109,6 @@ img { display: block; max-width: 100%; }
 .dropdown-item:hover { background: var(--muted); color: var(--text); }
 .dropdown-item svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-/* Right nav */
 .nav-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .nav-icon-btn {
   display: flex; align-items: center; justify-content: center;
@@ -150,7 +151,6 @@ img { display: block; max-width: 100%; }
   gap: 0;
 }
 
-/* ── Left sidebar ── */
 .left-sidebar {
   position: sticky; top: var(--nav-h);
   height: calc(100vh - var(--nav-h));
@@ -201,11 +201,9 @@ img { display: block; max-width: 100%; }
   padding: 1px 6px; border-radius: var(--r-pill); min-width: 18px; text-align: center;
 }
 
-/* ── Main feed ── */
 .main-feed { min-height: calc(100vh - var(--nav-h)); padding: 24px 20px; }
 .feed-content { max-width: var(--feed-max); margin: 0 auto; }
 
-/* ── Right sidebar ── */
 .right-sidebar {
   position: sticky; top: var(--nav-h);
   height: calc(100vh - var(--nav-h));
@@ -226,9 +224,7 @@ img { display: block; max-width: 100%; }
   padding: 8px 0; border-bottom: 1px solid var(--line);
 }
 .event-mini:last-child { border-bottom: none; padding-bottom: 0; }
-.event-mini-stamp {
-  flex-shrink: 0; text-align: center; width: 34px;
-}
+.event-mini-stamp { flex-shrink: 0; text-align: center; width: 34px; }
 .event-mini-month {
   font-family: var(--mono); font-size: .56rem; font-weight: 700;
   text-transform: uppercase; color: var(--sage); display: block;
@@ -255,7 +251,6 @@ img { display: block; max-width: 100%; }
 .portal-view { display: none; }
 .portal-view.active { display: block; }
 
-/* ── View header ── */
 .view-eyebrow {
   font-family: var(--mono); font-size: .64rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: .14em; color: var(--sage); margin-bottom: 6px;
@@ -264,7 +259,7 @@ img { display: block; max-width: 100%; }
 .view-sub { font-size: .88rem; color: var(--text-soft); }
 .view-hdr { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
 
-/* ══ CREATE POST COMPOSER ══ */
+/* ══ COMPOSER ══ */
 .composer-card {
   background: var(--card); border: 1px solid var(--line);
   border-radius: var(--r-card); padding: 14px 16px;
@@ -322,10 +317,7 @@ img { display: block; max-width: 100%; }
   transition: box-shadow var(--fast);
 }
 .post-card:hover { box-shadow: var(--shadow-md); }
-.post-hdr {
-  display: flex; align-items: center; gap: 10px;
-  padding: 14px 16px 0;
-}
+.post-hdr { display: flex; align-items: center; gap: 10px; padding: 14px 16px 0; }
 .post-avatar {
   width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
   background: linear-gradient(135deg, var(--obsidian) 0%, #163a32 100%);
@@ -350,17 +342,14 @@ img { display: block; max-width: 100%; }
 }
 .post-del-btn:hover { background: rgba(200,60,60,.1); color: #c84444; }
 .post-del-btn svg { width: 14px; height: 14px; }
-
 .post-body {
   padding: 10px 16px 12px;
   font-size: .9rem; color: var(--text); line-height: 1.65;
   white-space: pre-wrap; word-break: break-word;
 }
-
-/* ── Pin/announcement variant ── */
 .post-card.is-pin { border-left: 3px solid var(--sage); }
 
-/* ══ IMAGE GALLERY (Facebook-style) ══ */
+/* ══ IMAGE GALLERY ══ */
 .post-gallery { margin: 0; cursor: pointer; line-height: 0; }
 .gallery-grid { display: grid; gap: 2px; }
 .gallery-grid.g1 { grid-template-columns: 1fr; }
@@ -466,9 +455,7 @@ img { display: block; max-width: 100%; }
 .comment-author { font-size: .75rem; font-weight: 700; display: block; color: var(--text); }
 .comment-body { font-size: .84rem; color: var(--text); line-height: 1.45; }
 .comment-time { font-size: .68rem; color: var(--text-muted); display: block; margin-top: 3px; }
-.comment-form-row {
-  display: flex; gap: 8px; align-items: center; padding-top: 4px;
-}
+.comment-form-row { display: flex; gap: 8px; align-items: center; padding-top: 4px; }
 .comment-form { display: flex; gap: 6px; flex: 1; align-items: center; }
 .comment-input {
   flex: 1; border: 1px solid var(--line); border-radius: 18px;
@@ -536,21 +523,14 @@ img { display: block; max-width: 100%; }
 }
 
 /* ══ GROUPS ══ */
-.groups-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;
-}
+.groups-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
 .group-card {
   background: var(--card); border: 1px solid var(--line);
   border-radius: var(--r-card); padding: 16px; cursor: pointer;
   transition: border-color var(--fast), box-shadow var(--fast);
 }
 .group-card:hover { border-color: var(--sage); box-shadow: var(--shadow-sm); }
-.group-card-icon {
-  margin-bottom: 10px;
-}
-/* صندوق الأيقونة العام: لون الخلفية ولون الأيقونة يُحدَّدان inline حسب
-   فئة الأيقونة (انظر js/icons.js) — لا تُثبَّت الألوان هنا كي تبقى
-   الفئات متمايزة بصريًا. */
+.group-card-icon { margin-bottom: 10px; }
 .group-icon-box {
   border-radius: var(--r-md); display: flex; align-items: center;
   justify-content: center; flex-shrink: 0;
@@ -569,7 +549,6 @@ img { display: block; max-width: 100%; }
 }
 .btn-join-group:hover { background: var(--sage); }
 .btn-join-group.joined { background: var(--sage); color: var(--obsidian); }
-
 .create-group-btn {
   display: flex; align-items: center; gap: 8px;
   padding: 12px 16px; border: 1.5px dashed var(--line-mid);
@@ -579,8 +558,6 @@ img { display: block; max-width: 100%; }
 }
 .create-group-btn:hover { border-color: var(--sage); color: var(--text); background: var(--sage-dim); }
 .create-group-btn svg { width: 16px; height: 16px; }
-
-/* group view header */
 .group-view-hdr {
   background: var(--card); border: 1px solid var(--line);
   border-radius: var(--r-card); padding: 20px; margin-bottom: 18px;
@@ -591,7 +568,7 @@ img { display: block; max-width: 100%; }
 .group-view-desc { font-size: .82rem; color: var(--text-soft); }
 .group-view-meta { font-size: .72rem; color: var(--text-muted); font-family: var(--mono); margin-top: 4px; }
 
-/* Modal */
+/* ══ MODAL ══ */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.4);
   z-index: 800; display: flex; align-items: center; justify-content: center;
@@ -622,9 +599,6 @@ img { display: block; max-width: 100%; }
 }
 .modal-input:focus, .modal-textarea:focus { border-color: var(--sage); background: var(--card); }
 .modal-textarea { resize: vertical; min-height: 80px; }
-/* ── Icon picker (يستبدل منتقي الإيموجي القديم) ──
-   شبكة أيقونات Lucide مصنّفة، كل فئة بلون خلفية/حدّ مأخوذ من
-   js/icons.js عبر متغيّرات CSS مضبوطة inline على كل زر. */
 .modal-icon-categories {
   display: flex; flex-direction: column; gap: 12px; margin-top: 6px;
   max-height: 260px; overflow-y: auto; padding-right: 2px;
@@ -632,14 +606,12 @@ img { display: block; max-width: 100%; }
 .modal-icon-cat-label {
   font-family: var(--mono); font-size: .6rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;
-  /* color set inline per category */
 }
 .modal-icon-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .modal-icon-pick {
   width: 40px; height: 40px; border-radius: var(--r-md); border: 1.5px solid transparent;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: border-color var(--fast), transform var(--fast);
-  /* background + color set inline per icon's category */
 }
 .modal-icon-pick:hover { transform: scale(1.08); }
 .modal-icon-pick.selected { border-color: currentColor; box-shadow: 0 0 0 2px var(--card), 0 0 0 4px currentColor; }
@@ -647,8 +619,7 @@ img { display: block; max-width: 100%; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
 .btn-cancel {
   padding: 9px 18px; border: 1px solid var(--line); border-radius: var(--r-md);
-  font-size: .85rem; font-weight: 600; color: var(--text-soft);
-  transition: var(--fast);
+  font-size: .85rem; font-weight: 600; color: var(--text-soft); transition: var(--fast);
 }
 .btn-cancel:hover { background: var(--muted); color: var(--text); }
 .btn-confirm {
@@ -659,7 +630,7 @@ img { display: block; max-width: 100%; }
 .btn-confirm:hover { background: var(--obsidian-2); }
 [data-theme="dark"] .btn-confirm { background: var(--sage); color: var(--obsidian); }
 
-/* ══ PROFILE PAGE ══ */
+/* ══ PROFILE ══ */
 .profile-hdr {
   display: flex; align-items: center; gap: 16px;
   padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--line);
@@ -723,9 +694,7 @@ img { display: block; max-width: 100%; }
 .form-notice.ok { background: var(--sage-dim); border: 1px solid var(--sage-mid); color: var(--obsidian); }
 [data-theme="dark"] .form-notice.ok { color: var(--sage); }
 .form-notice.err { background: rgba(200,80,80,.08); border: 1px solid rgba(200,80,80,.25); color: #c94444; }
-.danger-zone {
-  margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--line);
-}
+.danger-zone { margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--line); }
 .danger-lbl { font-family: var(--mono); font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(180,60,60,.6); margin-bottom: 6px; }
 .btn-signout {
   display: inline-flex; align-items: center; gap: 6px;
@@ -734,22 +703,6 @@ img { display: block; max-width: 100%; }
   border-radius: var(--r-md); transition: var(--fast); cursor: pointer;
 }
 .btn-signout:hover { background: rgba(200,80,80,.07); }
-
-/* ══ EMOJI PICKER ══ */
-.emoji-picker-popup {
-  position: fixed; z-index: 700;
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--r-card); padding: 10px;
-  box-shadow: var(--shadow-md); display: flex; flex-wrap: wrap; gap: 4px;
-  width: 248px;
-}
-.emoji-pick-btn {
-  width: 32px; height: 32px; border: none; background: none;
-  border-radius: 7px; font-size: 1.1rem; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .12s, transform .1s;
-}
-.emoji-pick-btn:hover { background: var(--sage-dim); transform: scale(1.2); }
 
 /* ══ TOAST ══ */
 #eco-toast {
@@ -803,10 +756,6 @@ img { display: block; max-width: 100%; }
   .form-grid .span-2 { grid-column: 1; }
 }
 </style>
-<link rel="stylesheet" href="../css/posts.css">
-<script src="../js/icons.js" defer></script>
-<script src="../js/composer.js" defer></script>
-<script src="../js/posts.js" defer></script>
 </head>
 <body>
 
@@ -938,7 +887,6 @@ img { display: block; max-width: 100%; }
 
       <!-- HOME -->
       <div class="portal-view active" id="view-home">
-        <!-- Composer -->
         <div class="composer-card" id="main-composer">
           <div class="composer-top">
             <div class="composer-av" id="composer-av"></div>
@@ -961,8 +909,6 @@ img { display: block; max-width: 100%; }
             </div>
           </div>
         </div>
-
-        <!-- Feed container -->
         <div id="posts-feed"></div>
       </div>
 
@@ -1089,7 +1035,7 @@ img { display: block; max-width: 100%; }
         </div>
       </div>
 
-    </div><!-- /feed-content -->
+    </div>
   </main>
 
   <!-- ── RIGHT SIDEBAR ── -->
@@ -1165,7 +1111,7 @@ img { display: block; max-width: 100%; }
 const SB_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const SB_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 
-/* ═══ AUTH GUARD — stops execution on failure ═══ */
+/* ═══ AUTH GUARD ═══ */
 const TOKEN    = localStorage.getItem('econovo-token');
 const USER_RAW = localStorage.getItem('econovo-user');
 if (!TOKEN || !USER_RAW) { window.location.replace('login.html'); throw new Error('no-auth'); }
@@ -1178,7 +1124,6 @@ try {
   }
 } catch(e) {
   if (e.message === 'token-expired' || e.message === 'no-auth') throw e;
-  // malformed token
   window.location.replace('login.html'); throw new Error('bad-token');
 }
 
@@ -1190,16 +1135,10 @@ const FULL_NAME = (META.first_name && META.last_name)
   : (META.full_name || USER.email?.split('@')[0] || 'Member');
 const INITIALS = FULL_NAME.trim().split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 const USER_ID = USER.id || null;
-const JOIN_DATE = USER.created_at
-  ? new Date(USER.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
-  : '—';
 
-/* ═══ LIVE DATA CACHES (loaded from Supabase) ═══ */
+/* ═══ DATA CACHES ═══ */
 let EVENTS = [];
 let ANNOUNCEMENTS = [];
-/* المجموعات لم تعد ثابتة في الذاكرة — تُحمَّل من Supabase (جدولا
-   groups + group_members، انظر groups_migration.sql) وتُخزَّن هنا
-   بعد كل تحميل فقط كـ cache محلي للعرض السريع بين التبويبات. */
 let GROUPS_CACHE = [];
 
 /* ═══ HELPERS ═══ */
@@ -1259,7 +1198,7 @@ async function sbDel(path) {
   });
 }
 
-/* ═══ FILL UI ═══ */
+/* ═══ AVATAR ═══ */
 function fillAvatar(el, url, name) {
   if (!el) return;
   if (url) {
@@ -1272,7 +1211,6 @@ function fillAvatar(el, url, name) {
   } else { el.textContent = inits(name); }
 }
 
-/* Load avatar from profiles table */
 let cachedAvatarUrl = null;
 async function loadUserAvatar() {
   try {
@@ -1284,8 +1222,12 @@ async function loadUserAvatar() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  /* User info */
+/* ═══════════════════════════════════════════════
+   MAIN INIT — одна DOMContentLoaded, всё внутри
+   ═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ── User info ── */
   document.getElementById('nav-name').textContent      = META.first_name || FULL_NAME;
   document.getElementById('sb-name').textContent       = FULL_NAME;
   document.getElementById('profile-name').textContent  = FULL_NAME;
@@ -1296,59 +1238,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('pf-major').value = META.major || '';
   document.getElementById('pf-year').value  = META.year  || '';
 
-  /* Initials first, then load real avatar async */
+  /* Initials placeholder, real avatar loaded async */
   ['nav-av','sb-av','composer-av','profile-av'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = INITIALS;
   });
-
-document.addEventListener('click', e => {
-    const spoiler = e.target.closest('.md-spoiler');
-    if (spoiler) spoiler.classList.toggle('revealed');
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    upgradeMainComposer();
-    applyMarkdownToPostBodies();
-});  
-
-document.addEventListener('click', async e => {
-    const delBtn = e.target.closest('.comment-del-btn');
-    if (!delBtn) return;
-    e.stopPropagation();
-
-    const commentId = delBtn.dataset.commentId;
-    const table     = delBtn.dataset.table || 'comments';   // 'comments' | 'group_comments'
-    if (!commentId) return;
-    if (!confirm('Delete this comment?')) return;
-
-    const commentEl = delBtn.closest('.comment-item');
-    try {
-        await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${commentId}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-                'Authorization': 'Bearer ' + TOKEN },
-        });
-        if (commentEl) {
-            commentEl.style.opacity = '0';
-            commentEl.style.transition = 'opacity .3s';
-            setTimeout(() => commentEl.remove(), 320);
-        }
-        toast('Comment deleted.');
-    } catch { toast('Could not delete comment.', 'err'); }
-});
-  
-  
   loadUserAvatar();
 
-  /* Load live content from Supabase */
+  /* ── Rich composer upgrade (FIX: called here, not in nested DOMContentLoaded) ── */
+  if (typeof window.createRichComposer === 'function') {
+    upgradeMainComposer();
+  }
+
+  /* ── Markdown apply on DOM mutations ── */
+  if (typeof window.applyMarkdownToPostBodies === 'function') {
+    applyMarkdownToPostBodies();
+    const mdObserver = new MutationObserver(() => applyMarkdownToPostBodies());
+    mdObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  /* ── Load live content ── */
   loadAnnouncements();
-  loadEvents(); /* also calls renderWidgetEvents() after data arrives */
-  /* المجموعات تُحمَّل من Supabase الآن (كانت مصفوفة ثابتة) — تُحمَّل
-     مرة واحدة هنا ثم renderWidgetGroups تُعاد من GROUPS_CACHE مباشرة. */
+  loadEvents();
   loadGroups().then(() => { renderGroups(); renderWidgetGroups(); });
 
-  /* Init posts feed — posts.js loaded via defer, guaranteed ready here */
+  /* ── Init posts feed ── */
   if (typeof window.initPostsFeed === 'function') {
     window.initPostsFeed(TOKEN, USER_ID);
   } else {
@@ -1365,30 +1279,22 @@ document.addEventListener('click', async e => {
     document.querySelectorAll('.sidebar-link, .nav-item, .mob-tab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.view === v);
     });
-    // Update top-nav active (only direct nav-items)
     document.querySelectorAll('.nav-item').forEach(btn => {
       const isClub = ['announcements','events','coffee','speakers'].includes(v);
       if (isClub && btn.id === 'nav-club') btn.classList.add('active');
     });
-
-    // حفظ التبويب الحالي في التخزين المحلي (ما عدا صفحة عرض المجموعة الفردية لكي تعود للمجموعات إن أردت)
     if (v !== 'group-feed') {
       localStorage.setItem('econovo-active-view', v);
     }
   }
-
   window.showView = setView;
 
   document.querySelectorAll('.sidebar-link, .mob-tab, .nav-item, .nav-avatar-btn, .dropdown-item').forEach(btn => {
     btn.addEventListener('click', () => { if (btn.dataset.view) setView(btn.dataset.view); });
   });
 
-  // ==========================================
-  // استعادة التبويب المحفوظ عند إعادة تحميل الصفحة
-  // ==========================================
   const savedView = localStorage.getItem('econovo-active-view') || 'home';
   setView(savedView);
-
 
   /* ══ THEME ══ */
   const root = document.documentElement;
@@ -1406,8 +1312,37 @@ document.addEventListener('click', async e => {
     applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   });
 
-const mdObserver = new MutationObserver(() => applyMarkdownToPostBodies());
-mdObserver.observe(document.body, { childList: true, subtree: true });
+  /* ══ GLOBAL DELEGATED EVENTS
+     FIX: both click handlers merged here, not scattered/nested ══ */
+  document.addEventListener('click', async e => {
+    /* Spoiler reveal */
+    const spoiler = e.target.closest('.md-spoiler');
+    if (spoiler) { spoiler.classList.toggle('revealed'); return; }
+
+    /* Comment delete */
+    const delBtn = e.target.closest('.comment-del-btn');
+    if (delBtn) {
+      e.stopPropagation();
+      const commentId = delBtn.dataset.commentId;
+      const table     = delBtn.dataset.table || 'comments';
+      if (!commentId) return;
+      if (!confirm('Delete this comment?')) return;
+      const commentEl = delBtn.closest('.comment-item');
+      try {
+        await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${commentId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
+            'Authorization': 'Bearer ' + TOKEN },
+        });
+        if (commentEl) {
+          commentEl.style.opacity = '0';
+          commentEl.style.transition = 'opacity .3s';
+          setTimeout(() => commentEl.remove(), 320);
+        }
+        toast('Comment deleted.');
+      } catch { toast('Could not delete comment.', 'err'); }
+    }
+  });
 
   /* ══ SIGN OUT ══ */
   function signOut() {
@@ -1420,16 +1355,15 @@ mdObserver.observe(document.body, { childList: true, subtree: true });
 
   /* ══ PROFILE SAVE ══ */
   document.getElementById('save-btn').addEventListener('click', async () => {
-    const btn = document.getElementById('save-btn');
+    const btn    = document.getElementById('save-btn');
     const notice = document.getElementById('profile-notice');
-    const fname = document.getElementById('pf-fname').value.trim();
-    const lname = document.getElementById('pf-lname').value.trim();
-    const major = document.getElementById('pf-major').value.trim();
-    const year  = document.getElementById('pf-year').value.trim();
+    const fname  = document.getElementById('pf-fname').value.trim();
+    const lname  = document.getElementById('pf-lname').value.trim();
+    const major  = document.getElementById('pf-major').value.trim();
+    const year   = document.getElementById('pf-year').value.trim();
 
     btn.classList.add('is-loading'); btn.disabled = true;
     notice.className = 'form-notice';
-
     try {
       const data = await fetch(SB_URL + '/auth/v1/user', {
         method: 'PUT',
@@ -1448,7 +1382,7 @@ mdObserver.observe(document.body, { childList: true, subtree: true });
     }
   });
 
-  /* ══ AVATAR UPLOAD (profile) ══ */
+  /* ══ AVATAR UPLOAD ══ */
   document.getElementById('av-upload').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1456,7 +1390,6 @@ mdObserver.observe(document.body, { childList: true, subtree: true });
     try {
       if (typeof window.handleAvatarUpload === 'function') {
         await window.handleAvatarUpload(file, TOKEN, USER_ID, document.getElementById('profile-av'));
-        // Refresh all avatars
         cachedAvatarUrl = null;
         await loadUserAvatar();
         toast('Avatar updated! ✓');
@@ -1464,29 +1397,23 @@ mdObserver.observe(document.body, { childList: true, subtree: true });
     } catch(_) { toast('Upload failed.', 'err'); }
   });
 
-  /* ══ GROUPS ══
-     كل شيء هنا يقرأ/يكتب من Supabase (جدولا groups + group_members)
-     بدل مصفوفة DEFAULT_GROUPS الثابتة القديمة — هذا ما يجعل عداد
-     الأعضاء حقيقيًا: هو COUNT(*) فعلي على group_members، لا رقم مكتوب. */
+  /* ══ GROUPS ══ */
   const groupModal = document.getElementById('modal-create-group');
   const Icons = window.EconovoIcons;
   if (!Icons) {
-    // فشل تحميل js/icons.js (شبكة/مسار خاطئ) — لا نكسر باقي الصفحة،
-    // فقط نعطّل قسم المجموعات بدل توقف كل السكريبت بعد هذه النقطة.
     console.error('EconovoIcons not loaded — group icons unavailable.');
     document.getElementById('groups-grid').innerHTML =
       '<div class="feed-empty">Could not load group icons. Please refresh.</div>';
   }
   let selectedIconKey = Icons ? Object.keys(Icons.ICON_LIBRARY)[0] : null;
 
-  /* يبني شبكة الأيقونات داخل المودال، مجمّعة حسب الفئة، كل فئة بلون واحد. */
   function buildIconPicker() {
     if (!Icons) return;
     const wrap = document.getElementById('group-icon-categories');
     wrap.innerHTML = '';
     Object.entries(Icons.ICON_CATEGORIES).forEach(([catKey, cat]) => {
       const section = document.createElement('div');
-      const label = document.createElement('div');
+      const label   = document.createElement('div');
       label.className = 'modal-icon-cat-label';
       label.style.color = cat.color;
       label.textContent = cat.label;
@@ -1534,24 +1461,19 @@ mdObserver.observe(document.body, { childList: true, subtree: true });
       const [newGroup] = await sbPost('groups', {
         name, description: desc, icon_key: selectedIconKey, created_by: USER_ID,
       });
-      // المنشئ يُسجَّل تلقائيًا كأول عضو حقيقي في المجموعة
       await sbPost('group_members', { group_id: newGroup.id, user_id: USER_ID });
-
       groupModal.classList.remove('open');
       document.getElementById('grp-name').value = '';
       document.getElementById('grp-desc').value = '';
       toast('Group created! 🎉');
-
       await loadGroups();
       renderGroups(); renderWidgetGroups();
-    } catch (e) {
+    } catch(e) {
       toast('Could not create group.', 'err');
-    } finally {
-      btn.disabled = false;
-    }
+    } finally { btn.disabled = false; }
   });
 
-  /* ══ RENDER STATIC CONTENT ══ */
+  /* ══ DATA LOADERS ══ */
 
   async function loadAnnouncements() {
     const el = document.getElementById('ann-list');
@@ -1567,7 +1489,7 @@ mdObserver.observe(document.body, { childList: true, subtree: true });
           body: a.body || '',
         }));
       renderAnnouncements();
-    } catch (e) {
+    } catch(e) {
       console.error('loadAnnouncements:', e);
       el.innerHTML = '<div class="feed-empty">Could not load announcements.</div>';
     }
@@ -1611,7 +1533,7 @@ mdObserver.observe(document.body, { childList: true, subtree: true });
         });
       renderEvents();
       renderWidgetEvents();
-    } catch (e) {
+    } catch(e) {
       console.error('loadEvents:', e);
       if (el) el.innerHTML = '<div class="feed-empty">Could not load events.</div>';
     }
@@ -1633,279 +1555,223 @@ mdObserver.observe(document.body, { childList: true, subtree: true });
     `).join('');
   }
 
-  /* يحمّل كل المجموعات + عدد أعضاء حقيقي لكل واحدة + هل المستخدم
-     الحالي عضو فيها. يُخزَّن الناتج في GROUPS_CACHE ليُعاد استخدامه
-     من renderGroups/renderWidgetGroups بدون طلب جديد كل مرة. */
   async function loadGroups() {
     try {
       const [groups, memberships] = await Promise.all([
-        sbGet('groups?select=id,name,description,icon_key,created_at&order=created_at.asc'),
+        sbGet('groups?select=id,name,description,icon_key,created_by,created_at&order=created_at.asc'),
         sbGet('group_members?select=group_id,user_id'),
       ]);
-
       const countByGroup = {};
       const myGroupIds = new Set();
       memberships.forEach(m => {
         countByGroup[m.group_id] = (countByGroup[m.group_id] || 0) + 1;
         if (m.user_id === USER_ID) myGroupIds.add(m.group_id);
       });
-
       GROUPS_CACHE = groups.map(g => ({
         id: g.id,
         name: g.name,
         desc: g.description,
         iconKey: g.icon_key,
+        created_by: g.created_by,
         members: countByGroup[g.id] || 0,
         joined: myGroupIds.has(g.id),
       }));
-    } catch (e) {
+    } catch(e) {
       console.error('loadGroups:', e);
       toast('Could not load groups.', 'err');
     }
   }
 
-function renderGroups() {
+  function renderGroups() {
     const grid = document.getElementById('groups-grid');
     if (!grid || !Icons) return;
-
     if (!GROUPS_CACHE.length) {
-        grid.innerHTML = '<div class="feed-empty">No groups yet. Create the first one!</div>';
-        return;
+      grid.innerHTML = '<div class="feed-empty">No groups yet. Create the first one!</div>';
+      return;
     }
-
-    grid.innerHTML = '';   // clear
-
+    grid.innerHTML = '';
     GROUPS_CACHE.forEach(g => {
-        const card = document.createElement('div');
-        card.className = 'group-card';
-        card.dataset.gid = g.id;
-
-        // Thumbnail (illustration + icon)
-        card.innerHTML = Icons.renderGroupThumbnail(g.iconKey, 0, 90) +
-            `<div class="group-card-body">
-                <div class="group-card-name">${escH(g.name)}</div>
-                <div class="group-card-desc">${escH(g.desc || '')}</div>
-                <div class="group-card-meta">
-                    <span>${g.members} member${g.members !== 1 ? 's' : ''}</span>
-                    <button class="btn-join-group ${g.joined ? 'joined' : ''}" data-gid="${g.id}">
-                        ${g.joined ? 'Joined ✓' : 'Join'}
-                    </button>
-                </div>
-            </div>`;
-
-        // Fix thumbnail width (100% of card)
-        const thumb = card.querySelector('.group-thumbnail');
-        if (thumb) {
-            thumb.style.width = '100%';
-            thumb.style.borderRadius = '12px 12px 0 0';
-        }
-
-        // Click → open group feed
-        card.addEventListener('click', e => {
-            if (e.target.closest('.btn-join-group')) return;
-            openGroupFeed(g);
-        });
-
-        // Join / Leave
-        const joinBtn = card.querySelector('.btn-join-group');
-        joinBtn?.addEventListener('click', async e => {
-            e.stopPropagation();
-            joinBtn.disabled = true;
-            try {
-                if (g.joined) {
-                    await sbDel(`group_members?group_id=eq.${g.id}&user_id=eq.${USER_ID}`);
-                    g.joined = false;
-                    g.members = Math.max(0, g.members - 1);
-                } else {
-                    await sbPost('group_members', { group_id: g.id, user_id: USER_ID });
-                    g.joined = true;
-                    g.members++;
-                }
-                renderGroups(); renderWidgetGroups();
-                toast(g.joined ? `Joined "${g.name}"! 🎉` : `Left "${g.name}".`);
-            } catch { toast('Could not update membership.', 'err'); }
-            finally { joinBtn.disabled = false; }
-        });
-
-        grid.appendChild(card);
+      const card = document.createElement('div');
+      card.className = 'group-card';
+      card.dataset.gid = g.id;
+      card.innerHTML = Icons.renderGroupThumbnail(g.iconKey, 0, 90) +
+        `<div class="group-card-body">
+          <div class="group-card-name">${escH(g.name)}</div>
+          <div class="group-card-desc">${escH(g.desc || '')}</div>
+          <div class="group-card-meta">
+            <span>${g.members} member${g.members !== 1 ? 's' : ''}</span>
+            <button class="btn-join-group ${g.joined ? 'joined' : ''}" data-gid="${g.id}">
+              ${g.joined ? 'Joined ✓' : 'Join'}
+            </button>
+          </div>
+        </div>`;
+      const thumb = card.querySelector('.group-thumbnail');
+      if (thumb) { thumb.style.width = '100%'; thumb.style.borderRadius = '12px 12px 0 0'; }
+      card.addEventListener('click', e => {
+        if (e.target.closest('.btn-join-group')) return;
+        openGroupFeed(g);
+      });
+      const joinBtn = card.querySelector('.btn-join-group');
+      joinBtn?.addEventListener('click', async e => {
+        e.stopPropagation();
+        joinBtn.disabled = true;
+        try {
+          if (g.joined) {
+            await sbDel(`group_members?group_id=eq.${g.id}&user_id=eq.${USER_ID}`);
+            g.joined = false; g.members = Math.max(0, g.members - 1);
+          } else {
+            await sbPost('group_members', { group_id: g.id, user_id: USER_ID });
+            g.joined = true; g.members++;
+          }
+          renderGroups(); renderWidgetGroups();
+          toast(g.joined ? `Joined "${g.name}"! 🎉` : `Left "${g.name}".`);
+        } catch { toast('Could not update membership.', 'err'); }
+        finally { joinBtn.disabled = false; }
+      });
+      grid.appendChild(card);
     });
-}
+  }
 
-
- function openGroupFeed(group) {
+  function openGroupFeed(group) {
     if (!Icons) return;
-
     const isCreator = group.created_by === USER_ID;
     const hdr = document.getElementById('group-feed-hdr');
-
-    // Thumbnail row
     const thumbHtml = Icons.renderGroupThumbnail(group.iconKey, 0, 110);
-
     hdr.innerHTML = `
-        ${thumbHtml}
-        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px 0;">
-            <div style="flex:1;">
-                <div class="group-view-name">${escH(group.name)}</div>
-                <div class="group-view-desc">${escH(group.desc || '')}</div>
-                <div class="group-view-meta">${group.members} member${group.members !== 1 ? 's' : ''}</div>
-            </div>
-            <div class="group-admin-bar">
-                ${isCreator ? `
-                    <button class="group-edit-btn" id="g-edit-btn" title="Edit group">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                             stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                        Edit
-                    </button>
-                    <button class="group-delete-btn" id="g-del-btn" title="Delete group">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                             stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
-                            <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                        </svg>
-                        Delete
-                    </button>
-                ` : ''}
-                <button onclick="window.showView('groups')"
-                    style="padding:7px 14px;border:1px solid var(--line);border-radius:var(--r-md);
-                           font-size:.8rem;font-weight:600;color:var(--text-soft);cursor:pointer;
-                           background:none;">← Back</button>
-            </div>
-        </div>`;
-
-    // Fix thumbnail width
+      ${thumbHtml}
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px 0;">
+        <div style="flex:1;">
+          <div class="group-view-name">${escH(group.name)}</div>
+          <div class="group-view-desc">${escH(group.desc || '')}</div>
+          <div class="group-view-meta">${group.members} member${group.members !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="group-admin-bar">
+          ${isCreator ? `
+            <button class="group-edit-btn" id="g-edit-btn" title="Edit group">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Edit
+            </button>
+            <button class="group-delete-btn" id="g-del-btn" title="Delete group">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+                <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+              </svg>
+              Delete
+            </button>
+          ` : ''}
+          <button onclick="window.showView('groups')"
+            style="padding:7px 14px;border:1px solid var(--line);border-radius:var(--r-md);
+                   font-size:.8rem;font-weight:600;color:var(--text-soft);cursor:pointer;background:none;">
+            ← Back
+          </button>
+        </div>
+      </div>`;
     const thumb = hdr.querySelector('.group-thumbnail');
     if (thumb) { thumb.style.width = '100%'; thumb.style.borderRadius = '12px 12px 0 0'; }
-
-    // Edit group
     hdr.querySelector('#g-edit-btn')?.addEventListener('click', () => openEditGroupModal(group));
-
-    // Delete group
     hdr.querySelector('#g-del-btn')?.addEventListener('click', async () => {
-        if (!confirm(`Delete the group "${group.name}"? All posts will be removed. This cannot be undone.`)) return;
-        try {
-            await sbDel(`groups?id=eq.${group.id}`);
-            toast(`Group "${group.name}" deleted.`);
-            await loadGroups();
-            renderGroups(); renderWidgetGroups();
-            window.showView('groups');
-        } catch(e) { toast('Could not delete group.', 'err'); console.error(e); }
+      if (!confirm(`Delete the group "${group.name}"? All posts will be removed. This cannot be undone.`)) return;
+      try {
+        await sbDel(`groups?id=eq.${group.id}`);
+        toast(`Group "${group.name}" deleted.`);
+        await loadGroups();
+        renderGroups(); renderWidgetGroups();
+        window.showView('groups');
+      } catch(e) { toast('Could not delete group.', 'err'); console.error(e); }
     });
-
-    // Composer + feed via posts.js
     const composerWrap = document.getElementById('group-composer-wrap');
     const groupFeedEl  = document.getElementById('group-posts-feed');
-    window._pickedGroupFiles = [];
-
     if (typeof window.initGroupFeed === 'function') {
-        window.initGroupFeed(group, TOKEN, USER_ID, groupFeedEl, composerWrap, {
-            avatarUrl: cachedAvatarUrl,
-            userName:  FULL_NAME,
-        });
+      window.initGroupFeed(group, TOKEN, USER_ID, groupFeedEl, composerWrap, {
+        avatarUrl: cachedAvatarUrl, userName: FULL_NAME,
+      });
     }
-
     window.showView('group-feed');
-}
-function openEditGroupModal(group) {
-    document.getElementById('edit-group-overlay')?.remove();
+  }
 
+  function openEditGroupModal(group) {
+    document.getElementById('edit-group-overlay')?.remove();
     const overlay = document.createElement('div');
     overlay.id = 'edit-group-overlay';
     overlay.className = 'modal-overlay open';
-
-    const Icons = window.EconovoIcons;
-    let selectedIconKey = group.iconKey;
-
+    let editIconKey = group.iconKey;
     overlay.innerHTML = `
-        <div class="modal-box">
-            <div class="modal-title">Edit Group</div>
-            <div class="modal-sub">Update name, description, or icon.</div>
-            <div class="modal-field">
-                <label class="modal-label">Group Icon</label>
-                <div class="modal-icon-categories" id="eg-icon-cats"></div>
-            </div>
-            <div class="modal-field">
-                <label class="modal-label" for="eg-name">Name *</label>
-                <input class="modal-input" type="text" id="eg-name"
-                       value="${escH(group.name)}" maxlength="40">
-            </div>
-            <div class="modal-field">
-                <label class="modal-label" for="eg-desc">Description</label>
-                <textarea class="modal-textarea" id="eg-desc" maxlength="200">${escH(group.desc || '')}</textarea>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-cancel" id="eg-cancel">Cancel</button>
-                <button class="btn-confirm" id="eg-save">Save Changes</button>
-            </div>
-        </div>`;
-
+      <div class="modal-box">
+        <div class="modal-title">Edit Group</div>
+        <div class="modal-sub">Update name, description, or icon.</div>
+        <div class="modal-field">
+          <label class="modal-label">Group Icon</label>
+          <div class="modal-icon-categories" id="eg-icon-cats"></div>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="eg-name">Name *</label>
+          <input class="modal-input" type="text" id="eg-name" value="${escH(group.name)}" maxlength="40">
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="eg-desc">Description</label>
+          <textarea class="modal-textarea" id="eg-desc" maxlength="200">${escH(group.desc || '')}</textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="eg-cancel">Cancel</button>
+          <button class="btn-confirm" id="eg-save">Save Changes</button>
+        </div>
+      </div>`;
     document.body.appendChild(overlay);
-
-    // Build icon picker
     const catsEl = overlay.querySelector('#eg-icon-cats');
     if (Icons && catsEl) {
-        Object.entries(Icons.ICON_CATEGORIES).forEach(([catKey, cat]) => {
-            const section = document.createElement('div');
-            const lbl = document.createElement('div');
-            lbl.className = 'modal-icon-cat-label';
-            lbl.style.color = cat.color;
-            lbl.textContent = cat.label;
-            const row = document.createElement('div');
-            row.className = 'modal-icon-row';
-
-            Object.entries(Icons.ICON_LIBRARY)
-                .filter(([, m]) => m.category === catKey)
-                .forEach(([iconKey, meta]) => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'modal-icon-pick' + (iconKey === selectedIconKey ? ' selected' : '');
-                    btn.style.background = cat.color + '1f';
-                    btn.style.color = cat.color;
-                    btn.dataset.iconKey = iconKey;
-                    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${meta.paths}</svg>`;
-                    btn.addEventListener('click', () => {
-                        selectedIconKey = iconKey;
-                        catsEl.querySelectorAll('.modal-icon-pick').forEach(b => b.classList.remove('selected'));
-                        btn.classList.add('selected');
-                    });
-                    row.appendChild(btn);
-                });
-
-            section.append(lbl, row);
-            catsEl.appendChild(section);
-        });
+      Object.entries(Icons.ICON_CATEGORIES).forEach(([catKey, cat]) => {
+        const section = document.createElement('div');
+        const lbl = document.createElement('div');
+        lbl.className = 'modal-icon-cat-label'; lbl.style.color = cat.color; lbl.textContent = cat.label;
+        const row = document.createElement('div'); row.className = 'modal-icon-row';
+        Object.entries(Icons.ICON_LIBRARY)
+          .filter(([, m]) => m.category === catKey)
+          .forEach(([iconKey, meta]) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'modal-icon-pick' + (iconKey === editIconKey ? ' selected' : '');
+            btn.style.background = cat.color + '1f'; btn.style.color = cat.color;
+            btn.dataset.iconKey = iconKey;
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${meta.paths}</svg>`;
+            btn.addEventListener('click', () => {
+              editIconKey = iconKey;
+              catsEl.querySelectorAll('.modal-icon-pick').forEach(b => b.classList.remove('selected'));
+              btn.classList.add('selected');
+            });
+            row.appendChild(btn);
+          });
+        section.append(lbl, row); catsEl.appendChild(section);
+      });
     }
-
     overlay.querySelector('#eg-cancel').addEventListener('click', () => overlay.remove());
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-
     overlay.querySelector('#eg-save').addEventListener('click', async () => {
-        const name = overlay.querySelector('#eg-name').value.trim();
-        const desc = overlay.querySelector('#eg-desc').value.trim();
-        if (!name) { overlay.querySelector('#eg-name').focus(); return; }
-        const saveBtn = overlay.querySelector('#eg-save');
-        saveBtn.disabled = true;
-        try {
-            await fetch(`${SB_URL}/rest/v1/groups?id=eq.${group.id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-                    'Authorization': 'Bearer ' + TOKEN, 'Prefer': 'return=representation' },
-                body: JSON.stringify({ name, description: desc, icon_key: selectedIconKey }),
-            });
-            // Update cache
-            group.name    = name;
-            group.desc    = desc;
-            group.iconKey = selectedIconKey;
-            overlay.remove();
-            toast('Group updated ✓');
-            await loadGroups();
-            renderGroups(); renderWidgetGroups();
-            openGroupFeed(group);   // re-open with new data
-        } catch(e) { toast('Could not save.', 'err'); saveBtn.disabled = false; }
+      const name = overlay.querySelector('#eg-name').value.trim();
+      const desc = overlay.querySelector('#eg-desc').value.trim();
+      if (!name) { overlay.querySelector('#eg-name').focus(); return; }
+      const saveBtn = overlay.querySelector('#eg-save');
+      saveBtn.disabled = true;
+      try {
+        await fetch(`${SB_URL}/rest/v1/groups?id=eq.${group.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
+            'Authorization': 'Bearer ' + TOKEN, 'Prefer': 'return=representation' },
+          body: JSON.stringify({ name, description: desc, icon_key: editIconKey }),
+        });
+        group.name = name; group.desc = desc; group.iconKey = editIconKey;
+        overlay.remove();
+        toast('Group updated ✓');
+        await loadGroups();
+        renderGroups(); renderWidgetGroups();
+        openGroupFeed(group);
+      } catch(e) { toast('Could not save.', 'err'); saveBtn.disabled = false; }
     });
-      }
+  }
 
   function renderWidgetEvents() {
     const el = document.getElementById('widget-events');
@@ -1952,35 +1818,29 @@ function openEditGroupModal(group) {
       });
     });
   }
-function upgradeMainComposer() {
+
+  /* ── Rich composer upgrade ── */
+  function upgradeMainComposer() {
     const oldTa = document.getElementById('post-content');
     if (!oldTa || !window.createRichComposer) return;
-
     const parent = oldTa.closest('.composer-top');
     if (!parent) return;
-
-    // Create rich composer
     const rich = window.createRichComposer({
-        placeholder: 'Share something with the community… (**bold**, *italic*, `code`)',
-        maxLength: 1000,
-        className: 'main-rte',
+      placeholder: 'Share something with the community… (**bold**, *italic*, `code`)',
+      maxLength: 1000,
+      className: 'main-rte',
     });
-
-    // Give the textarea the same id so posts.js finds it
     rich.textarea.id = 'post-content';
-    // Replace old textarea
     oldTa.replaceWith(rich.el);
-
-    // Char count sync (posts.js also listens to #post-char-count)
     const charDisplay = document.getElementById('post-char-count');
     if (charDisplay) {
-        rich.textarea.addEventListener('input', () => {
-            charDisplay.textContent = rich.textarea.value.length + ' / 1000';
-        });
+      rich.textarea.addEventListener('input', () => {
+        charDisplay.textContent = rich.textarea.value.length + ' / 1000';
+      });
     }
-}
+  }
 
-});
+}); // end DOMContentLoaded
 })();
 </script>
 </body>
