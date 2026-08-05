@@ -1746,7 +1746,7 @@ const menuBtn  = card.querySelector('.post-menu-btn');
             dropdown.style.display = isOpen ? 'none' : 'block';
         });
         document.addEventListener('click', () => { dropdown.style.display = 'none'; });
-               }
+       }
 
     /* Edit */
     const editBtn = card.querySelector('.gpost-edit-btn');
