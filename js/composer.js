@@ -104,7 +104,7 @@ const TOOLBAR_ACTIONS = [
    ══════════════════════════════════════════════════════════════ */
 
 window.createRichComposer = function createRichComposer(opts = {}) {
-    const maxLength   = opts.maxLength   || 1000;
+    const maxLength   = opts.maxLength   || 9999999;
     const placeholder = opts.placeholder || 'Write something…';
 
     /* ── Wrapper ── */
@@ -146,7 +146,7 @@ window.createRichComposer = function createRichComposer(opts = {}) {
     /* ── Char counter ── */
     const charCount = document.createElement('span');
     charCount.className = 'rte-char-count';
-    charCount.textContent = `0 / ${maxLength}`;
+    charCount.textContent = `0` ;
 
     /* ── Assemble ── */
     const footer = document.createElement('div');
