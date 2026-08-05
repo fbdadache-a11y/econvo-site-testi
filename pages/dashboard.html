@@ -1285,11 +1285,7 @@ async function loadUserAvatar() {
   });
 }
 
-document.addEventListener('click', e => {
-    const spoiler = e.target.closest('.md-spoiler');
-    if (spoiler) spoiler.classList.toggle('revealed');
-});
-
+document.addEventListener('DOMContentLoaded', async () => {
   /* User info */
   document.getElementById('nav-name').textContent      = META.first_name || FULL_NAME;
   document.getElementById('sb-name').textContent       = FULL_NAME;
