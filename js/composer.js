@@ -349,8 +349,7 @@ window.createRichComposer = function createRichComposer(opts = {}) {
     /* ── Char count update ── */
     ta.addEventListener('input', () => {
         const len = ta.value.length;
-        charCount.textContent = `${len} / ${maxLength}`;
-        charCount.classList.toggle('rte-char-warn', len > maxLength * 0.9);
+        charCount.textContent = `${len}`;
         if (opts.onInput) opts.onInput(ta.value);
     });
 
