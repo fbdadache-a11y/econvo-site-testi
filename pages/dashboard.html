@@ -1769,7 +1769,104 @@ function renderGroups() {
 
     window.showView('group-feed');
 }
+function openEditGroupModal(group) {
+    document.getElementById('edit-group-overlay')?.remove();
 
+    const overlay = document.createElement('div');
+    overlay.id = 'edit-group-overlay';
+    overlay.className = 'modal-overlay open';
+
+    const Icons = window.EconovoIcons;
+    let selectedIconKey = group.iconKey;
+
+    overlay.innerHTML = `
+        <div class="modal-box">
+            <div class="modal-title">Edit Group</div>
+            <div class="modal-sub">Update name, description, or icon.</div>
+            <div class="modal-field">
+                <label class="modal-label">Group Icon</label>
+                <div class="modal-icon-categories" id="eg-icon-cats"></div>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label" for="eg-name">Name *</label>
+                <input class="modal-input" type="text" id="eg-name"
+                       value="${escH(group.name)}" maxlength="40">
+            </div>
+            <div class="modal-field">
+                <label class="modal-label" for="eg-desc">Description</label>
+                <textarea class="modal-textarea" id="eg-desc" maxlength="200">${escH(group.desc || '')}</textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="eg-cancel">Cancel</button>
+                <button class="btn-confirm" id="eg-save">Save Changes</button>
+            </div>
+        </div>`;
+
+    document.body.appendChild(overlay);
+
+    // Build icon picker
+    const catsEl = overlay.querySelector('#eg-icon-cats');
+    if (Icons && catsEl) {
+        Object.entries(Icons.ICON_CATEGORIES).forEach(([catKey, cat]) => {
+            const section = document.createElement('div');
+            const lbl = document.createElement('div');
+            lbl.className = 'modal-icon-cat-label';
+            lbl.style.color = cat.color;
+            lbl.textContent = cat.label;
+            const row = document.createElement('div');
+            row.className = 'modal-icon-row';
+
+            Object.entries(Icons.ICON_LIBRARY)
+                .filter(([, m]) => m.category === catKey)
+                .forEach(([iconKey, meta]) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'modal-icon-pick' + (iconKey === selectedIconKey ? ' selected' : '');
+                    btn.style.background = cat.color + '1f';
+                    btn.style.color = cat.color;
+                    btn.dataset.iconKey = iconKey;
+                    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${meta.paths}</svg>`;
+                    btn.addEventListener('click', () => {
+                        selectedIconKey = iconKey;
+                        catsEl.querySelectorAll('.modal-icon-pick').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                    });
+                    row.appendChild(btn);
+                });
+
+            section.append(lbl, row);
+            catsEl.appendChild(section);
+        });
+    }
+
+    overlay.querySelector('#eg-cancel').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+    overlay.querySelector('#eg-save').addEventListener('click', async () => {
+        const name = overlay.querySelector('#eg-name').value.trim();
+        const desc = overlay.querySelector('#eg-desc').value.trim();
+        if (!name) { overlay.querySelector('#eg-name').focus(); return; }
+        const saveBtn = overlay.querySelector('#eg-save');
+        saveBtn.disabled = true;
+        try {
+            await fetch(`${SB_URL}/rest/v1/groups?id=eq.${group.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
+                    'Authorization': 'Bearer ' + TOKEN, 'Prefer': 'return=representation' },
+                body: JSON.stringify({ name, description: desc, icon_key: selectedIconKey }),
+            });
+            // Update cache
+            group.name    = name;
+            group.desc    = desc;
+            group.iconKey = selectedIconKey;
+            overlay.remove();
+            toast('Group updated ✓');
+            await loadGroups();
+            renderGroups(); renderWidgetGroups();
+            openGroupFeed(group);   // re-open with new data
+        } catch(e) { toast('Could not save.', 'err'); saveBtn.disabled = false; }
+    });
+      }
 
   function renderWidgetEvents() {
     const el = document.getElementById('widget-events');
