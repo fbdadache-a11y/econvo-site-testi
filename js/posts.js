@@ -1732,15 +1732,21 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
     if (reactionBarEl) loadReactions(row.id, token, currentUserId, reactionBarEl, { table: 'group_reactions' });
 
     /* Owner menu */
-    const menuBtn  = card.querySelector('.post-menu-btn');
+const menuBtn  = card.querySelector('.post-menu-btn');
     const dropdown = card.querySelector('.post-menu-dropdown');
     if (menuBtn && dropdown) {
         menuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            const isOpen = dropdown.style.display === 'block';
+            if (!isOpen) {
+                const rect = menuBtn.getBoundingClientRect();
+                dropdown.style.top   = (rect.bottom + 6) + 'px';
+                dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+            }
+            dropdown.style.display = isOpen ? 'none' : 'block';
         });
         document.addEventListener('click', () => { dropdown.style.display = 'none'; });
-    }
+               }
 
     /* Edit */
     const editBtn = card.querySelector('.gpost-edit-btn');
