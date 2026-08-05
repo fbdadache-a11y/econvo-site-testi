@@ -1672,8 +1672,7 @@ function renderGroupPostCard(row, images, currentUserId, token, group) {
             </div>
             ${ownerMenu}
         </div>
-        ${row.content ? `<p class="post-body" data-gpost-body="${escHtml(row.id)}" dir="auto">${escHtml(row.content)}</p>` : ''}
-        ${renderImageGallery(images)}
+${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(row.id)}" dir="auto">${typeof window.parseMarkdown === 'function' ? window.parseMarkdown(row.content) : escHtml(row.content)}</p>` : ''}        ${renderImageGallery(images)}
         <div class="link-preview-zone" id="glp-${row.id}"></div>
         <div class="post-footer">
             <div class="reaction-row" id="greactions-${row.id}"></div>
