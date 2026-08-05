@@ -504,9 +504,9 @@ function openEditModal(postId, currentContent, token, onSave, opts = {}) {
         <textarea id="edit-post-ta" style="width:100%;border:1px solid var(--line);border-radius:10px;
             padding:10px 14px;font-family:var(--font,inherit);font-size:.9rem;color:var(--text);
             background:var(--bg-muted,#f5f5f5);resize:vertical;min-height:90px;outline:none;
-            line-height:1.6;transition:border-color .15s;" maxlength="1000">${currentContent || ''}</textarea>
+            line-height:1.6;transition:border-color .15s;" maxlength="100000">${currentContent || ''}</textarea>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-            <span style="font-size:.72rem;color:var(--text-muted);" id="edit-char-count">${(currentContent||'').length} / 1000</span>
+            <span style="font-size:.72rem;color:var(--text-muted);" id="edit-char-count">${(currentContent||'').length} / 100000</span>
             <div style="display:flex;gap:8px;">
                 <button id="edit-cancel-btn" style="padding:8px 16px;border:1px solid var(--line);
                     border-radius:8px;font-size:.83rem;font-weight:600;color:var(--text-soft);
@@ -528,7 +528,7 @@ function openEditModal(postId, currentContent, token, onSave, opts = {}) {
 
     ta.focus();
     ta.selectionStart = ta.selectionEnd = ta.value.length;
-    ta.addEventListener('input', () => { ccEl.textContent = ta.value.length + ' / 1000'; });
+    ta.addEventListener('input', () => { ccEl.textContent = ta.value.length + ' / 100000'; });
     ta.addEventListener('focus', () => { ta.style.borderColor = 'var(--sage,#8fb8a6)'; });
     ta.addEventListener('blur',  () => { ta.style.borderColor = 'var(--line)'; });
 
