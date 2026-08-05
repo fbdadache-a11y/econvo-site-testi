@@ -726,16 +726,21 @@ function renderComment(c, opts = {}) {
             <span class="comment-body">${escHtml(c.content)}</span>
             <span class="comment-time">${timeAgo(c.created_at)}</span>
             <div class="comment-actions">
-                <button class="comment-reply-btn" data-comment-id="${c.id}" data-author="${escHtml(c.author_name || 'Member')}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                         stroke-linecap="round" stroke-linejoin="round" width="11" height="11">
-                        <polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
-                    </svg>
-                    Reply
-                </button>
-            </div>
-            <div class="reply-form-wrap" style="display:none;"></div>
-        </div>
+           <button class="comment-reply-btn" ...>...</button>
+           ${opts.currentUserId && c.user_id === opts.currentUserId ? `
+           <button class="comment-del-btn"
+                   data-comment-id="${c.id}"
+                   data-table="${opts.table || 'comments'}"
+                   aria-label="Delete comment">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    width="10" height="10">
+                   <polyline points="3 6 5 6 21 6"/>
+                   <path d="M19 6l-1 14H6L5 6"/>
+               </svg>
+               Delete
+           </button>` : ''}
+       </div>
     `;
     div.insertBefore(avatarEl, div.firstChild);
     return div;
