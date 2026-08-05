@@ -1302,6 +1302,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const el = document.getElementById(id);
     if (el) el.textContent = INITIALS;
   });
+
+document.addEventListener('click', e => {
+    const spoiler = e.target.closest('.md-spoiler');
+    if (spoiler) spoiler.classList.toggle('revealed');
+});
+  
   loadUserAvatar();
 
   /* Load live content from Supabase */
