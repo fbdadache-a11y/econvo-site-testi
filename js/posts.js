@@ -504,9 +504,8 @@ function openEditModal(postId, currentContent, token, onSave, opts = {}) {
         <textarea id="edit-post-ta" style="width:100%;border:1px solid var(--line);border-radius:10px;
             padding:10px 14px;font-family:var(--font,inherit);font-size:.9rem;color:var(--text);
             background:var(--bg-muted,#f5f5f5);resize:vertical;min-height:90px;outline:none;
-            line-height:1.6;transition:border-color .15s;" maxlength="100000">${currentContent || ''}</textarea>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-            <span style="font-size:.72rem;color:var(--text-muted);" id="edit-char-count">${(currentContent||'').length} / 100000</span>
+            line-height:1.6;transition:border-color .15s;">${currentContent || ''}</textarea>
+        <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:10px;">
             <div style="display:flex;gap:8px;">
                 <button id="edit-cancel-btn" style="padding:8px 16px;border:1px solid var(--line);
                     border-radius:8px;font-size:.83rem;font-weight:600;color:var(--text-soft);
@@ -523,12 +522,11 @@ function openEditModal(postId, currentContent, token, onSave, opts = {}) {
     document.body.appendChild(overlay);
 
     const ta    = box.querySelector('#edit-post-ta');
-    const ccEl  = box.querySelector('#edit-char-count');
     const errEl = box.querySelector('#edit-error');
 
     ta.focus();
     ta.selectionStart = ta.selectionEnd = ta.value.length;
-    ta.addEventListener('input', () => { ccEl.textContent = ta.value.length + ' / 100000'; });
+
     ta.addEventListener('focus', () => { ta.style.borderColor = 'var(--sage,#8fb8a6)'; });
     ta.addEventListener('blur',  () => { ta.style.borderColor = 'var(--line)'; });
 
@@ -659,7 +657,7 @@ ${post.content ? `<p class="post-body md-post-body" data-post-body="${escHtml(po
                 <div class="comment-composer-avatar"></div>
                 <form class="comment-form" data-post-id="${post.id}">
                     <input class="comment-input" type="text" placeholder="Write a comment…"
-                           maxlength="400" required autocomplete="off">
+                           required autocomplete="off">
                     <button type="submit" class="comment-submit" aria-label="Send comment">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                              width="14" height="14" stroke-linecap="round" stroke-linejoin="round">
@@ -755,7 +753,7 @@ function buildReplyForm(commentId, authorName, postId, token, currentUserId, lis
         <div class="comment-avatar" style="width:24px;height:24px;min-width:24px;font-size:.58rem;"></div>
         <form class="reply-form-el" style="display:flex;gap:5px;flex:1;align-items:center;">
             <input class="comment-input" type="text"
-                   placeholder="Reply to ${escHtml(authorName)}…" maxlength="400"
+                   placeholder="Reply to ${escHtml(authorName)}…"
                    autocomplete="off" style="font-size:.82rem;padding:6px 12px;">
             <button type="submit" class="comment-submit" aria-label="Send reply"
                     style="width:28px;height:28px;min-width:28px;">
@@ -975,7 +973,6 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
     const textarea    = form.querySelector('#post-content');
     const submitBtn   = form.querySelector('#post-submit-btn');
     const alertEl     = form.querySelector('#post-alert');
-    const charEl      = form.querySelector('#post-char-count');
     const content     = textarea.value.trim();
     const pickedFiles = window._pickedPostFiles || [];
 
@@ -1014,7 +1011,6 @@ async function handleCreatePost(form, feedContainer, token, currentUserId) {
         }
 
         textarea.value = '';
-        if (charEl) charEl.textContent = '0 / 1000';
         window._pickedPostFiles = [];
         renderPickedPreviews(form);
         toast('Post published! 🎉');
@@ -1294,7 +1290,6 @@ async function onRemoteComment(record) {
             _rtToken
         );
         if (!rows.length) return;
-        const c = rows[0];
 
         // Reload full thread to preserve ordering
         await loadComments(postId, _rtToken, _rtUserId);
@@ -1448,12 +1443,11 @@ window.initGroupFeed = function(group, token, currentUserId, feedEl, composerWra
                 <div class="composer-av" id="group-composer-av"></div>
                 <textarea class="composer-input" id="group-post-content"
                           placeholder="Share something in ${group.name}…"
-                          rows="2" maxlength="1000" dir="auto"></textarea>
+                          rows="2" dir="auto"></textarea>
             </div>
             <div id="group-post-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;"></div>
             <div id="group-post-alert" style="display:none;font-size:.82rem;color:#c84444;padding:4px 0;"></div>
             <div class="composer-footer create-post-toolbar">
-                <span class="char-count-sm" id="group-char-count">0 / 1000</span>
                 <div class="composer-actions">
                     <label class="composer-btn" id="group-image-btn" for="group-post-image" title="Add images" style="position:relative;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1487,11 +1481,6 @@ window.initGroupFeed = function(group, token, currentUserId, feedEl, composerWra
     } else if (compAv) {
         compAv.textContent = initials(options.userName || '');
     }
-
-    /* Char counter */
-    composerWrapEl.querySelector('#group-post-content').addEventListener('input', function() {
-        composerWrapEl.querySelector('#group-char-count').textContent = this.value.length + ' / 1000';
-    });
 
     /* Image picker */
     const imgInput = composerWrapEl.querySelector('#group-post-image');
@@ -1530,7 +1519,6 @@ window.initGroupFeed = function(group, token, currentUserId, feedEl, composerWra
             }
 
             ta.value = '';
-            composerWrapEl.querySelector('#group-char-count').textContent = '0 / 1000';
             window._pickedGroupFiles = [];
             renderGroupPreviews(composerWrapEl);
             toast(`Posted to ${group.name}! 🎉`);
@@ -1624,7 +1612,7 @@ function renderGroupPostCard(row, images, currentUserId, token, group) {
                     <circle cx="12" cy="19" r="1"/>
                 </svg>
             </button>
-<div class="post-menu-dropdown" style="display:none;position:fixed;
+            <div class="post-menu-dropdown" style="display:none;position:fixed;
                 background:var(--bg-raised,#fff);border:1px solid var(--line);border-radius:10px;
                 padding:5px;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:9999;">
                 <button class="gpost-edit-btn menu-item-btn" data-id="${row.id}"
@@ -1692,7 +1680,7 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
                 <div class="comment-composer-avatar"></div>
                 <form class="gcomment-form" data-gpost-id="${row.id}">
                     <input class="comment-input" type="text" placeholder="Write a comment…"
-                           maxlength="400" required autocomplete="off">
+                           required autocomplete="off">
                     <button type="submit" class="comment-submit" aria-label="Send">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                              width="14" height="14" stroke-linecap="round" stroke-linejoin="round">
@@ -1732,7 +1720,7 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
     if (reactionBarEl) loadReactions(row.id, token, currentUserId, reactionBarEl, { table: 'group_reactions' });
 
     /* Owner menu */
-const menuBtn  = card.querySelector('.post-menu-btn');
+    const menuBtn  = card.querySelector('.post-menu-btn');
     const dropdown = card.querySelector('.post-menu-dropdown');
     if (menuBtn && dropdown) {
         menuBtn.addEventListener('click', (e) => {
@@ -1746,7 +1734,7 @@ const menuBtn  = card.querySelector('.post-menu-btn');
             dropdown.style.display = isOpen ? 'none' : 'block';
         });
         document.addEventListener('click', () => { dropdown.style.display = 'none'; });
-       }
+    }
 
     /* Edit */
     const editBtn = card.querySelector('.gpost-edit-btn');
@@ -1882,7 +1870,7 @@ async function loadGroupComments(postId, token, currentUserId) {
                         <form style="display:flex;gap:5px;flex:1;align-items:center;">
                             <input class="comment-input" type="text"
                                    placeholder="Reply to ${escHtml(c.profiles?.full_name || 'Member')}…"
-                                   maxlength="400" autocomplete="off" style="font-size:.82rem;padding:6px 12px;">
+                                   autocomplete="off" style="font-size:.82rem;padding:6px 12px;">
                             <button type="submit" class="comment-submit" style="width:28px;height:28px;min-width:28px;">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                                      width="12" height="12" stroke-linecap="round" stroke-linejoin="round">
@@ -1976,13 +1964,6 @@ window.initPostsFeed = function(token, currentUserId) {
             fresh.value = '';
             renderPickedPreviews(createForm);
         });
-    }
-
-    /* Char counter */
-    const textarea = createForm.querySelector('#post-content');
-    const charEl   = createForm.querySelector('#post-char-count');
-    if (textarea && charEl) {
-        textarea.addEventListener('input', () => { charEl.textContent = textarea.value.length + ''; });
     }
 
     /* Publish */
