@@ -1331,6 +1331,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isClub = ['announcements','events','coffee','speakers'].includes(v);
       if (isClub && btn.id === 'nav-club') btn.classList.add('active');
     });
+
+    // حفظ التبويب الحالي في التخزين المحلي (ما عدا صفحة عرض المجموعة الفردية لكي تعود للمجموعات إن أردت)
+    if (v !== 'group-feed') {
+      localStorage.setItem('econovo-active-view', v);
+    }
   }
 
   window.showView = setView;
@@ -1338,6 +1343,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelectorAll('.sidebar-link, .mob-tab, .nav-item, .nav-avatar-btn, .dropdown-item').forEach(btn => {
     btn.addEventListener('click', () => { if (btn.dataset.view) setView(btn.dataset.view); });
   });
+
+  // ==========================================
+  // استعادة التبويب المحفوظ عند إعادة تحميل الصفحة
+  // ==========================================
+  const savedView = localStorage.getItem('econovo-active-view') || 'home';
+  setView(savedView);
+
 
   /* ══ THEME ══ */
   const root = document.documentElement;
