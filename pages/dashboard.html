@@ -1876,7 +1876,51 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
+/* ══ COMPOSER EXPAND / COLLAPSE ══ */
+  const composerTrigger   = document.getElementById('composer-trigger');
+  const composerFull      = document.getElementById('composer-full');
+  const composerCancelBtn = document.getElementById('composer-cancel-btn');
+  const composerAv2       = document.getElementById('composer-av-2');
 
+  if (composerTrigger && composerFull) {
+    composerTrigger.addEventListener('click', () => {
+      composerTrigger.style.display = 'none';
+      composerFull.style.display    = 'block';
+      // نسخ الأفاتار للمحرر الكامل
+      if (composerAv2) fillAvatar(composerAv2, cachedAvatarUrl, FULL_NAME);
+      setTimeout(() => document.getElementById('post-content')?.focus(), 50);
+    });
+  }
+
+  if (composerCancelBtn) {
+    composerCancelBtn.addEventListener('click', () => {
+      composerFull.style.display    = 'none';
+      composerTrigger.style.display = 'flex';
+      const ta = document.getElementById('post-content');
+      if (ta) ta.value = '';
+      const cc = document.getElementById('post-char-count');
+      if (cc) cc.textContent = '0';
+      window._pickedPostFiles = [];
+      const row = document.getElementById('post-previews-row');
+      if (row) row.innerHTML = '';
+    });
+  }
+
+  // إغلاق المحرر بعد النشر
+  const origPublish = document.getElementById('post-submit-btn');
+  if (origPublish) {
+    origPublish.addEventListener('click', () => {
+      setTimeout(() => {
+        if (composerFull && composerTrigger) {
+          const ta = document.getElementById('post-content');
+          if (ta && ta.value.trim() === '') {
+            composerFull.style.display    = 'none';
+            composerTrigger.style.display = 'flex';
+          }
+        }
+      }, 500);
+    });
+      }
 }); // end DOMContentLoaded
 })();
 </script>
