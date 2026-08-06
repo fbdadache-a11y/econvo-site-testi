@@ -1,16 +1,12 @@
 /* ==========================================================================
    ECONOVO — composer.js
-   Rich text composer:
-   - تنسيق ديسكورد: **bold** *italic* __underline__ ~~strike~~ `code` > quote
-   - bidi-stable: كل سطر يختار اتجاهه تلقائياً بدلاً من قفز النص
-   - شريط أدوات تنسيق مرئي فوق منطقة الكتابة
-   - دالة parseMarkdown() تحوّل النص إلى HTML آمن عند العرض
+   Rich text composer + Full Discord/Markdown parser
    ========================================================================== */
 
 'use strict';
 
 /* ══════════════════════════════════════════════════════════════
-   MARKDOWN → HTML  (safe subset, no XSS)
+   HELPERS
    ══════════════════════════════════════════════════════════════ */
 
 function escH(s) {
@@ -20,25 +16,61 @@ function escH(s) {
         .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-/**
- * Converts a plain-text string with Discord-style markup into safe HTML.
- * Supported:
- *   **bold**  *italic*  __underline__  ~~strikethrough~~
- *   `inline code`  ```code block```  > blockquote  ||spoiler||
- */
+function parseTableRow(line) {
+    return line.replace(/^\||\|$/g, '').split('|').map(cell => cell.trim());
+}
+
+function processInline(text) {
+    if (!text) return '';
+    let t = text;
+
+    // روابط [text](url)
+    t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+        '<a class="md-link" href="$2" target="_blank" rel="noopener">$1</a>');
+
+    // روابط مباشرة
+    t = t.replace(/(?<!["\(])(https?:\/\/[^\s<>"']+)/g,
+        '<a class="md-link" href="$1" target="_blank" rel="noopener">$1</a>');
+
+    // Bold+Italic ***text***
+    t = t.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+
+    // **bold**
+    t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // *italic*
+    t = t.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
+
+    // __underline__
+    t = t.replace(/__(.+?)__/g, '<u>$1</u>');
+
+    // ~~strikethrough~~
+    t = t.replace(/~~(.+?)~~/g, '<s>$1</s>');
+
+    // ||spoiler||
+    t = t.replace(/\|\|(.+?)\|\|/g,
+        '<span class="md-spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>');
+
+    return t;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MARKDOWN → HTML  (full Discord-style support)
+   ══════════════════════════════════════════════════════════════ */
+
 window.parseMarkdown = function parseMarkdown(text) {
     if (!text) return '';
 
-    /* ── 1. حماية كتل الكود أولاً (قبل أي معالجة) ── */
-    const codeBlocks = [];
+    /* ── 1. حماية كتل الكود أولاً ── */
+    const codeBlocks  = [];
     const inlineCodes = [];
 
     // كتل كود متعددة الأسطر ```lang\n...\n```
     text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-        const idx = codeBlocks.length;
+        const idx      = codeBlocks.length;
         const langAttr = lang ? ` data-lang="${escH(lang)}"` : '';
         codeBlocks.push(
-            `<pre class="md-codeblock-wrap"${langAttr}><code class="md-codeblock">${escH(code.replace(/^\n|\n$/g, ''))}</code></pre>`
+            `<pre class="md-codeblock-wrap"${langAttr}><code class="md-codeblock">${escH(code.replace(/^\n|\n$/g,''))}</code></pre>`
         );
         return `\x00CODE_BLOCK_${idx}\x00`;
     });
@@ -52,7 +84,7 @@ window.parseMarkdown = function parseMarkdown(text) {
 
     /* ── 2. معالجة سطر بسطر ── */
     const lines = text.split('\n');
-    const out = [];
+    const out   = [];
     let i = 0;
 
     while (i < lines.length) {
@@ -67,14 +99,16 @@ window.parseMarkdown = function parseMarkdown(text) {
         /* عناوين # ## ### #### */
         const headingMatch = line.match(/^(#{1,4})\s+(.+)/);
         if (headingMatch) {
-            const level = headingMatch[1].length;
+            const level   = headingMatch[1].length;
             const content = processInline(headingMatch[2]);
-            const sizes = ['1.35rem','1.15rem','1rem','.9rem'];
+            const sizes   = ['1.35rem','1.15rem','1rem','.9rem'];
             const weights = ['800','700','700','600'];
+            const margins = ['14px 0 6px','10px 0 5px','8px 0 4px','6px 0 3px'];
             out.push(
-                `<div class="md-heading md-h${level}" style="font-size:${sizes[level-1]};font-weight:${weights[level-1]};` +
-                `margin:${level===1?'14px':'10px'} 0 6px;letter-spacing:-.02em;color:var(--text);` +
-                `line-height:1.3;unicode-bidi:plaintext;">${content}</div>`
+                `<div class="md-heading md-h${level}" style="font-size:${sizes[level-1]};` +
+                `font-weight:${weights[level-1]};margin:${margins[level-1]};` +
+                `letter-spacing:-.02em;color:var(--text);line-height:1.3;unicode-bidi:plaintext;">` +
+                `${content}</div>`
             );
             i++; continue;
         }
@@ -94,7 +128,7 @@ window.parseMarkdown = function parseMarkdown(text) {
         /* جدول | col | col | */
         if (/^\|.+\|/.test(line) && i + 1 < lines.length && /^\|[\s\-|:]+\|/.test(lines[i+1])) {
             const headers = parseTableRow(line);
-            i += 2; // تخطي سطر الفاصل
+            i += 2;
             const rows = [];
             while (i < lines.length && /^\|.+\|/.test(lines[i])) {
                 rows.push(parseTableRow(lines[i]));
@@ -104,32 +138,34 @@ window.parseMarkdown = function parseMarkdown(text) {
             const tbody = rows.map(row =>
                 `<tr>${row.map(cell => `<td class="md-td">${processInline(cell)}</td>`).join('')}</tr>`
             ).join('');
-            out.push(`<div class="md-table-wrap"><table class="md-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`);
+            out.push(
+                `<div class="md-table-wrap"><table class="md-table">` +
+                `<thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`
+            );
             continue;
         }
 
-        /* قائمة نقطية - أو * */
+        /* قائمة نقطية - أو * مع دعم checkbox */
         if (/^(\s*)[-*]\s+/.test(line)) {
-            const listItems = [];
-            const baseIndent = line.match(/^(\s*)/)[1].length;
+            const listItems  = [];
+            const baseIndent = (line.match(/^(\s*)/) || ['',''])[1].length;
             while (i < lines.length && /^(\s*)[-*]\s+/.test(lines[i])) {
                 const itemLine = lines[i];
-                const indent   = itemLine.match(/^(\s*)/)[1].length;
+                const indent   = (itemLine.match(/^(\s*)/) || ['',''])[1].length;
                 const content  = itemLine.replace(/^\s*[-*]\s+/, '');
-
-                // checkbox - [x] أو - [ ]
                 const checkMatch = content.match(/^\[(x| )\]\s*(.*)/i);
+
                 if (checkMatch) {
                     const checked = checkMatch[1].toLowerCase() === 'x';
                     listItems.push(
-                        `<li class="md-li md-li-check" style="margin-left:${(indent - baseIndent) * 16}px">` +
-                        `<span class="md-checkbox${checked ? ' checked' : ''}">${checked ? '✓' : ''}</span>` +
-                        `<span class="${checked ? 'md-checked-text' : ''}">${processInline(checkMatch[2])}</span></li>`
+                        `<li class="md-li md-li-check" style="margin-left:${(indent-baseIndent)*16}px">` +
+                        `<span class="md-checkbox${checked?' checked':''}">${checked?'✓':''}</span>` +
+                        `<span class="${checked?'md-checked-text':''}">${processInline(checkMatch[2])}</span></li>`
                     );
                 } else {
                     listItems.push(
-                        `<li class="md-li" style="margin-left:${(indent - baseIndent) * 16}px">` +
-                        `${processInline(content)}</li>`
+                        `<li class="md-li" style="margin-left:${(indent-baseIndent)*16}px">` +
+                        `<span class="md-bullet">•</span><span>${processInline(content)}</span></li>`
                     );
                 }
                 i++;
@@ -143,7 +179,7 @@ window.parseMarkdown = function parseMarkdown(text) {
             const listItems = [];
             while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
                 const content = lines[i].replace(/^\d+\.\s+/, '');
-                listItems.push(`<li class="md-li">${processInline(content)}</li>`);
+                listItems.push(`<li class="md-li md-li-ol">${processInline(content)}</li>`);
                 i++;
             }
             out.push(`<ol class="md-ol">${listItems.join('')}</ol>`);
@@ -173,49 +209,6 @@ window.parseMarkdown = function parseMarkdown(text) {
     return result;
 };
 
-/* ── معالجة التنسيق داخل السطر ── */
-function processInline(text) {
-    if (!text) return '';
-
-    // استعادة كتل الكود المحفوظة أولاً
-    let t = text;
-
-    // روابط [text](url)
-    t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
-        '<a class="md-link" href="$2" target="_blank" rel="noopener">$1</a>');
-
-    // روابط مباشرة https://...
-    t = t.replace(/(?<!["\(])(https?:\/\/[^\s<>"']+)/g,
-        '<a class="md-link" href="$1" target="_blank" rel="noopener">$1</a>');
-
-    // Bold+Italic ***text***
-    t = t.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-
-    // **bold**
-    t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-    // *italic*
-    t = t.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
-
-    // __underline__
-    t = t.replace(/__(.+?)__/g, '<u>$1</u>');
-
-    // ~~strikethrough~~
-    t = t.replace(/~~(.+?)~~/g, '<s>$1</s>');
-
-    // ||spoiler||
-    t = t.replace(/\|\|(.+?)\|\|/g,
-        '<span class="md-spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>');
-
-    return t;
-}
-
-/* ── مساعد تحليل صفوف الجدول ── */
-function parseTableRow(line) {
-    return line.replace(/^\||\|$/g, '').split('|').map(cell => cell.trim());
-}
-
-
 /* ══════════════════════════════════════════════════════════════
    TOOLBAR DEFINITION
    ══════════════════════════════════════════════════════════════ */
@@ -237,15 +230,29 @@ const TOOLBAR_ACTIONS = [
         id: 'strike', label: 'Strikethrough', wrap: ['~~','~~'],
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" y1="12" x2="20" y2="12"/></svg>',
     },
-    { id: 'sep' }, // divider
+    { id: 'sep' },
     {
         id: 'code', label: 'Inline code', wrap: ['`','`'],
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
     },
     {
+        id: 'codeblock', label: 'Code block', wrap: ['```\n','\n```'],
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+    },
+    { id: 'sep' },
+    {
+        id: 'heading', label: 'Heading', prefix: '## ',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M4 12h16M4 6h7M4 18h7"/></svg>',
+    },
+    {
         id: 'quote', label: 'Quote', prefix: '> ',
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>',
     },
+    {
+        id: 'bullet', label: 'Bullet list', prefix: '- ',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>',
+    },
+    { id: 'sep' },
     {
         id: 'spoiler', label: 'Spoiler', wrap: ['||','||'],
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
@@ -253,11 +260,11 @@ const TOOLBAR_ACTIONS = [
 ];
 
 /* ══════════════════════════════════════════════════════════════
-   createRichComposer(opts) → { el, getValue, setValue, reset }
-   opts: { placeholder, onInput, className }
+   createRichComposer(opts)
    ══════════════════════════════════════════════════════════════ */
 
 window.createRichComposer = function createRichComposer(opts = {}) {
+    const maxLength   = opts.maxLength   || 99999;
     const placeholder = opts.placeholder || 'Write something…';
 
     /* ── Wrapper ── */
@@ -295,8 +302,16 @@ window.createRichComposer = function createRichComposer(opts = {}) {
     ta.setAttribute('autocomplete', 'off');
     ta.setAttribute('spellcheck', 'true');
 
+    /* ── Char counter ── */
+    const charCount = document.createElement('span');
+    charCount.className = 'rte-char-count';
+    charCount.textContent = '0';
+
     /* ── Assemble ── */
-    wrap.append(toolbar, ta);
+    const footer = document.createElement('div');
+    footer.className = 'rte-footer';
+    footer.appendChild(charCount);
+    wrap.append(toolbar, ta, footer);
 
     /* ── Toolbar click handler ── */
     toolbar.addEventListener('mousedown', (e) => {
@@ -321,28 +336,32 @@ window.createRichComposer = function createRichComposer(opts = {}) {
                 if (def) applyFormat(ta, def);
             }
         }
-        // Tab → 4 spaces (don't lose focus for code blocks)
         if (e.key === 'Tab') {
             e.preventDefault();
             insertAtCursor(ta, '    ');
         }
     });
 
-    /* ── Input handler ── */
+    /* ── Char count update ── */
     ta.addEventListener('input', () => {
+        const len = ta.value.length;
+        charCount.textContent = `${len}`;
         if (opts.onInput) opts.onInput(ta.value);
     });
 
     /* ── Public API ── */
     function getValue() { return ta.value; }
-    function setValue(v) { ta.value = v || ''; }
+    function setValue(v) {
+        ta.value = v || '';
+        charCount.textContent = `${ta.value.length}`;
+    }
     function reset() { setValue(''); }
     function focus() { ta.focus(); }
 
     return { el: wrap, textarea: ta, getValue, setValue, reset, focus };
 };
 
-/* ── Apply a formatting action to a textarea ── */
+/* ── Apply formatting ── */
 function applyFormat(ta, def) {
     const start = ta.selectionStart;
     const end   = ta.selectionEnd;
@@ -350,12 +369,10 @@ function applyFormat(ta, def) {
     const sel   = val.slice(start, end);
 
     if (def.prefix) {
-        // Line prefix (e.g. "> " for blockquote)
         const lineStart = val.lastIndexOf('\n', start - 1) + 1;
-        const before = val.slice(0, lineStart);
-        const after  = val.slice(lineStart);
-        const line   = val.slice(lineStart, end);
-
+        const before    = val.slice(0, lineStart);
+        const after     = val.slice(lineStart);
+        const line      = val.slice(lineStart, end);
         const alreadyApplied = line.startsWith(def.prefix);
         let newVal, newCaret;
         if (alreadyApplied) {
@@ -369,9 +386,8 @@ function applyFormat(ta, def) {
         ta.setSelectionRange(newCaret, newCaret + (end - start));
     } else if (def.wrap) {
         const [open, close] = def.wrap;
-        // Toggle: if already wrapped, unwrap
-        const wrapped   = val.slice(start - open.length, start) === open &&
-                          val.slice(end, end + close.length) === close;
+        const wrapped = val.slice(start - open.length, start) === open &&
+                        val.slice(end, end + close.length) === close;
         let newVal, newStart, newEnd;
         if (wrapped) {
             newVal   = val.slice(0, start - open.length) + sel + val.slice(end + close.length);
@@ -394,7 +410,6 @@ function insertAtCursor(ta, text) {
     ta.setSelectionRange(s + text.length, s + text.length);
 }
 
-/* Triggers React-style synthetic events so frameworks detect the change */
 function setNativeValue(el, value) {
     const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
     if (nativeSetter) nativeSetter.call(el, value);
