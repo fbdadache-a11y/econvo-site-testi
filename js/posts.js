@@ -486,37 +486,21 @@ function openEditModal(postId, currentContent, token, onSave, opts = {}) {
 
     const overlay = document.createElement('div');
     overlay.id = 'post-edit-modal';
-    overlay.style.cssText = `
-        position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8000;
-        display:flex;align-items:center;justify-content:center;padding:20px;
-        animation:editFadeIn .15s ease;
-    `;
+    overlay.className = 'post-edit-overlay';
 
     const box = document.createElement('div');
-    box.style.cssText = `
-        background:var(--bg-raised,#fff);border:1px solid var(--line);
-        border-radius:16px;padding:22px;width:100%;max-width:520px;
-        box-shadow:0 20px 60px rgba(0,0,0,.25);
-    `;
+    box.className = 'post-edit-box';
 
     box.innerHTML = `
-        <div style="font-size:.9rem;font-weight:700;margin-bottom:12px;color:var(--text);">Edit Post</div>
-        <textarea id="edit-post-ta" style="width:100%;border:1px solid var(--line);border-radius:10px;
-            padding:10px 14px;font-family:var(--font,inherit);font-size:.9rem;color:var(--text);
-            background:var(--bg-muted,#f5f5f5);resize:vertical;min-height:90px;outline:none;
-            line-height:1.6;transition:border-color .15s;">${currentContent || ''}</textarea>
-        <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:10px;">
-            <div style="display:flex;gap:8px;">
-                <button id="edit-cancel-btn" style="padding:8px 16px;border:1px solid var(--line);
-                    border-radius:8px;font-size:.83rem;font-weight:600;color:var(--text-soft);
-                    background:none;cursor:pointer;">Cancel</button>
-                <button id="edit-save-btn" style="padding:8px 18px;background:var(--obsidian,#0e2a24);
-                    color:#fff;border:none;border-radius:8px;font-size:.83rem;font-weight:700;
-                    cursor:pointer;transition:background .15s;">Save</button>
-            </div>
+        <div class="post-edit-title">Edit Post</div>
+        <textarea class="post-edit-ta" id="edit-post-ta"></textarea>
+        <div class="post-edit-actions">
+            <button class="post-edit-cancel" id="edit-cancel-btn">Cancel</button>
+            <button class="post-edit-save" id="edit-save-btn">Save</button>
         </div>
-        <div id="edit-error" style="display:none;font-size:.78rem;color:#c84444;margin-top:6px;"></div>
+        <div class="post-edit-error" id="edit-error"></div>
     `;
+    box.querySelector('#edit-post-ta').value = currentContent || '';
 
     overlay.appendChild(box);
     document.body.appendChild(overlay);
@@ -526,9 +510,6 @@ function openEditModal(postId, currentContent, token, onSave, opts = {}) {
 
     ta.focus();
     ta.selectionStart = ta.selectionEnd = ta.value.length;
-
-    ta.addEventListener('focus', () => { ta.style.borderColor = 'var(--sage,#8fb8a6)'; });
-    ta.addEventListener('blur',  () => { ta.style.borderColor = 'var(--line)'; });
 
     function close() {
         overlay.style.opacity = '0';
@@ -576,29 +557,16 @@ function renderPost(post, currentUserId, opts = {}) {
 
     /* ── Owner action menu (edit + delete) ── */
     const ownerMenu = isOwner ? `
-        <div class="post-owner-menu" style="position:relative;">
-            <button class="post-menu-btn" aria-label="Post options" title="Options"
-                style="background:none;border:none;cursor:pointer;color:var(--text-muted);
-                       padding:6px;border-radius:8px;display:flex;align-items:center;
-                       transition:background .15s,color .15s;"
-                onmouseover="this.style.background='var(--bg-muted,#f0f0f0)'"
-                onmouseout="this.style.background='none'">
+        <div class="post-owner-menu">
+            <button class="post-menu-btn" aria-label="Post options" title="Options">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
                     <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/>
                     <circle cx="12" cy="19" r="1"/>
                 </svg>
             </button>
-            <div class="post-menu-dropdown" style="display:none;position:fixed;
-                background:var(--bg-raised,#fff);border:1px solid var(--line);border-radius:10px;
-                padding:5px;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:9999;">
-                <button class="post-edit-btn menu-item-btn" data-id="${post.id}"
-                    style="display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;
-                           border:none;background:none;cursor:pointer;font-size:.82rem;
-                           color:var(--text-soft);border-radius:7px;font-family:var(--font,inherit);
-                           transition:background .12s,color .12s;"
-                    onmouseover="this.style.background='var(--sage-dim,#e8f4ed)';this.style.color='var(--text)'"
-                    onmouseout="this.style.background='none';this.style.color='var(--text-soft)'">
+            <div class="post-menu-dropdown" style="display:none;">
+                <button class="post-edit-btn menu-item-btn" data-id="${post.id}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                          stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -606,13 +574,7 @@ function renderPost(post, currentUserId, opts = {}) {
                     </svg>
                     Edit
                 </button>
-                <button class="post-delete-btn menu-item-btn" data-id="${post.id}"
-                    style="display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;
-                           border:none;background:none;cursor:pointer;font-size:.82rem;
-                           color:#c84444;border-radius:7px;font-family:var(--font,inherit);
-                           transition:background .12s;"
-                    onmouseover="this.style.background='rgba(200,60,60,.08)'"
-                    onmouseout="this.style.background='none'">
+                <button class="post-delete-btn menu-item-btn" style="color:#c84444;" data-id="${post.id}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                          stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
                         <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
@@ -691,42 +653,56 @@ ${post.content ? `<p class="post-body md-post-body" data-post-body="${escHtml(po
         if (lpZone) attachLinkPreview(post.content, lpZone);
     }
 
-    /* Owner menu toggle — handled by attachPostEvents */
+    /* Owner menu toggle */
+    if (isOwner) {
+        const menuBtn  = card.querySelector('.post-menu-btn');
+        const dropdown = card.querySelector('.post-menu-dropdown');
+        if (menuBtn && dropdown) {
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = dropdown.style.display === 'block';
+                dropdown.style.display = isOpen ? 'none' : 'block';
+            });
+            document.addEventListener('click', () => { dropdown.style.display = 'none'; }, { capture: true, once: false });
+        }
+    }
 
     return card;
 }
 
 /* ── Render comment (with optional reply support) ── */
 function renderComment(c, opts = {}) {
-    const isReply    = !!c.parent_id;
-    const isOwner    = opts.currentUserId && c.user_id === opts.currentUserId;
+    const isReply = !!c.parent_id;
     const div = document.createElement('div');
     div.className = 'comment-item' + (isReply ? ' comment-reply' : '');
     div.dataset.commentId = c.id;
     if (isReply) div.dataset.parentId = c.parent_id;
 
     const avatarEl = makeAvatar(c.avatar_url || null, c.author_name || 'Member', 'comment-avatar');
+
     div.innerHTML = `
         <div class="comment-bubble">
             <span class="comment-author">${escHtml(c.author_name || 'Member')}</span>
             <span class="comment-body">${escHtml(c.content)}</span>
             <span class="comment-time">${timeAgo(c.created_at)}</span>
             <div class="comment-actions">
-           <button class="comment-reply-btn" ...>...</button>
-           ${opts.currentUserId && c.user_id === opts.currentUserId ? `
-           <button class="comment-del-btn"
-                   data-comment-id="${c.id}"
-                   data-table="${opts.table || 'comments'}"
-                   aria-label="Delete comment">
-               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    width="10" height="10">
-                   <polyline points="3 6 5 6 21 6"/>
-                   <path d="M19 6l-1 14H6L5 6"/>
-               </svg>
-               Delete
-           </button>` : ''}
-       </div>
+                <button class="comment-reply-btn" aria-label="Reply">Reply</button>
+                ${opts.currentUserId && c.user_id === opts.currentUserId ? `
+                <button class="comment-del-btn"
+                        data-comment-id="${c.id}"
+                        data-table="${opts.table || 'comments'}"
+                        aria-label="Delete comment">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         width="10" height="10">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14H6L5 6"/>
+                    </svg>
+                    Delete
+                </button>` : ''}
+            </div>
+            <div class="reply-form-wrap"></div>
+        </div>
     `;
     div.insertBefore(avatarEl, div.firstChild);
     return div;
@@ -735,16 +711,14 @@ function renderComment(c, opts = {}) {
 /* ── Build inline reply form ── */
 function buildReplyForm(commentId, authorName, postId, token, currentUserId, listEl, avatarUrl) {
     const wrap = document.createElement('div');
-    wrap.className = 'reply-form-inner';
-    wrap.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:8px;';
+    wrap.className = 'comment-form-row';
     wrap.innerHTML = `
-        <div class="comment-avatar" style="width:24px;height:24px;min-width:24px;font-size:.58rem;"></div>
-        <form class="reply-form-el" style="display:flex;gap:5px;flex:1;align-items:center;">
+        <div class="comment-avatar"></div>
+        <form class="comment-form reply-form-el">
             <input class="comment-input" type="text"
                    placeholder="Reply to ${escHtml(authorName)}…"
-                   autocomplete="off" style="font-size:.82rem;padding:6px 12px;">
-            <button type="submit" class="comment-submit" aria-label="Send reply"
-                    style="width:28px;height:28px;min-width:28px;">
+                   autocomplete="off">
+            <button type="submit" class="comment-submit" aria-label="Send reply">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                      width="12" height="12" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"/>
@@ -756,7 +730,10 @@ function buildReplyForm(commentId, authorName, postId, token, currentUserId, lis
 
     const avEl = wrap.querySelector('.comment-avatar');
     if (avatarUrl) {
-        avEl.innerHTML = `<img src="${escHtml(avatarUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">`;
+        const img = document.createElement('img');
+        img.src = escHtml(avatarUrl); img.alt = '';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;';
+        avEl.appendChild(img);
     } else {
         avEl.textContent = initials(currentUserId || '??');
     }
@@ -1317,27 +1294,8 @@ function onRemoteReaction(record, action) {
 
 /* ── attachPostEvents ── */
 function attachPostEvents(card, row, token, currentUserId) {
-    if (!card.dataset.postId) card.dataset.postId = row.id;
-
-    /* Menu toggle */
+    /* Menu toggle — single delegated click on the dropdown items */
     const menuDropdown = card.querySelector('.post-menu-dropdown');
-    const menuBtn = card.querySelector('.post-menu-btn');
-    if (menuBtn && menuDropdown) {
-        menuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.querySelectorAll('.post-menu-dropdown').forEach(d => {
-                if (d !== menuDropdown) d.style.display = 'none';
-            });
-            const isOpen = menuDropdown.style.display === 'block';
-            if (!isOpen) {
-                const rect = menuBtn.getBoundingClientRect();
-                menuDropdown.style.top   = (rect.bottom + 6) + 'px';
-                menuDropdown.style.left  = 'auto';
-                menuDropdown.style.right = Math.max(4, window.innerWidth - rect.right) + 'px';
-            }
-            menuDropdown.style.display = isOpen ? 'none' : 'block';
-        });
-    }
     if (menuDropdown) {
         // Close when clicking outside
         const closeMenu = (e) => {
@@ -1607,27 +1565,16 @@ function renderGroupPostCard(row, images, currentUserId, token, group) {
     const isOwner    = row.user_id === currentUserId;
 
     const ownerMenu = isOwner ? `
-        <div class="post-owner-menu" style="position:relative;">
-            <button class="post-menu-btn" aria-label="Post options"
-                style="background:none;border:none;cursor:pointer;color:var(--text-muted);
-                       padding:6px;border-radius:8px;display:flex;align-items:center;
-                       transition:background .15s,color .15s;">
+        <div class="post-owner-menu">
+            <button class="post-menu-btn" aria-label="Post options">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
                     <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/>
                     <circle cx="12" cy="19" r="1"/>
                 </svg>
             </button>
-            <div class="post-menu-dropdown" style="display:none;position:fixed;
-                background:var(--bg-raised,#fff);border:1px solid var(--line);border-radius:10px;
-                padding:5px;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:9999;">
-                <button class="gpost-edit-btn menu-item-btn" data-id="${row.id}"
-                    style="display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;
-                           border:none;background:none;cursor:pointer;font-size:.82rem;
-                           color:var(--text-soft);border-radius:7px;font-family:var(--font,inherit);
-                           transition:background .12s,color .12s;"
-                    onmouseover="this.style.background='var(--sage-dim,#e8f4ed)';this.style.color='var(--text)'"
-                    onmouseout="this.style.background='none';this.style.color='var(--text-soft)'">
+            <div class="post-menu-dropdown" style="display:none;">
+                <button class="gpost-edit-btn menu-item-btn" data-id="${row.id}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                          stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -1635,13 +1582,7 @@ function renderGroupPostCard(row, images, currentUserId, token, group) {
                     </svg>
                     Edit
                 </button>
-                <button class="gpost-del-btn menu-item-btn" data-id="${row.id}"
-                    style="display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;
-                           border:none;background:none;cursor:pointer;font-size:.82rem;
-                           color:#c84444;border-radius:7px;font-family:var(--font,inherit);
-                           transition:background .12s;"
-                    onmouseover="this.style.background='rgba(200,60,60,.08)'"
-                    onmouseout="this.style.background='none'">
+                <button class="gpost-del-btn menu-item-btn" style="color:#c84444;" data-id="${row.id}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                          stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
                         <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
@@ -1655,7 +1596,6 @@ function renderGroupPostCard(row, images, currentUserId, token, group) {
     const card = document.createElement('article');
     card.className = 'post-card';
     card.dataset.gPostId = row.id;
-    card.style.marginBottom = '14px';
 
     card.innerHTML = `
         <div class="post-header">
@@ -1885,15 +1825,14 @@ async function loadGroupComments(postId, token, currentUserId) {
 
                     // Build reply form for group_comments
                     const wrap = document.createElement('div');
-                    wrap.className = 'reply-form-inner';
-                    wrap.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:8px;';
+                    wrap.className = 'comment-form-row';
                     wrap.innerHTML = `
-                        <div class="comment-avatar" style="width:24px;height:24px;min-width:24px;font-size:.58rem;"></div>
-                        <form style="display:flex;gap:5px;flex:1;align-items:center;">
+                        <div class="comment-avatar"></div>
+                        <form class="comment-form">
                             <input class="comment-input" type="text"
                                    placeholder="Reply to ${escHtml(c.profiles?.full_name || 'Member')}…"
-                                   autocomplete="off" style="font-size:.82rem;padding:6px 12px;">
-                            <button type="submit" class="comment-submit" style="width:28px;height:28px;min-width:28px;">
+                                   autocomplete="off">
+                            <button type="submit" class="comment-submit">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                                      width="12" height="12" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="22" y1="2" x2="11" y2="13"/>
