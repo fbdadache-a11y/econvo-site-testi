@@ -1271,11 +1271,10 @@ function onRemoteUpdatePost(record) {
     const card   = _rtFeed?.querySelector(`[data-post-id="${record.id}"]`);
     if (!card) return;
     const bodyEl = card.querySelector(`[data-post-body="${record.id}"]`);
-    if (bodyEl && record.content !== undefined) bodyEl.innerHTML = escHtml(record.content);
-    const timeEl = card.querySelector('.post-time');
-    if (timeEl && record.edited_at) {
-        const base = timeAgo(record.created_at || new Date().toISOString());
-        timeEl.innerHTML = `${base} <span class="post-edited-tag">· edited</span>`;
+    if (bodyEl && record.content !== undefined) {
+        bodyEl.innerHTML = typeof window.parseMarkdown === 'function'
+            ? window.parseMarkdown(record.content)
+            : escHtml(record.content);
     }
 }
 
