@@ -691,19 +691,7 @@ ${post.content ? `<p class="post-body md-post-body" data-post-body="${escHtml(po
         if (lpZone) attachLinkPreview(post.content, lpZone);
     }
 
-    /* Owner menu toggle */
-    if (isOwner) {
-        const menuBtn  = card.querySelector('.post-menu-btn');
-        const dropdown = card.querySelector('.post-menu-dropdown');
-        if (menuBtn && dropdown) {
-            menuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isOpen = dropdown.style.display === 'block';
-                dropdown.style.display = isOpen ? 'none' : 'block';
-            });
-            document.addEventListener('click', () => { dropdown.style.display = 'none'; }, { capture: true, once: false });
-        }
-    }
+    /* Owner menu toggle — handled by attachPostEvents */
 
     return card;
 }
@@ -1329,8 +1317,27 @@ function onRemoteReaction(record, action) {
 
 /* ── attachPostEvents ── */
 function attachPostEvents(card, row, token, currentUserId) {
-    /* Menu toggle — single delegated click on the dropdown items */
+    if (!card.dataset.postId) card.dataset.postId = row.id;
+
+    /* Menu toggle */
     const menuDropdown = card.querySelector('.post-menu-dropdown');
+    const menuBtn = card.querySelector('.post-menu-btn');
+    if (menuBtn && menuDropdown) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.post-menu-dropdown').forEach(d => {
+                if (d !== menuDropdown) d.style.display = 'none';
+            });
+            const isOpen = menuDropdown.style.display === 'block';
+            if (!isOpen) {
+                const rect = menuBtn.getBoundingClientRect();
+                menuDropdown.style.top   = (rect.bottom + 6) + 'px';
+                menuDropdown.style.left  = 'auto';
+                menuDropdown.style.right = Math.max(4, window.innerWidth - rect.right) + 'px';
+            }
+            menuDropdown.style.display = isOpen ? 'none' : 'block';
+        });
+    }
     if (menuDropdown) {
         // Close when clicking outside
         const closeMenu = (e) => {
