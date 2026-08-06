@@ -1725,16 +1725,32 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
     if (menuBtn && dropdown) {
         menuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            // أغلق كل القوائم الأخرى أولاً
+            document.querySelectorAll('.post-menu-dropdown').forEach(d => {
+                if (d !== dropdown) d.style.display = 'none';
+            });
             const isOpen = dropdown.style.display === 'block';
             if (!isOpen) {
                 const rect = menuBtn.getBoundingClientRect();
                 dropdown.style.top   = (rect.bottom + 6) + 'px';
-                dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+                dropdown.style.left  = 'auto';
+                dropdown.style.right = Math.max(4, window.innerWidth - rect.right) + 'px';
             }
             dropdown.style.display = isOpen ? 'none' : 'block';
         });
-        document.addEventListener('click', () => { dropdown.style.display = 'none'; });
     }
+
+    // listener واحد فقط على مستوى الـ document
+    if (!window._menuListenerAttached) {
+        window._menuListenerAttached = true;
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.post-owner-menu')) {
+                document.querySelectorAll('.post-menu-dropdown').forEach(d => {
+                    d.style.display = 'none';
+                });
+            }
+        });
+       }
 
     /* Edit */
     const editBtn = card.querySelector('.gpost-edit-btn');
