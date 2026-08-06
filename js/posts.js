@@ -772,9 +772,9 @@ function buildReplyForm(commentId, authorName, postId, token, currentUserId, lis
         requestAnimationFrame(() => { optimistic.style.opacity = '1'; });
 
         input.value = '';
-        // Hide reply form
-        const rfWrap = wrap.closest('.reply-form-wrap');
-        if (rfWrap) rfWrap.style.display = 'none';
+        // Hide reply form — wrap is appended inside rfWrap, go up one level
+        const rfWrap = wrap.parentElement;
+        if (rfWrap && rfWrap.classList.contains('reply-form-wrap')) rfWrap.style.display = 'none';
 
         try {
             await pgPost('comments', {
