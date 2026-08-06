@@ -3,7 +3,7 @@
 A full-stack club portal for the Econovo economics club, built on plain
 HTML/CSS/JS (no framework) with Supabase as the backend. Deployable to
 GitHub Pages or any static host.
-
+ .
 ---
 
 ## Project structure
