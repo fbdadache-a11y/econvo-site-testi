@@ -1,8 +1,8 @@
 /* ==========================================================================
-   ECONOVO — style.css
+   ECONOVO — style.css  v4
    Academic → Professional. Deep forest editorial with sage precision.
    Philosophy: whitespace earns meaning, typography commands hierarchy,
-   borders replace shadows, motion serves the brand.
+   elevation is tinted to the brand hue, motion follows spring physics.
    ========================================================================== */
 
 :root {
@@ -15,7 +15,7 @@
     --sage-light:  #b8d4c8;
     --sage-dark:   #6a9e89;
     --sage-dim:    rgba(143,184,166,.10);
-    --sage-glow:   rgba(143,184,166,.18);
+    --sage-glow:   rgba(143,184,166,.15);
     --chalk:       #F4F7F2;
     --chalk-2:     #F6F4F0;
     --white:       #FFFFFF;
@@ -26,10 +26,10 @@
     --bg-muted:    var(--chalk-2);
     --bg-sunken:   var(--chalk-2);
     --text:        var(--obsidian);
-    --text-soft:   rgba(14,42,36,.52);
-    --text-muted:  rgba(14,42,36,.35);
-    --line:        rgba(14,42,36,.10);
-    --rule:        rgba(14,42,36,.10);
+    --text-soft:   rgba(14,42,36,.50);
+    --text-muted:  rgba(14,42,36,.34);
+    --line:        rgba(14,42,36,.09);
+    --rule:        rgba(14,42,36,.09);
     --accent:      var(--sage);
     --brand:       var(--obsidian);
     --brand-dark:  var(--obsidian);
@@ -44,9 +44,12 @@
     --brand-accent:    var(--sage);
     --gradient-primary: linear-gradient(155deg, var(--obsidian) 0%, #163a32 100%);
     --gradient-sage:    linear-gradient(135deg, var(--sage) 0%, var(--sage-light) 100%);
-    --shadow-sm:   0 1px 3px rgba(14,42,36,.06);
-    --shadow-md:   0 4px 16px rgba(14,42,36,.08);
-    --shadow-hover:0 8px 28px rgba(14,42,36,.11);
+
+    /* ── Elevation — tinted to obsidian-green (not raw black) ── */
+    --shadow-sm:    0 1px 3px rgba(14,42,36,.05), 0 1px 2px rgba(14,42,36,.03);
+    --shadow-md:    0 4px 16px rgba(14,42,36,.07), 0 1px 4px rgba(14,42,36,.04);
+    --shadow-hover: 0 10px 32px rgba(14,42,36,.10), 0 4px 10px rgba(14,42,36,.05);
+    --shadow-lg:    0 20px 60px rgba(14,42,36,.12), 0 8px 20px rgba(14,42,36,.06);
 
     /* ── Type ── */
     --font-sans:    'Host Grotesk', system-ui, sans-serif;
@@ -70,44 +73,47 @@
     --sp-32:var(--s4); --sp-48:var(--s5); --sp-64:var(--s6);
     --sp-96:var(--s7); --sp-128:var(--s8);
 
-    /* ── Motion — brand-tuned easing ── */
+    /* ── Motion — spring-physics easing (not generic ease-in-out) ── */
     --ease:         cubic-bezier(.4,0,.2,1);
-    --ease-out:     cubic-bezier(0,0,.2,1);
+    --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);      /* fast-out spring */
     --ease-in:      cubic-bezier(.4,0,1,1);
     --ease-bounce:  cubic-bezier(.68,-.4,.27,1.35);
     --ease-spring:  cubic-bezier(.175,.885,.32,1.275);
-    --t-fast:       160ms var(--ease);
-    --t-base:       260ms var(--ease);
-    --t-slow:       500ms var(--ease);
-    --t-slower:     700ms var(--ease);
+    --t-fast:       150ms var(--ease-out);
+    --t-base:       250ms var(--ease-out);
+    --t-slow:       480ms var(--ease-out);
+    --t-slower:     680ms var(--ease-out);
 
-    /* ── Radius ── */
+    /* ── Radius — consistent scale ── */
     --r-sm:   4px;
-    --r-md:   6px;
-    --r-lg:   10px;
+    --r-md:   8px;
+    --r-lg:   12px;
+    --r-xl:   16px;
     --r-pill: 9999px;
 }
 
 /* ── Dark mode ── */
 [data-theme="dark"] {
-    --bg:        #0d0d0d;
-    --bg-raised: #141414;
-    --bg-muted:  #111111;
-    --bg-sunken: #0f0f0f;
+    --bg:        #0e0e0e;
+    --bg-raised: #161616;
+    --bg-muted:  #121212;
+    --bg-sunken: #101010;
     --text:      #E8EFE9;
-    --text-soft: rgba(232,239,233,.55);
-    --text-muted:rgba(232,239,233,.3);
-    --line:      rgba(232,239,233,.09);
-    --rule:      rgba(232,239,233,.09);
-    --brand:     #0d0d0d;
-    --brand-dark: #0d0d0d;
-    --obsidian:  #0d0d0d;
-    --obsidian-2:#0d0d0d;
+    --text-soft: rgba(232,239,233,.52);
+    --text-muted:rgba(232,239,233,.28);
+    --line:      rgba(232,239,233,.08);
+    --rule:      rgba(232,239,233,.08);
+    --brand:     #0e0e0e;
+    --brand-dark: #0e0e0e;
+    --obsidian:  #0e0e0e;
+    --obsidian-2:#0E2A24;
     --sage-dim:  rgba(143,184,166,.08);
-    --gradient-primary: linear-gradient(155deg, #0c0c0c 0%, #0E2A24 100%);
-    --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
-    --shadow-md:   0 4px 16px rgba(0,0,0,.35);
-    --shadow-hover:0 8px 28px rgba(0,0,0,.4);
+    --sage-glow: rgba(143,184,166,.10);
+    --gradient-primary: linear-gradient(155deg, #111 0%, #0E2A24 100%);
+    --shadow-sm:    0 1px 3px rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.18);
+    --shadow-md:    0 4px 16px rgba(0,0,0,.34), 0 1px 4px rgba(0,0,0,.20);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.42), 0 4px 10px rgba(0,0,0,.24);
+    --shadow-lg:    0 20px 60px rgba(0,0,0,.50), 0 8px 20px rgba(0,0,0,.28);
 }
 
 /* ── Language ── */
@@ -147,36 +153,43 @@ img { max-width: 100%; display: block; }
     font-feature-settings: "tnum" 1;
 }
 
+/* ── Scrollbar — thin brand-tinted ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(143,184,166,.35); }
+
 /* ════════════════════════════════════════════
    REVEAL SYSTEM — scroll-triggered entrances
-   All transitions are purposeful:
+   Spring physics, purposeful, brand-aligned.
    - fade + lift: content entering from below
    - fade only: subtle sections
    - stagger: grids of cards/items
    ════════════════════════════════════════════ */
 
-/* Section header reveal — GSAP handles transform; CSS provides opacity baseline */
+/* Section header reveal */
 .section-header.reveal {
-    /* transform and clip-path set by GSAP dynamically */
+    transform: translateY(22px);
+    transition: opacity .6s var(--ease-out), transform .6s var(--ease-out), clip-path .7s var(--ease-out);
 }
 
-/* Fade only — for elements that shouldn't move */
+/* Fade only */
 .reveal-fade {
     opacity: 0;
-    transition: opacity .65s var(--ease);
+    transition: opacity .6s var(--ease-out);
 }
 .reveal-fade.active { opacity: 1; }
 
-.delay-100 { transition-delay: .1s; }
-.delay-200 { transition-delay: .2s; }
-.delay-300 { transition-delay: .3s; }
-.delay-400 { transition-delay: .4s; }
+.delay-100 { transition-delay: .08s; }
+.delay-200 { transition-delay: .16s; }
+.delay-300 { transition-delay: .24s; }
+.delay-400 { transition-delay: .32s; }
 
-/* will-reveal — used by heroFadeIn and grid stagger */
+/* will-reveal */
 .will-reveal {
     opacity: 0;
-    transform: translateY(14px);
-    transition: opacity .55s var(--ease-out), transform .55s var(--ease-out);
+    transform: translateY(12px);
+    transition: opacity .52s var(--ease-out), transform .52s var(--ease-out);
 }
 .will-reveal.revealed {
     opacity: 1;
@@ -186,22 +199,18 @@ img { max-width: 100%; display: block; }
 /* Stagger items */
 .stagger-item {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(14px);
 }
 .stagger-item.in {
     opacity: 1;
     transform: translateY(0);
-    transition: opacity .5s var(--ease-out), transform .5s var(--ease-out);
+    transition: opacity .48s var(--ease-out), transform .48s var(--ease-out);
 }
 
-/* Safety net — if JS never runs, reveal all after 2s */
+/* Safety net */
 body:not(.js-ready) .reveal,
-body:not(.js-ready) .will-reveal,
-body:not(.js-ready) .stagger-item,
-body:not(.js-ready) .timeline-item {
-    animation: forceReveal 0s 2s forwards;
-}
-@keyframes forceReveal { to { opacity: 1; transform: none; clip-path: none; } }
+body:not(.js-ready) .will-reveal { animation: forceReveal 0s 2s forwards; }
+@keyframes forceReveal { to { opacity: 1; transform: none; } }
 
 /* ── Focus ── */
 a:focus-visible, button:focus-visible,
@@ -230,17 +239,17 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     to   { transform: translateX(-50%); }
 }
 
-/* ── Reveal base ──
-   IMPORTANT: opacity/transform are set by GSAP before ScrollTrigger fires.
-   clip-path is intentionally removed here to prevent GSAP conflict.
-   CSS .active class is added by GSAP as a signal only (no visual transition
-   needed — GSAP handles the tween). ── */
+/* ── Clip-path reveal base ── */
 .reveal {
     opacity: 0;
-    /* No clip-path here — GSAP controls it to avoid iOS/mobile paint bugs */
+    transform: translateY(16px);
+    clip-path: inset(0 0 100% 0);
+    transition: opacity .65s var(--ease-out), transform .65s var(--ease-out), clip-path .7s var(--ease-out);
 }
 .reveal.active {
     opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0% 0);
 }
 
 /* ── Reduced motion ── */
