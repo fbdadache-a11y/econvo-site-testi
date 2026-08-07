@@ -1,0 +1,136 @@
+/* ==========================================================================
+   ECONOVO — animations-supplement.css
+   Supplement: CSS required to support animations.js v4.0
+   Add @import or <link> AFTER sections.css.
+   ========================================================================== */
+
+/* ── Cursor glow ── */
+.hero-cursor-glow {
+    position: absolute;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+        rgba(143,184,166,.14) 0%,
+        rgba(143,184,166,.04) 50%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    will-change: transform;
+}
+
+/* ── Timeline spine draw (IO fallback class) ── */
+.timeline::before {
+    content: '';
+    position: absolute; top: 0; left: 50%;
+    width: 1px; height: 0;
+    background: var(--line);
+    transform: translateX(-50%);
+    transition: height 1.4s cubic-bezier(0.25, 1, 0.5, 1) 0.1s;
+}
+.timeline.animate-spine::before { height: 100%; }
+
+/* ── Timeline items — initial hidden state (set by JS) ── */
+.timeline-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--s5);
+    position: relative;
+    /* opacity/transform managed by animations.js */
+}
+
+/* ── Timeline dot — spring pop ── */
+.timeline-dot {
+    position: absolute; left: 50%; top: var(--s3);
+    transform: translateX(-50%) scale(0);
+    width: 10px; height: 10px;
+    background: var(--sage);
+    border: 3px solid var(--bg-muted);
+    border-radius: 50%;
+    z-index: 2;
+    transition: transform 0.5s cubic-bezier(.175,.885,.32,1.275);
+}
+.timeline-item.in .timeline-dot {
+    transform: translateX(-50%) scale(1);
+}
+
+/* ── Stagger items — initial state ── */
+.stagger-item {
+    opacity: 0;
+    transform: translateY(14px);
+}
+
+/* ── Scroll progress bar ── */
+.scroll-progress {
+    position: fixed; top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: linear-gradient(90deg,
+        var(--sage-dark),
+        var(--sage),
+        var(--sage-light)
+    );
+    z-index: 1100;
+    transform-origin: left;
+    /* JS overrides width; CSS scroll-driven overrides everything */
+}
+[lang="ar"] .scroll-progress { left: auto; right: 0; transform-origin: right; }
+
+/* ── Stat cell hover bar (GSAP-free) ── */
+.stat-cell::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--sage);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2;
+}
+.stat-cell:hover::before { transform: scaleX(1); }
+
+/* ── Section entrance line placeholder ──
+   The div is injected by JS; these ensure no layout shift */
+.trust-bar,
+.stats-section,
+.empathy-section { position: relative; }
+
+/* ── Floating badge/tag — CSS animation (JS injects keyframes + class) ──
+   Fallback for no-JS: use CSS-only defined keyframes */
+@media (prefers-reduced-motion: no-preference) {
+    @keyframes ecoFloat {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-9px); }
+    }
+    @keyframes ecoFloatTag {
+        0%, 100% { transform: translateY(0) rotate(-1deg); }
+        50%       { transform: translateY(-7px) rotate(1deg); }
+    }
+}
+
+/* ── Tactile press fallback via CSS :active ── */
+@media (prefers-reduced-motion: no-preference) {
+    .btn:active    { transform: scale(0.97) !important; }
+    .card:active   { transform: translateY(-2px) scale(0.98) !important; }
+}
+
+/* ── Reduced motion — kill everything ── */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration:   0.001ms !important;
+        animation-iteration-count: 1  !important;
+        transition-duration:  0.001ms !important;
+        scroll-behavior:      auto    !important;
+    }
+    .stagger-item,
+    .reveal,
+    .will-reveal,
+    .reveal-fade,
+    .timeline-item { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+    .hero-cursor-glow { display: none; }
+    .floating-badge, .floating-tag, .hero-img-container { animation: none !important; }
+    .scroll-progress { transition: none; }
+}
