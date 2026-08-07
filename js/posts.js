@@ -653,19 +653,7 @@ ${post.content ? `<p class="post-body md-post-body" data-post-body="${escHtml(po
         if (lpZone) attachLinkPreview(post.content, lpZone);
     }
 
-    /* Owner menu toggle */
-    if (isOwner) {
-        const menuBtn  = card.querySelector('.post-menu-btn');
-        const dropdown = card.querySelector('.post-menu-dropdown');
-        if (menuBtn && dropdown) {
-            menuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isOpen = dropdown.style.display === 'block';
-                dropdown.style.display = isOpen ? 'none' : 'block';
-            });
-            document.addEventListener('click', () => { dropdown.style.display = 'none'; }, { capture: true, once: false });
-        }
-    }
+    /* Owner menu toggle — handled by attachPostEvents */
 
     return card;
 }
@@ -1294,14 +1282,39 @@ function onRemoteReaction(record, action) {
 
 /* ── attachPostEvents ── */
 function attachPostEvents(card, row, token, currentUserId) {
-    /* Menu toggle — single delegated click on the dropdown items */
+    if (!card.dataset.postId) card.dataset.postId = row.id;
+
+    /* Menu toggle — positioned so it never clips off-screen */
     const menuDropdown = card.querySelector('.post-menu-dropdown');
+    const menuBtn      = card.querySelector('.post-menu-btn');
+    if (menuBtn && menuDropdown) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close all other open menus first
+            document.querySelectorAll('.post-menu-dropdown').forEach(d => {
+                if (d !== menuDropdown) d.style.display = 'none';
+            });
+            const isOpen = menuDropdown.style.display === 'block';
+            if (!isOpen) {
+                const rect = menuBtn.getBoundingClientRect();
+                const ddW  = 148; // min-width from CSS
+                // Default: align right edge of dropdown with right edge of button
+                let rightEdge = window.innerWidth - rect.right;
+                // If that would clip left side, align to left edge of button instead
+                if (rect.right - ddW < 8) rightEdge = window.innerWidth - rect.left - ddW;
+                // Keep at least 8px from right edge
+                rightEdge = Math.max(8, rightEdge);
+                menuDropdown.style.top   = (rect.bottom + 6) + 'px';
+                menuDropdown.style.right = rightEdge + 'px';
+                menuDropdown.style.left  = 'auto';
+            }
+            menuDropdown.style.display = isOpen ? 'none' : 'block';
+        });
+    }
     if (menuDropdown) {
-        // Close when clicking outside
-        const closeMenu = (e) => {
+        document.addEventListener('click', (e) => {
             if (!card.contains(e.target)) menuDropdown.style.display = 'none';
-        };
-        document.addEventListener('click', closeMenu);
+        });
     }
 
     /* Edit */
@@ -1311,7 +1324,7 @@ function attachPostEvents(card, row, token, currentUserId) {
             e.stopPropagation();
             if (menuDropdown) menuDropdown.style.display = 'none';
             const bodyEl = card.querySelector(`[data-post-body="${row.id}"]`);
-            const current = bodyEl ? bodyEl.innerText : (row.content || '');
+            const current = row.content || (bodyEl ? bodyEl.innerText : '');
             openEditModal(row.id, current, token, (newContent) => {
                 if (bodyEl) bodyEl.innerHTML = escHtml(newContent);
                 const timeEl = card.querySelector('.post-time');
@@ -1678,9 +1691,13 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
             const isOpen = dropdown.style.display === 'block';
             if (!isOpen) {
                 const rect = menuBtn.getBoundingClientRect();
+                const ddW2 = 148;
+                let rEdge = window.innerWidth - rect.right;
+                if (rect.right - ddW2 < 8) rEdge = window.innerWidth - rect.left - ddW2;
+                rEdge = Math.max(8, rEdge);
                 dropdown.style.top   = (rect.bottom + 6) + 'px';
                 dropdown.style.left  = 'auto';
-                dropdown.style.right = Math.max(4, window.innerWidth - rect.right) + 'px';
+                dropdown.style.right = rEdge + 'px';
             }
             dropdown.style.display = isOpen ? 'none' : 'block';
         });
@@ -1705,7 +1722,7 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
             e.stopPropagation();
             if (dropdown) dropdown.style.display = 'none';
             const bodyEl  = card.querySelector(`[data-gpost-body="${row.id}"]`);
-            const current = bodyEl ? bodyEl.innerText : (row.content || '');
+            const current = row.content || (bodyEl ? bodyEl.innerText : '');
             openEditModal(row.id, current, token, (newContent) => {
                 if (bodyEl) bodyEl.innerHTML = escHtml(newContent);
                 const timeEl = card.querySelector('.post-time');
