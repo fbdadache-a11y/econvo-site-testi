@@ -173,61 +173,161 @@ function renderImageGallery(images) {
    LINK PREVIEW
    ══════════════════════════════════════════════════════════════ */
 
-const URL_REGEX = /(https?:\/\/[^\s<>"']+)/gi;
+/* Matches https?:// URLs AND plain www.* / bare domain links */
+const URL_REGEX = /(?:https?:\/\/[^\s<>"'(){}\[\]]+|(?<![a-zA-Z0-9])www\.[^\s<>"'(){}\[\]]+\.[a-z]{2,}(?:\/[^\s<>"'(){}\[\]]*)?)/gi;
+
+function normaliseUrl(raw) {
+    if (!raw) return null;
+    const s = raw.trim().replace(/[.,;!?)]+$/, '');   // strip trailing punctuation
+    return /^https?:\/\//i.test(s) ? s : 'https://' + s;
+}
 
 function extractFirstUrl(text) {
     if (!text) return null;
     const m = text.match(URL_REGEX);
-    return m ? m[0] : null;
+    return m ? normaliseUrl(m[0]) : null;
 }
 
-/* Fetch OG metadata via allorigins proxy (no server needed) */
+/* Parse OG / twitter / basic meta tags from raw HTML */
+function parseOgFromHtml(html, url) {
+    if (!html) return null;
+    const getMeta = (prop) => {
+        const patterns = [
+            new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]+content=["']([^"']{1,500})["']`, 'i'),
+            new RegExp(`<meta[^>]+content=["']([^"']{1,500})["'][^>]+(?:property|name)=["']${prop}["']`, 'i'),
+        ];
+        for (const re of patterns) {
+            const m = html.match(re);
+            if (m && m[1]) return m[1].trim();
+        }
+        return null;
+    };
+    const getTitle = () => {
+        const m = html.match(/<title[^>]*>([^<]{1,300})<\/title>/i);
+        return m ? m[1].trim() : null;
+    };
+    let hostname = '';
+    try { hostname = new URL(url).hostname.replace('www.', ''); } catch(_) {}
+
+    const title = getMeta('og:title') || getMeta('twitter:title') || getTitle();
+    if (!title) return null;
+
+    return {
+        title,
+        description: getMeta('og:description') || getMeta('twitter:description') || getMeta('description') || null,
+        image:       getMeta('og:image') || getMeta('twitter:image') || null,
+        site_name:   getMeta('og:site_name') || hostname,
+    };
+}
+
+/* In-memory de-dup: don't fetch the same URL twice in one session */
+const _lpCache = new Map();
+
+/* Fetch OG metadata — dedicated OG APIs → HTML proxies → minimal fallback */
 async function fetchLinkPreview(url) {
-    // Check Supabase cache first
+    if (!url) return null;
+    if (_lpCache.has(url)) return _lpCache.get(url);
+
+    // Helper: fetch with timeout
+    async function timedFetch(resource, opts = {}, ms = 8000) {
+        const ctrl = new AbortController();
+        const tid  = setTimeout(() => ctrl.abort(), ms);
+        try {
+            return await fetch(resource, { ...opts, signal: ctrl.signal });
+        } finally {
+            clearTimeout(tid);
+        }
+    }
+
+    // 1 ─ Supabase cache (instant if already seen)
     try {
-        const rows = await pgGet(`link_previews?url=eq.${encodeURIComponent(url)}&select=title,description,image,site_name`, null);
-        if (rows.length && rows[0].title) return rows[0];
+        const rows = await pgGet(
+            `link_previews?url=eq.${encodeURIComponent(url)}&select=title,description,image,site_name`,
+            null
+        );
+        if (rows.length && rows[0].title) {
+            _lpCache.set(url, rows[0]);
+            return rows[0];
+        }
     } catch(_) {}
 
-    // Fetch via allorigins proxy
-    try {
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-        const r = await fetch(proxyUrl);
-        if (!r.ok) return null;
-        const data = await r.json();
-        const html = data.contents || '';
+    let preview = null;
 
-        const getMeta = (prop) => {
-            const re = new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]+content=["']([^"']+)["']`, 'i');
-            const re2 = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${prop}["']`, 'i');
-            return (html.match(re) || html.match(re2) || [])[1] || null;
-        };
-        const getTitle = () => {
-            const m = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-            return m ? m[1].trim() : null;
-        };
-
-        const preview = {
-            title:       getMeta('og:title') || getMeta('twitter:title') || getTitle(),
-            description: getMeta('og:description') || getMeta('twitter:description') || getMeta('description'),
-            image:       getMeta('og:image') || getMeta('twitter:image'),
-            site_name:   getMeta('og:site_name') || new URL(url).hostname.replace('www.',''),
-        };
-
-        if (preview.title) {
-            // Cache in Supabase (best-effort, no token needed for INSERT with RLS anon)
-            try {
-                await fetch(POSTS_URL + '/rest/v1/link_previews', {
-                    method: 'POST',
-                    headers: { ...authHeaders(null), 'Prefer': 'resolution=merge-duplicates' },
-                    body: JSON.stringify({ url, ...preview, fetched_at: new Date().toISOString() }),
-                });
-            } catch(_) {}
-        }
-        return preview;
-    } catch(_) {
-        return null;
+    // 2 ─ jsonlink.io  (dedicated OG API, free, no key needed)
+    if (!preview) {
+        try {
+            const r = await timedFetch(
+                `https://jsonlink.io/api/extract?url=${encodeURIComponent(url)}`
+            );
+            if (r.ok) {
+                const d = await r.json();
+                if (d.title) {
+                    preview = {
+                        title:       d.title,
+                        description: d.description || null,
+                        image:       (d.images && d.images[0]) || d.favicon || null,
+                        site_name:   d.domain || new URL(url).hostname.replace('www.',''),
+                    };
+                }
+            }
+        } catch(_) {}
     }
+
+    // 3 ─ microlink.io  (dedicated OG API, free tier, no key needed)
+    if (!preview) {
+        try {
+            const r = await timedFetch(
+                `https://api.microlink.io/?url=${encodeURIComponent(url)}&palette=false&audio=false&video=false&iframe=false`
+            );
+            if (r.ok) {
+                const d = await r.json();
+                if (d.status === 'success' && d.data?.title) {
+                    preview = {
+                        title:       d.data.title,
+                        description: d.data.description || null,
+                        image:       d.data.image?.url || d.data.logo?.url || null,
+                        site_name:   d.data.publisher || new URL(url).hostname.replace('www.',''),
+                    };
+                }
+            }
+        } catch(_) {}
+    }
+
+    // 4 ─ allorigins HTML proxy (last resort — parses raw HTML ourselves)
+    if (!preview) {
+        try {
+            const r = await timedFetch(
+                `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
+            );
+            if (r.ok) {
+                const d = await r.json();
+                preview = parseOgFromHtml(d.contents || '', url);
+            }
+        } catch(_) {}
+    }
+
+    // 5 ─ Minimal fallback: show hostname so card still appears
+    if (!preview) {
+        try {
+            const hostname = new URL(url).hostname.replace('www.', '');
+            preview = { title: hostname, description: null, image: null, site_name: hostname };
+        } catch(_) {}
+    }
+
+    if (!preview) { _lpCache.set(url, null); return null; }
+
+    _lpCache.set(url, preview);
+
+    // Persist to Supabase cache (best-effort)
+    try {
+        await fetch(POSTS_URL + '/rest/v1/link_previews', {
+            method:  'POST',
+            headers: { ...authHeaders(null), 'Prefer': 'resolution=merge-duplicates' },
+            body:    JSON.stringify({ url, ...preview, fetched_at: new Date().toISOString() }),
+        });
+    } catch(_) {}
+
+    return preview;
 }
 
 function renderLinkPreview(preview, url) {
