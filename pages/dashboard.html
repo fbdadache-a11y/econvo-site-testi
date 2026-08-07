@@ -15,7 +15,6 @@
 <link rel="stylesheet" href="../css/posts.css">
 <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
 <script src="../js/icons.js" defer></script>
-<script src="../js/composer.js" defer></script>
 <script src="../js/posts.js" defer></script>
 <style>
 /* ═══════════════════════════════════════════════════════
@@ -663,7 +662,7 @@ img { display: block; max-width: 100%; }
             <div class="composer-top" style="margin-top:12px;">
               <div class="composer-av" id="composer-av-2"></div>
               <textarea class="composer-input" id="post-content"
-                  placeholder="Share something… (**bold**, *italic*, `code`)"
+                  placeholder="Share something with the community…"
                   rows="3"></textarea>
             </div>
             <div id="post-previews-row" style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0;"></div>
@@ -1012,7 +1011,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   loadUserAvatar();
 
-  if (typeof window.createRichComposer === 'function') upgradeMainComposer();
 
   if (typeof window.applyMarkdownToPostBodies === 'function') {
     applyMarkdownToPostBodies();
@@ -1591,24 +1589,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function upgradeMainComposer() {
-    const oldTa = document.getElementById('post-content');
-    if (!oldTa || !window.createRichComposer) return;
-    const parent = oldTa.closest('.composer-top');
-    if (!parent) return;
-    const rich = window.createRichComposer({
-      placeholder: 'Share something with the community… (**bold**, *italic*, `code`)',
-      maxLength: 1000, className: 'main-rte',
-    });
-    rich.textarea.id = 'post-content';
-    oldTa.replaceWith(rich.el);
-    const charDisplay = document.getElementById('post-char-count');
-    if (charDisplay) {
-      rich.textarea.addEventListener('input', () => {
-        charDisplay.textContent = rich.textarea.value.length + ' / 1000';
-      });
-    }
-  }
 
 /* ══ COMPOSER EXPAND / COLLAPSE ══ */
   const composerTrigger   = document.getElementById('composer-trigger');
