@@ -1,379 +1,393 @@
 /* ==========================================================================
    ECONOVO — animations.js  v4.0
-   Design language: editorial precision meets kinetic energy.
+   Architecture: CSS scroll-driven (native) + Web Animations API (fallback)
+   + GSAP as progressive enhancement (never a hard dependency).
+
+   Philosophy from taste-SKILL:
+   - MOTION_INTENSITY: 5 — purposeful, not cinematic
+   - Every animation serves information hierarchy, not decoration
+   - prefers-reduced-motion: respected at every layer
+   - No single point of failure — works without GSAP
+   - White-space is activated, not filled
+
    Brand: Obsidian #0E2A24 · Silver Sage #8FB8A6 · Chalk #F4F7F2
    ========================================================================== */
 
 (function () {
     'use strict';
 
-    /* ── Config ── */
-    const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const TOUCH   = !window.matchMedia('(hover:hover) and (pointer:fine)').matches;
-    const CHARS   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&';
+    /* ─────────────────────────────────────────────
+       CONFIG
+    ───────────────────────────────────────────── */
+    const REDUCED  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const HAS_GSAP = () => !!window.gsap;
+    const FINE_PTR = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 
-    const GRID_SELECTORS = [
-        '#statsRow', '#whyGrid', '#pillarsGrid',
-        '#timeline', '#teamGrid', '#eventsGrid', '#faqWrapper'
-    ];
+    /* Spring easing — the brand's motion signature */
+    const SPRING    = 'cubic-bezier(0.16, 1, 0.3, 1)';
+    const SPRING_SOFT = 'cubic-bezier(0.25, 1, 0.5, 1)';
+    const EASE_OUT  = 'cubic-bezier(0.33, 1, 0.68, 1)';
 
-    let singleObserver;
+    /* Shared options for Web Animations API */
+    const BASE_ANIM = { fill: 'both', easing: SPRING };
+
+    /* Characters for scramble (ASCII only — accessibility safe) */
+    const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ·';
+
+    let trustBarBound = false;
+    let singleObserver = null;
     const gridObservers = new WeakMap();
-    let trustBarBound   = false;
 
-    /* ══════════════════════════════════════════════════════
-       UTILS
-    ══════════════════════════════════════════════════════ */
+    /* ─────────────────────────────────────────────
+       HELPERS
+    ───────────────────────────────────────────── */
     function forceVisible(el) {
         if (!el) return;
-        el.style.opacity    = '1';
-        el.style.transform  = 'none';
-        el.style.clipPath   = 'none';
-        el.style.visibility = 'visible';
-        el.style.filter     = 'none';
+        el.style.opacity       = '1';
+        el.style.transform     = 'none';
+        el.style.clipPath      = 'none';
+        el.style.visibility    = 'visible';
     }
 
-    function $(sel, ctx) { return (ctx || document).querySelector(sel); }
-    function $$(sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); }
+    /* Animate via Web Animations API with GSAP as enhancement */
+    function animWAAPI(el, from, to, options = {}) {
+        if (!el || REDUCED) { forceVisible(el); return null; }
 
-    /* ── GSAP shorthand ── */
-    const G = {
-        has: () => !!window.gsap,
-        from: (el, vars) => G.has() && !REDUCED ? gsap.from(el, vars) : forceVisible(el),
-        to:   (el, vars) => G.has() && !REDUCED ? gsap.to(el, vars)   : null,
-        tl:   (opts)     => G.has() ? gsap.timeline(opts) : null,
-        set:  (el, vars) => G.has() ? gsap.set(el, vars)  : null,
-    };
+        const dur = (options.duration || 0.6) * 1000;
+        const del = (options.delay    || 0)   * 1000;
 
-    /* ══════════════════════════════════════════════════════
+        return el.animate(
+            [from, to],
+            { duration: dur, delay: del, easing: options.easing || SPRING, fill: 'both' }
+        );
+    }
+
+    /* Stagger a NodeList with WA API */
+    function staggerWAAPI(elements, from, to, options = {}) {
+        if (!elements || REDUCED) {
+            [...elements].forEach(forceVisible);
+            return;
+        }
+
+        const staggerMs = (options.stagger || 0.06) * 1000;
+        const dur       = (options.duration || 0.5) * 1000;
+        const baseDelay = (options.delay   || 0)   * 1000;
+
+        [...elements].forEach((el, i) => {
+            el.animate(
+                [from, to],
+                {
+                    duration: dur,
+                    delay:    baseDelay + i * staggerMs,
+                    easing:   options.easing || SPRING,
+                    fill:     'both'
+                }
+            );
+        });
+    }
+
+    /* ─────────────────────────────────────────────
        INIT
-    ══════════════════════════════════════════════════════ */
+    ───────────────────────────────────────────── */
     document.addEventListener('DOMContentLoaded', () => {
-        if (G.has() && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+        if (HAS_GSAP() && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
 
+        initScrollProgress();
+        initNavbarScroll();
         heroEntrance();
-        initCursorGlow();
-        idleFloat();
-        heroParallax();
-        initScrollReveal();
-        GRID_SELECTORS.forEach(revealGrid);
-        initStatCounters();
-        initTimelineDrawIn();
-        initMagneticCards();
+        initIdleFloat();
+        initHeroParallax();
+        initSingleReveal();
+
+        [
+            '#statsRow', '#whyGrid', '#pillarsGrid',
+            '#timeline', '#teamGrid', '#eventsGrid', '#faqWrapper'
+        ].forEach(revealGrid);
+
+        initCounters();
+        initTimelineSpine();
+        initMagneticTilt();
         initTrustBar();
-        initNavProgress();
-        initSectionAccents();
+        initSectionLines();
+        initCursorGlow();
 
         document.body.classList.add('js-ready');
     });
 
-    /* Re-run after language.js renders content */
     document.addEventListener('econovo:rendered', () => {
-        initScrollReveal();
-        GRID_SELECTORS.forEach(revealGrid);
-        initTimelineDrawIn();
+        initSingleReveal();
+        [
+            '#statsRow', '#whyGrid', '#pillarsGrid',
+            '#timeline', '#teamGrid', '#eventsGrid', '#faqWrapper'
+        ].forEach(revealGrid);
+        initCounters();
+        initTimelineSpine();
         initTrustBar();
-        initSectionAccents();
     });
 
-    /* ══════════════════════════════════════════════════════
-       1. HERO ENTRANCE — sequenced, cinematic
-    ══════════════════════════════════════════════════════ */
+    /* ─────────────────────────────────────────────
+       1. SCROLL PROGRESS BAR
+       Native — no library needed
+    ───────────────────────────────────────────── */
+    function initScrollProgress() {
+        const bar = document.getElementById('scrollProgress');
+        if (!bar) return;
+
+        /* Try CSS scroll-driven animations first (Chrome 115+) */
+        if (CSS.supports('animation-timeline', 'scroll()')) {
+            bar.style.cssText = `
+                animation: scrollProgress 1s linear;
+                animation-timeline: scroll();
+                animation-fill-mode: both;
+            `;
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes scrollProgress {
+                    from { width: 0%; }
+                    to   { width: 100%; }
+                }
+            `;
+            document.head.appendChild(style);
+            return;
+        }
+
+        /* Fallback: rAF-based */
+        if (REDUCED) return;
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                const doc    = document.documentElement;
+                const scroll = doc.scrollTop  || document.body.scrollTop;
+                const total  = doc.scrollHeight - doc.clientHeight;
+                bar.style.width = total > 0 ? (scroll / total * 100) + '%' : '0%';
+                ticking = false;
+            });
+        }, { passive: true });
+    }
+
+    /* ─────────────────────────────────────────────
+       2. NAVBAR SCROLL STATE
+    ───────────────────────────────────────────── */
+    function initNavbarScroll() {
+        const nav = document.getElementById('navbar');
+        if (!nav) return;
+
+        let lastY  = 0;
+        let ticking = false;
+
+        function update() {
+            const y = window.scrollY;
+            nav.classList.toggle('scrolled', y > 20);
+            lastY = y;
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(update);
+        }, { passive: true });
+
+        update();
+    }
+
+    /* ─────────────────────────────────────────────
+       3. HERO ENTRANCE
+       Orchestrated sequence — each element has a
+       semantic role in the timing:
+       rule → eyebrow → headline → visual → desc → tags → cta
+    ───────────────────────────────────────────── */
     function heroEntrance() {
-        const rule    = $('.hero-rule');
-        const eyebrow = $('.hero-content .eyebrow');
-        const h1      = $('.hero-content h1');
-        const desc    = $('.hero-content > p');
-        const tags    = $('.hero-tags');
-        const actions = $('.hero-actions');
-        const visual  = $('.hero-visual');
-        const badge   = $('.floating-badge');
+        const rule    = document.querySelector('.hero-rule');
+        const eyebrow = document.querySelector('.hero-content .eyebrow');
+        const h1      = document.querySelector('.hero-content h1');
+        const desc    = document.querySelector('.hero-content > p');
+        const tags    = document.querySelector('.hero-tags');
+        const actions = document.querySelector('.hero-actions');
+        const visual  = document.querySelector('.hero-visual');
 
         if (REDUCED) {
-            [eyebrow, h1, desc, tags, actions, visual].forEach(forceVisible);
-            h1?.closest('.hero-content')?.classList.add('animate-done');
+            [rule, eyebrow, h1, desc, tags, actions, visual].forEach(el => {
+                if (el) forceVisible(el);
+            });
+            if (rule)    rule.classList.add('revealed');
+            if (h1)      h1.closest('.hero-content')?.classList.add('animate-done');
             return;
         }
 
-        /* Rule: draws from center outward */
+        /* Rule line — draws out first */
         if (rule) {
-            rule.style.transformOrigin = 'center';
-            rule.style.transform = 'scaleX(0)';
-            rule.style.opacity = '1';
-            setTimeout(() => {
-                rule.style.transition = 'transform 0.7s cubic-bezier(.16,1,.3,1)';
-                rule.style.transform  = 'scaleX(1)';
-                setTimeout(() => rule.classList.add('revealed'), 50);
-            }, 80);
+            setTimeout(() => rule.classList.add('revealed'), 80);
         }
 
-        if (!G.has()) {
-            [eyebrow, h1, desc, tags, actions, visual].forEach(forceVisible);
-            h1?.closest('.hero-content')?.classList.add('animate-done');
+        /* Eyebrow */
+        if (eyebrow) {
+            animWAAPI(eyebrow,
+                { opacity: 0, transform: 'translateY(10px)' },
+                { opacity: 1, transform: 'translateY(0)' },
+                { duration: 0.45, delay: 0.1, easing: SPRING }
+            );
+        }
+
+        /* Headline — clean clip-path wipe, no scramble (accessibility + SEO) */
+        if (h1) {
+            h1.style.willChange = 'opacity, transform';
+            animWAAPI(h1,
+                { opacity: 0, transform: 'translateY(16px)' },
+                { opacity: 1, transform: 'translateY(0)' },
+                { duration: 0.6, delay: 0.18, easing: SPRING }
+            )?.finished.then(() => {
+                h1.style.willChange = 'auto';
+                h1.closest('.hero-content')?.classList.add('animate-done');
+            });
+        }
+
+        /* Visual panel — comes in simultaneously, slightly behind */
+        if (visual) {
+            visual.style.willChange = 'opacity, transform';
+            animWAAPI(visual,
+                { opacity: 0, transform: 'translateY(20px) scale(0.97)' },
+                { opacity: 1, transform: 'translateY(0) scale(1)' },
+                { duration: 0.7, delay: 0.22, easing: SPRING }
+            )?.finished.then(() => {
+                visual.style.willChange = 'auto';
+            });
+        }
+
+        /* Description — wipes in from left */
+        if (desc) {
+            animWAAPI(desc,
+                { opacity: 0, transform: 'translateY(10px)', clipPath: 'inset(0 100% 0 0)' },
+                { opacity: 1, transform: 'translateY(0)',    clipPath: 'inset(0 0% 0 0)' },
+                { duration: 0.65, delay: 0.30, easing: SPRING_SOFT }
+            );
+        }
+
+        /* Tags — stagger in */
+        if (tags?.children.length) {
+            staggerWAAPI(
+                tags.children,
+                { opacity: 0, transform: 'translateY(8px) scale(0.92)' },
+                { opacity: 1, transform: 'translateY(0) scale(1)' },
+                { duration: 0.35, delay: 0.42, stagger: 0.06, easing: SPRING }
+            );
+        }
+
+        /* CTA buttons — final reveal */
+        if (actions) {
+            animWAAPI(actions,
+                { opacity: 0, transform: 'translateY(12px)' },
+                { opacity: 1, transform: 'translateY(0)' },
+                { duration: 0.5, delay: 0.52, easing: SPRING }
+            );
+        }
+    }
+
+    /* ─────────────────────────────────────────────
+       4. IDLE FLOAT — hero elements drift gently
+       Only on pointer:fine devices (desktop)
+    ───────────────────────────────────────────── */
+    function initIdleFloat() {
+        if (REDUCED || !FINE_PTR) return;
+
+        /* Use CSS animation — GPU-composited, no JS loop */
+        const style = document.createElement('style');
+        style.id    = 'eco-float-style';
+        style.textContent = `
+            @keyframes ecoFloat      { 0%,100%{transform:translateY(0)}     50%{transform:translateY(-9px)} }
+            @keyframes ecoFloatTag   { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-7px) rotate(1deg)} }
+            @keyframes ecoFloatImg   { 0%,100%{transform:translateY(0)}     50%{transform:translateY(-6px)} }
+            .floating-badge          { animation: ecoFloat    3.2s ease-in-out infinite; }
+            .floating-tag            { animation: ecoFloatTag 2.8s ease-in-out infinite; animation-delay:-.4s; }
+            .hero-img-container      { animation: ecoFloatImg 4.0s ease-in-out infinite; animation-delay:-.8s; }
+        `;
+        document.head.appendChild(style);
+    }
+
+    /* ─────────────────────────────────────────────
+       5. HERO PARALLAX
+       scroll-driven native, GSAP fallback
+    ───────────────────────────────────────────── */
+    function initHeroParallax() {
+        if (REDUCED) return;
+        const visual = document.querySelector('.hero-visual');
+        if (!visual) return;
+
+        /* CSS scroll-driven (Chrome 115+) */
+        if (CSS.supports('animation-timeline', 'scroll()')) {
+            const style = document.createElement('style');
+            style.textContent = `
+                .hero-visual {
+                    animation: heroParallax 1s linear both;
+                    animation-timeline: scroll(root);
+                    animation-range: 0px 80vh;
+                }
+                @keyframes heroParallax {
+                    from { transform: translateY(0); }
+                    to   { transform: translateY(80px); }
+                }
+            `;
+            document.head.appendChild(style);
             return;
         }
 
-        const tl = gsap.timeline({
-            defaults: { ease: 'expo.out' },
-            onComplete: () => h1?.closest('.hero-content')?.classList.add('animate-done')
-        });
-
-        /* Eyebrow: slides up + letter spacing expands */
-        if (eyebrow) {
-            tl.fromTo(eyebrow,
-                { opacity: 0, y: 14, letterSpacing: '0.3em' },
-                { opacity: 1, y: 0,  letterSpacing: eyebrow.style.letterSpacing || '0.1em',
-                  duration: 0.55 },
-            0.05);
-        }
-
-        /* H1: word-by-word stagger + scramble */
-        if (h1) {
-            const originalHTML = h1.innerHTML;
-            const plainText    = h1.textContent;
-            tl.fromTo(h1,
-                { opacity: 0 },
-                { opacity: 1, duration: 0.2 },
-            0.15);
-            tl.add(() => scrambleText(h1, plainText, originalHTML), 0.15);
-        }
-
-        /* Visual: scale from 0.92 + slight rotation */
-        if (visual) {
-            tl.fromTo(visual,
-                { opacity: 0, scale: 0.88, y: 28, rotationZ: 1.5 },
-                { opacity: 1, scale: 1,    y: 0,  rotationZ: 0,
-                  duration: 0.9, ease: 'expo.out' },
-            0.1);
-        }
-
-        /* Desc: wipe left-to-right */
-        if (desc) {
-            tl.fromTo(desc,
-                { opacity: 0, clipPath: 'inset(0 100% 0 0)', y: 6 },
-                { opacity: 1, clipPath: 'inset(0 0%   0 0)', y: 0,
-                  duration: 0.65, ease: 'expo.out' },
-            0.3);
-        }
-
-        /* Tags: pop in with spring stagger */
-        if (tags?.children.length) {
-            tl.fromTo([...tags.children],
-                { opacity: 0, scale: 0.7, y: 10 },
-                { opacity: 1, scale: 1,   y: 0,
-                  duration: 0.4, stagger: 0.055,
-                  ease: 'back.out(2)' },
-            0.45);
-        }
-
-        /* CTA buttons: slide up + subtle blur clear */
-        if (actions) {
-            tl.fromTo(actions,
-                { opacity: 0, y: 18, filter: 'blur(4px)' },
-                { opacity: 1, y: 0,  filter: 'blur(0px)',
-                  duration: 0.5, ease: 'expo.out' },
-            0.52);
-        }
-
-        /* Floating badge: bounces in late */
-        if (badge) {
-            tl.fromTo(badge,
-                { opacity: 0, scale: 0, rotation: -12 },
-                { opacity: 1, scale: 1, rotation: 0,
-                  duration: 0.55, ease: 'back.out(2.2)' },
-            0.7);
-        }
-    }
-
-    /* ── Scramble text ── */
-    function scrambleText(el, plainText, originalHTML, delay = 0) {
-        const chars = CHARS;
-        const letters = plainText.split('');
-        let iter = 0;
-        const maxIter = plainText.length * 2.2;
-
-        setTimeout(() => {
-            const iv = setInterval(() => {
-                el.textContent = letters
-                    .map((char, i) => {
-                        if (char === ' ') return ' ';
-                        if (i < Math.floor(iter / 2.2)) return char;
-                        return chars[Math.floor(Math.random() * chars.length)];
-                    })
-                    .join('');
-                iter++;
-                if (iter >= maxIter) {
-                    clearInterval(iv);
-                    el.innerHTML = originalHTML;
+        /* GSAP ScrollTrigger fallback */
+        if (HAS_GSAP() && window.ScrollTrigger) {
+            gsap.to(visual, {
+                yPercent: 14,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start:   'top top',
+                    end:     'bottom top',
+                    scrub:   1.2
                 }
-            }, 22);
-        }, delay * 1000);
-    }
-
-    /* ══════════════════════════════════════════════════════
-       2. CURSOR GLOW — organic sage radial
-    ══════════════════════════════════════════════════════ */
-    function initCursorGlow() {
-        const hero = $('.hero');
-        if (!hero || REDUCED || TOUCH) return;
-        if (hero.querySelector('.hero-cursor-glow')) return;
-
-        const glow = document.createElement('div');
-        glow.className = 'hero-cursor-glow';
-        hero.appendChild(glow);
-
-        let raf = null, mx = -999, my = -999;
-        let curX = -999, curY = -999;
-
-        hero.addEventListener('pointermove', e => {
-            mx = e.clientX; my = e.clientY;
-            if (!raf) raf = requestAnimationFrame(tick);
-        });
-        hero.addEventListener('pointerleave', () =>
-            G.to(glow, { opacity: 0, duration: 0.5, ease: 'power2.out' })
-        );
-        hero.addEventListener('pointerenter', () =>
-            G.to(glow, { opacity: 1, duration: 0.35, ease: 'power2.out' })
-        );
-
-        function tick() {
-            raf = null;
-            /* Lerp for smooth follow */
-            curX += (mx - curX) * 0.12;
-            curY += (my - curY) * 0.12;
-            const rect = hero.getBoundingClientRect();
-            glow.style.transform = `translate(${curX - rect.left - 220}px, ${curY - rect.top - 220}px)`;
-            if (Math.abs(mx - curX) > 0.5 || Math.abs(my - curY) > 0.5)
-                raf = requestAnimationFrame(tick);
+            });
         }
     }
 
-    /* ══════════════════════════════════════════════════════
-       3. IDLE FLOAT — organic, varied timing per element
-    ══════════════════════════════════════════════════════ */
-    function idleFloat() {
-        if (!G.has() || REDUCED) return;
-
-        /* Badge: slow bob */
-        gsap.to('.floating-badge', {
-            y: -12, rotation: 2,
-            duration: 3.2, repeat: -1, yoyo: true, ease: 'sine.inOut'
-        });
-
-        /* Tags: slightly out of phase */
-        gsap.to('.floating-tag', {
-            y: -9, rotation: -1.5,
-            duration: 2.6, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.4
-        });
-
-        /* Image container: very subtle, slow */
-        gsap.to('.hero-img-container', {
-            y: -10, duration: 4.0, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.2
-        });
-
-        /* Subtle scale pulse on the hero visual circle/ring if present */
-        gsap.to('.hero-ring', {
-            scale: 1.03, duration: 2.8, repeat: -1, yoyo: true,
-            ease: 'sine.inOut', transformOrigin: 'center'
-        });
-    }
-
-    /* ══════════════════════════════════════════════════════
-       4. HERO PARALLAX — multi-layer depth
-    ══════════════════════════════════════════════════════ */
-    function heroParallax() {
-        if (!G.has() || !window.ScrollTrigger || REDUCED) return;
-        if (!$('.hero-visual')) return;
-
-        /* Visual moves slower than scroll = depth */
-        gsap.to('.hero-visual', {
-            yPercent: 14,
-            ease: 'none',
-            scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.2 }
-        });
-
-        /* Content moves slightly faster = pulls away from visual */
-        gsap.to('.hero-content', {
-            yPercent: -6,
-            ease: 'none',
-            scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.2 }
-        });
-
-        /* Floating elements: exaggerated drift */
-        gsap.to('.floating-badge', {
-            yPercent: 30,
-            ease: 'none',
-            scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.8 }
-        });
-        gsap.to('.floating-tag', {
-            yPercent: -20,
-            ease: 'none',
-            scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.8 }
-        });
-    }
-
-    /* ══════════════════════════════════════════════════════
-       5. SCROLL REVEAL — unique per element type
-    ══════════════════════════════════════════════════════ */
-    function initScrollReveal() {
-        const targets = $$('.reveal:not(.active)');
+    /* ─────────────────────────────────────────────
+       6. SINGLE-ELEMENT REVEAL
+       Animates .reveal elements on scroll
+    ───────────────────────────────────────────── */
+    function initSingleReveal() {
+        const targets = Array.from(document.querySelectorAll('.reveal:not(.active)'));
         if (!targets.length) return;
 
         if (!('IntersectionObserver' in window)) {
-            targets.forEach(revealElement); return;
+            targets.forEach(el => activateSingle(el));
+            return;
         }
 
         if (!singleObserver) {
             singleObserver = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
                     if (!entry.isIntersecting) return;
-                    revealElement(entry.target);
+                    activateSingle(entry.target);
                     singleObserver.unobserve(entry.target);
                 });
-            }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+            }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
         }
+
         targets.forEach(el => singleObserver.observe(el));
     }
 
-    function revealElement(el) {
+    function activateSingle(el) {
         el.classList.add('active');
-        if (!G.has() || REDUCED) { forceVisible(el); return; }
-
-        /* Headings: mask wipe upward */
-        if (el.matches('h2, h3, .section-title, .view-title')) {
-            gsap.fromTo(el,
-                { opacity: 0, y: 32, clipPath: 'inset(100% 0 0 0)' },
-                { opacity: 1, y: 0,  clipPath: 'inset(0% 0 0 0)',
-                  duration: 0.7, ease: 'expo.out' }
-            );
-        /* Eyebrows / labels: expand letter spacing */
-        } else if (el.matches('.eyebrow, .section-label, .view-eyebrow, .view-sub')) {
-            gsap.fromTo(el,
-                { opacity: 0, letterSpacing: '0.5em', y: 8 },
-                { opacity: 1, letterSpacing: '',       y: 0,
-                  duration: 0.6, ease: 'expo.out' }
-            );
-        /* Cards: lift from slightly below with blur */
-        } else if (el.matches('.card, .ann-card, .event-row, .group-card')) {
-            gsap.fromTo(el,
-                { opacity: 0, y: 24, scale: 0.97, filter: 'blur(3px)' },
-                { opacity: 1, y: 0,  scale: 1,    filter: 'blur(0px)',
-                  duration: 0.55, ease: 'expo.out' }
-            );
-        /* Default: clean fade-up */
-        } else {
-            gsap.fromTo(el,
-                { opacity: 0, y: 20 },
-                { opacity: 1, y: 0, duration: 0.6, ease: 'expo.out' }
-            );
-        }
+        if (REDUCED) { forceVisible(el); }
     }
 
-    /* ══════════════════════════════════════════════════════
-       6. GRID REVEAL — staggered cascade per grid type
-    ══════════════════════════════════════════════════════ */
+    /* ─────────────────────────────────────────────
+       7. GRID REVEAL — staggered cascade
+       Each grid section has its own IO instance.
+       Tighter rootMargin — elements enter later,
+       which reveals the whitespace intentionally.
+    ───────────────────────────────────────────── */
     function revealGrid(selector) {
-        const container = $(selector);
+        const container = document.querySelector(selector);
         if (!container || !container.children.length) return;
 
         const prev = gridObservers.get(container);
@@ -382,360 +396,338 @@
         const children = Array.from(container.children);
 
         if (!('IntersectionObserver' in window)) {
-            runCascade(selector, children); return;
+            cascadeIn(children, selector);
+            return;
         }
 
         const obs = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (!entry.isIntersecting) return;
-                runCascade(selector, children);
+                cascadeIn(children, selector);
                 obs.disconnect();
                 gridObservers.delete(container);
             });
-        }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+        }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
 
         gridObservers.set(container, obs);
         obs.observe(container);
     }
 
-    function runCascade(selector, children) {
-        if (REDUCED) { children.forEach(forceVisible); return; }
-        if (!G.has()) { children.forEach(forceVisible); return; }
-
-        switch (selector) {
-
-            /* Stats: count up after sliding in */
-            case '#statsRow':
-                gsap.fromTo(children,
-                    { opacity: 0, y: 30, scale: 0.9 },
-                    { opacity: 1, y: 0,  scale: 1,
-                      duration: 0.55, stagger: 0.08, ease: 'back.out(1.4)',
-                      onComplete: animateCounters }
-                );
-                break;
-
-            /* Why grid: alternating left/right */
-            case '#whyGrid':
-                children.forEach((el, i) => {
-                    gsap.fromTo(el,
-                        { opacity: 0, x: i % 2 === 0 ? -30 : 30, y: 16 },
-                        { opacity: 1, x: 0, y: 0,
-                          duration: 0.6, ease: 'expo.out', delay: i * 0.07 }
-                    );
-                });
-                break;
-
-            /* Pillars: fan out from center */
-            case '#pillarsGrid':
-                gsap.fromTo(children,
-                    { opacity: 0, scale: 0.85, y: 20, rotationZ: (i) => (i - children.length / 2) * 1.5 },
-                    { opacity: 1, scale: 1,    y: 0,  rotationZ: 0,
-                      duration: 0.5, stagger: 0.06, ease: 'back.out(1.6)' }
-                );
-                break;
-
-            /* Timeline: each item draws a line then fades content */
-            case '#timeline':
-                gsap.fromTo(children,
-                    { opacity: 0, x: -20 },
-                    { opacity: 1, x: 0,
-                      duration: 0.5, stagger: 0.1, ease: 'expo.out',
-                      onStart: drawTimeline }
-                );
-                break;
-
-            /* Team: rise with slight blur */
-            case '#teamGrid':
-                gsap.fromTo(children,
-                    { opacity: 0, y: 28, filter: 'blur(5px)' },
-                    { opacity: 1, y: 0,  filter: 'blur(0px)',
-                      duration: 0.5, stagger: 0.07, ease: 'expo.out' }
-                );
-                break;
-
-            /* Events: slide in from right with stagger */
-            case '#eventsGrid':
-                gsap.fromTo(children,
-                    { opacity: 0, x: 24, y: 8 },
-                    { opacity: 1, x: 0,  y: 0,
-                      duration: 0.45, stagger: 0.075, ease: 'expo.out' }
-                );
-                break;
-
-            /* FAQ: open like accordion items */
-            case '#faqWrapper':
-                gsap.fromTo(children,
-                    { opacity: 0, y: 14, scaleY: 0.96, transformOrigin: 'top' },
-                    { opacity: 1, y: 0,  scaleY: 1,
-                      duration: 0.4, stagger: 0.06, ease: 'expo.out' }
-                );
-                break;
-
-            default:
-                gsap.fromTo(children,
-                    { opacity: 0, y: 20 },
-                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: 'expo.out' }
-                );
+    function cascadeIn(children, selector) {
+        if (REDUCED) {
+            children.forEach(forceVisible);
+            return;
         }
+
+        /* Different entrance per section type */
+        const isStats    = selector === '#statsRow';
+        const isTimeline = selector === '#timeline';
+        const isTeam     = selector === '#teamGrid';
+
+        children.forEach((el, i) => {
+            el.classList.add('in');
+
+            const delay  = i * (isStats ? 0.08 : isTeam ? 0.07 : 0.065);
+            const fromY  = isStats ? 24 : 18;
+            const fromX  = isTimeline
+                ? (i % 2 === 0 ? -20 : 20)   /* alternate left/right for timeline */
+                : 0;
+
+            animWAAPI(el,
+                { opacity: 0, transform: `translate(${fromX}px, ${fromY}px) scale(0.97)` },
+                { opacity: 1, transform: 'translate(0, 0) scale(1)' },
+                { duration: 0.55, delay, easing: SPRING }
+            );
+        });
     }
 
-    /* ══════════════════════════════════════════════════════
-       7. STAT COUNTERS — eased count-up with formatting
-    ══════════════════════════════════════════════════════ */
-    function animateCounters() {
-        $$('#statsRow .stat-value').forEach(el => {
-            const raw   = el.getAttribute('data-raw') || el.textContent;
-            const match = raw.match(/^(\d+)(.*)/);
+    /* ─────────────────────────────────────────────
+       8. STAT COUNTERS
+       count-up animates once, on first intersection
+    ───────────────────────────────────────────── */
+    function initCounters() {
+        const cells = document.querySelectorAll('#statsRow .stat-value');
+        if (!cells.length || REDUCED) return;
+
+        cells.forEach(el => {
+            const raw    = el.getAttribute('data-raw') || el.textContent.trim();
+            const match  = raw.match(/^(\d[\d,]*)(.*)$/);
             if (!match) return;
 
-            const target = parseInt(match[1], 10);
+            const target = parseInt(match[1].replace(/,/g, ''), 10);
             const suffix = match[2] || '';
+            el.setAttribute('data-raw', raw);     /* preserve for re-runs */
+            el.textContent = '0' + suffix;
 
-            if (G.has() && !REDUCED) {
-                const obj = { v: 0 };
-                gsap.to(obj, {
-                    v: target, duration: 1.6, ease: 'power2.out',
-                    onUpdate() { el.textContent = Math.round(obj.v) + suffix; },
-                    onComplete() { el.textContent = target + suffix; }
-                });
-            } else {
-                el.textContent = target + suffix;
-            }
+            const io = new IntersectionObserver(entries => {
+                if (!entries[0].isIntersecting) return;
+                io.disconnect();
+                countUp(el, target, suffix);
+            }, { threshold: 0.3 });
+
+            io.observe(el);
         });
     }
 
-    /* ══════════════════════════════════════════════════════
-       8. TIMELINE DRAW-IN — line grows downward
-    ══════════════════════════════════════════════════════ */
-    function initTimelineDrawIn() {}
+    function countUp(el, target, suffix) {
+        const dur    = 1600; /* ms */
+        const start  = performance.now();
 
-    function drawTimeline() {
-        const line = $('.timeline-line');
-        if (!line || REDUCED) return;
-
-        if (G.has()) {
-            gsap.fromTo(line,
-                { scaleY: 0, transformOrigin: 'top center' },
-                { scaleY: 1, duration: 1.0, ease: 'expo.out', delay: 0.1 }
-            );
-        } else {
-            line.style.cssText = 'transform-origin:top;transform:scaleY(0);' +
-                'transition:transform 0.9s cubic-bezier(.16,1,.3,1) .1s;';
-            requestAnimationFrame(() => { line.style.transform = 'scaleY(1)'; });
+        function tick(now) {
+            const t  = Math.min((now - start) / dur, 1);
+            /* ease-out-expo */
+            const e  = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+            const v  = Math.round(e * target);
+            el.textContent = v.toLocaleString() + suffix;
+            if (t < 1) requestAnimationFrame(tick);
         }
+
+        requestAnimationFrame(tick);
     }
 
-    /* ══════════════════════════════════════════════════════
-       9. MAGNETIC CARD TILT — smoother, momentum-based
-    ══════════════════════════════════════════════════════ */
-    function initMagneticCards() {
-        if (!G.has() || REDUCED || TOUCH) return;
+    /* ─────────────────────────────────────────────
+       9. TIMELINE SPINE DRAW
+       The vertical line draws in as you scroll —
+       activates the whitespace between items.
+    ───────────────────────────────────────────── */
+    function initTimelineSpine() {
+        const timeline = document.querySelector('.timeline');
+        if (!timeline || REDUCED) return;
 
-        let active = null;
+        /* CSS scroll-driven (native, Chrome 115+) */
+        if (CSS.supports('animation-timeline', 'scroll()')) {
+            const style = document.createElement('style');
+            style.textContent = `
+                .timeline::before {
+                    animation: spineGrow 1s linear both;
+                    animation-timeline: view();
+                    animation-range: entry 0% cover 60%;
+                }
+                @keyframes spineGrow {
+                    from { height: 0; }
+                    to   { height: 100%; }
+                }
+            `;
+            document.head.appendChild(style);
+            return;
+        }
 
-        const reset = card => gsap.to(card, {
-            rotateX: 0, rotateY: 0, y: 0, scale: 1,
-            filter: 'brightness(1)',
-            duration: 0.7, ease: 'elastic.out(1,.5)'
-        });
+        /* Fallback: IO-triggered CSS class */
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    timeline.classList.add('animate-spine');
+                    io.disconnect();
+                }
+            });
+        }, { threshold: 0.1 });
+
+        io.observe(timeline);
+    }
+
+    /* ─────────────────────────────────────────────
+       10. MAGNETIC CARD TILT
+       3D perspective tilt on card hover.
+       Intentionally subtle — max ±6deg.
+    ───────────────────────────────────────────── */
+    function initMagneticTilt() {
+        if (REDUCED || !FINE_PTR) return;
+
+        let activeCard = null;
+
+        function resetCard(card) {
+            if (!card) return;
+            card.style.transition = `transform 0.6s ${SPRING_SOFT}`;
+            card.style.transform  = '';
+            card.style.transition = '';
+        }
 
         document.addEventListener('pointermove', e => {
             const card = e.target.closest('.card:not(.empathy-box)');
 
-            if (card !== active) {
-                if (active) reset(active);
-                active = card;
+            if (card !== activeCard) {
+                if (activeCard) resetCard(activeCard);
+                activeCard = card;
+                if (card) card.style.transition = 'none';   /* instant during move */
             }
+
             if (!card) return;
 
             const r  = card.getBoundingClientRect();
-            const px = (e.clientX - r.left) / r.width  - 0.5;
+            const px = (e.clientX - r.left) / r.width  - 0.5;   /* -0.5 → 0.5 */
             const py = (e.clientY - r.top)  / r.height - 0.5;
 
-            /* More tilt + scale up + subtle brighten on hover */
-            gsap.to(card, {
-                rotateX: py * -7,
-                rotateY: px *  7,
-                y: -6,
-                scale: 1.018,
-                filter: 'brightness(1.04)',
-                duration: 0.3,
-                ease: 'power2.out',
-                transformPerspective: 800
-            });
+            const rotX = py * -6;  /* max ±6deg */
+            const rotY = px *  6;
+
+            card.style.transform          = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-4px)`;
+            card.style.willChange         = 'transform';
+        }, { passive: true });
+
+        document.addEventListener('pointerleave', () => {
+            if (activeCard) {
+                resetCard(activeCard);
+                activeCard = null;
+            }
         });
 
-        document.addEventListener('pointerleave', e => {
-            if (!e.relatedTarget && active) { reset(active); active = null; }
+        document.addEventListener('pointerup', () => {
+            if (activeCard) {
+                activeCard.style.transform = `perspective(900px) translateY(-2px) scale(0.98)`;
+                setTimeout(() => { if (activeCard) resetCard(activeCard); }, 150);
+            }
         });
     }
 
-    /* ══════════════════════════════════════════════════════
-       10. TRUST BAR — smooth infinite ticker
-    ══════════════════════════════════════════════════════ */
+    /* ─────────────────────────────────────────────
+       11. SECTION ENTRANCE LINES
+       Each section's first border-top draws in
+       as a 2px sage line — activates whitespace
+       between sections intentionally.
+    ───────────────────────────────────────────── */
+    function initSectionLines() {
+        if (REDUCED) return;
+
+        /* Only for sections that have a visible top border */
+        const targets = document.querySelectorAll(
+            '.trust-bar, .stats-section, .empathy-section'
+        );
+
+        if (!('IntersectionObserver' in window)) return;
+
+        targets.forEach(el => {
+            /* Inject a ::before pseudo-line with a data attribute */
+            const line = document.createElement('div');
+            line.setAttribute('aria-hidden', 'true');
+            line.style.cssText = `
+                position:absolute; top:0; left:0;
+                height:1.5px; width:0%;
+                background: linear-gradient(90deg, transparent, var(--sage) 30%, var(--sage) 70%, transparent);
+                z-index:2; pointer-events:none;
+                transition: width 1.1s ${SPRING_SOFT} 0.1s;
+            `;
+
+            /* Only add if el is position:relative-compatible */
+            if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+            el.appendChild(line);
+
+            const io = new IntersectionObserver(entries => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        line.style.width = '100%';
+                        io.unobserve(el);
+                    }
+                });
+            }, { threshold: 0.05 });
+
+            io.observe(el);
+        });
+    }
+
+    /* ─────────────────────────────────────────────
+       12. CURSOR GLOW — hero follows pointer
+    ───────────────────────────────────────────── */
+    function initCursorGlow() {
+        const hero = document.querySelector('.hero');
+        if (!hero || REDUCED || !FINE_PTR) return;
+        if (hero.querySelector('.hero-cursor-glow')) return;
+
+        const glow = document.createElement('div');
+        glow.className     = 'hero-cursor-glow';
+        glow.setAttribute('aria-hidden', 'true');
+        hero.appendChild(glow);
+
+        let raf = null;
+        let tx  = -999, ty = -999;
+
+        hero.addEventListener('pointermove', e => {
+            tx = e.clientX;
+            ty = e.clientY;
+            if (!raf) raf = requestAnimationFrame(tick);
+        }, { passive: true });
+
+        function show(v) {
+            glow.animate([{ opacity: glow.style.opacity || 0 }, { opacity: v }],
+                { duration: 400, fill: 'both', easing: 'ease' });
+        }
+
+        hero.addEventListener('pointerenter', () => show(1));
+        hero.addEventListener('pointerleave', () => show(0));
+
+        function tick() {
+            raf = null;
+            const rect = hero.getBoundingClientRect();
+            glow.style.transform = `translate(${tx - rect.left - 200}px, ${ty - rect.top - 200}px)`;
+        }
+    }
+
+    /* ─────────────────────────────────────────────
+       13. TRUST BAR TICKER
+    ───────────────────────────────────────────── */
     function initTrustBar() {
         const track = document.getElementById('trustTrack');
         if (!track || !track.children.length) return;
 
-        track.style.animation = 'none';
-        void track.offsetWidth;
-
         if (!track.dataset.cloned) {
-            track.insertAdjacentHTML('beforeend', track.innerHTML);
+            const snapshot = track.innerHTML;
+            track.insertAdjacentHTML('beforeend', snapshot);
             track.dataset.cloned = '1';
         }
 
         if (REDUCED) return;
 
-        track.style.animation = 'trustScroll 28s linear infinite';
+        track.style.animation = 'trustScroll 30s linear infinite';
 
         if (!trustBarBound) {
-            track.addEventListener('mouseenter', () => track.style.animationPlayState = 'paused');
-            track.addEventListener('mouseleave', () => track.style.animationPlayState = 'running');
+            track.addEventListener('mouseenter', () => {
+                track.style.animationPlayState = 'paused';
+            });
+            track.addEventListener('mouseleave', () => {
+                track.style.animationPlayState = 'running';
+            });
             trustBarBound = true;
         }
     }
 
-    /* ══════════════════════════════════════════════════════
-       11. SCROLL PROGRESS BAR — top of viewport
-    ══════════════════════════════════════════════════════ */
-    function initNavProgress() {
-        if (REDUCED) return;
-
-        const bar = document.createElement('div');
-        bar.id = 'scroll-progress';
-        bar.style.cssText = `
-            position:fixed; top:0; left:0; z-index:9999;
-            height:2.5px; width:0%; pointer-events:none;
-            background: linear-gradient(90deg, var(--obsidian,#0e2a24) 0%, var(--sage,#8fb8a6) 100%);
-            transform-origin: left;
-            transition: width 80ms linear;
-        `;
-        document.body.appendChild(bar);
-
-        window.addEventListener('scroll', () => {
-            const doc  = document.documentElement;
-            const pct  = doc.scrollTop / (doc.scrollHeight - doc.clientHeight) * 100;
-            bar.style.width = Math.min(pct, 100) + '%';
-        }, { passive: true });
-    }
-
-    /* ══════════════════════════════════════════════════════
-       12. SECTION ACCENTS — sage line sweeps under headings
-    ══════════════════════════════════════════════════════ */
-    function initSectionAccents() {
-        if (!G.has() || REDUCED) return;
-        if (!window.ScrollTrigger) return;
-
-        $$('.section-title, .view-title').forEach(el => {
-            if (el.dataset.accentDone) return;
-            el.dataset.accentDone = '1';
-
-            /* Inject underline span */
-            if (!el.querySelector('.title-accent-line')) {
-                const span = document.createElement('span');
-                span.className = 'title-accent-line';
-                span.style.cssText = `
-                    display:block; height:2px; margin-top:6px; border-radius:2px;
-                    background:var(--sage,#8fb8a6); transform-origin:left;
-                    transform:scaleX(0); will-change:transform;
-                `;
-                el.appendChild(span);
-            }
-
-            const line = el.querySelector('.title-accent-line');
-            ScrollTrigger.create({
-                trigger: el,
-                start: 'top 85%',
-                once: true,
-                onEnter: () => gsap.to(line, {
-                    scaleX: 1, duration: 0.65, ease: 'expo.out', delay: 0.15
-                })
+    /* ─────────────────────────────────────────────
+       14. BUTTON PRESS TACTILE
+       Adds a tiny scale-down on :active that CSS
+       alone can't reliably handle cross-browser.
+    ───────────────────────────────────────────── */
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.btn, .card, .nav-link, .icon-btn').forEach(el => {
+            el.addEventListener('pointerdown', () => {
+                if (REDUCED) return;
+                el.animate(
+                    [{ transform: 'scale(1)' }, { transform: 'scale(0.97)' }],
+                    { duration: 100, fill: 'forwards', easing: 'ease' }
+                );
+            });
+            el.addEventListener('pointerup', () => {
+                if (REDUCED) return;
+                el.animate(
+                    [{ transform: 'scale(0.97)' }, { transform: 'scale(1)' }],
+                    { duration: 200, fill: 'forwards', easing: SPRING }
+                );
+            });
+            el.addEventListener('pointercancel', () => {
+                el.style.transform = '';
             });
         });
-    }
-
-    /* ══════════════════════════════════════════════════════
-       13. BUTTON RIPPLE — ink spreads from click point
-    ══════════════════════════════════════════════════════ */
-    document.addEventListener('pointerdown', e => {
-        const btn = e.target.closest('.btn, .btn-publish, .btn-save, .btn-join-group, .btn-confirm');
-        if (!btn || REDUCED) return;
-
-        const ripple = document.createElement('span');
-        const r   = btn.getBoundingClientRect();
-        const sz  = Math.max(r.width, r.height) * 2;
-        const x   = e.clientX - r.left - sz / 2;
-        const y   = e.clientY - r.top  - sz / 2;
-
-        ripple.style.cssText = `
-            position:absolute; border-radius:50%; pointer-events:none;
-            width:${sz}px; height:${sz}px;
-            left:${x}px; top:${y}px;
-            background:rgba(255,255,255,0.22);
-            transform:scale(0); opacity:1;
-            animation:ripple-out 0.55s cubic-bezier(.16,1,.3,1) forwards;
-        `;
-
-        if (!btn.style.position || btn.style.position === 'static') {
-            btn.style.position = 'relative';
-        }
-        btn.style.overflow = 'hidden';
-        btn.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 600);
-    }, { passive: true });
-
-    /* Inject ripple keyframe once */
-    if (!document.getElementById('eco-ripple-style')) {
-        const st = document.createElement('style');
-        st.id = 'eco-ripple-style';
-        st.textContent = `@keyframes ripple-out { to { transform: scale(1); opacity: 0; } }`;
-        document.head.appendChild(st);
-    }
-
-    /* ══════════════════════════════════════════════════════
-       14. ACTIVE NAV LINK INDICATOR — magnetic slide
-    ══════════════════════════════════════════════════════ */
-    (function initNavIndicator() {
-        if (!G.has() || REDUCED) return;
-
-        const nav = $('.top-nav .nav-center, nav .nav-links');
-        if (!nav) return;
-
-        /* Create sliding pill */
-        const pill = document.createElement('div');
-        pill.style.cssText = `
-            position:absolute; pointer-events:none; z-index:0;
-            background:var(--bg-muted, rgba(14,42,36,.07));
-            border-radius:var(--r-md, 8px);
-            transition:none;
-        `;
-        nav.style.position = 'relative';
-        nav.insertBefore(pill, nav.firstChild);
-
-        function moveTo(el) {
-            if (!el) { gsap.to(pill, { opacity: 0, duration: 0.2 }); return; }
-            const nr = nav.getBoundingClientRect();
-            const er = el.getBoundingClientRect();
-            gsap.to(pill, {
-                x: er.left - nr.left, y: er.top - nr.top,
-                width: er.width, height: er.height,
-                opacity: 1, duration: 0.3, ease: 'expo.out'
-            });
-        }
-
-        const items = $$('.nav-item', nav);
-        items.forEach(item => {
-            item.addEventListener('mouseenter', () => moveTo(item));
-        });
-        nav.addEventListener('mouseleave', () => {
-            const active = $('.nav-item.active', nav);
-            active ? moveTo(active) : gsap.to(pill, { opacity: 0, duration: 0.25 });
-        });
-
-        /* Init on active */
-        const initActive = $('.nav-item.active', nav);
-        if (initActive) { gsap.set(pill, { opacity: 0 }); }
-    })();
+    });
 
 })();
+
+/* NOTE for maintainers ───────────────────────────────────────────────────────
+   This file has ZERO hard dependencies.
+   
+   Execution layers:
+   1. CSS scroll-driven (native, Chrome 115+, Safari 18+) — zero JS cost
+   2. Web Animations API — works in all modern browsers
+   3. IntersectionObserver — universal fallback with graceful degradation
+   4. GSAP — used only if already loaded (progressive enhancement)
+   
+   prefers-reduced-motion is respected at every layer.
+   No animation blocks content rendering.
+   All elements are visible without JS (forceVisible safety net).
+─────────────────────────────────────────────────────────────────────────── */
