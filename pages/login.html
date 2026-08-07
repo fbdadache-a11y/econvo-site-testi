@@ -912,14 +912,49 @@
             }
 
             function saveSession(data) {
-                if (data.access_token) localStorage.setItem('econovo-token', data.access_token);
-                if (data.user) localStorage.setItem('econovo-user', JSON.stringify(data.user));
+                if (data.access_token)  localStorage.setItem('econovo-token',   data.access_token);
+                if (data.refresh_token) localStorage.setItem('econovo-refresh',  data.refresh_token);
+                if (data.expires_at)    localStorage.setItem('econovo-expires',  String(data.expires_at));
+                if (data.user)          localStorage.setItem('econovo-user',     JSON.stringify(data.user));
             }
 
-            // Redirect if already logged in
-            if (localStorage.getItem('econovo-token') && localStorage.getItem('econovo-user')) {
-                window.location.href = 'dashboard.html';
+            function clearSession() {
+                ['econovo-token','econovo-refresh','econovo-expires','econovo-user'].forEach(k => localStorage.removeItem(k));
             }
+
+            async function refreshSession() {
+                const refresh = localStorage.getItem('econovo-refresh');
+                if (!refresh) return false;
+                try {
+                    const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+                        body: JSON.stringify({ refresh_token: refresh }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok) { saveSession(data); return true; }
+                } catch (_) {}
+                clearSession();
+                return false;
+            }
+
+            async function getValidToken() {
+                const expires = localStorage.getItem('econovo-expires');
+                const now = Math.floor(Date.now() / 1000);
+                // Refresh if within 5 minutes of expiry
+                if (expires && now >= (parseInt(expires, 10) - 300)) {
+                    await refreshSession();
+                }
+                return localStorage.getItem('econovo-token');
+            }
+
+            // Redirect if already logged in (verify token is still valid)
+            (async () => {
+                if (localStorage.getItem('econovo-token') && localStorage.getItem('econovo-user')) {
+                    const token = await getValidToken();
+                    if (token) window.location.href = 'dashboard.html';
+                }
+            })();
 
             // ---- Sign In ----
             document.getElementById('signin-btn').addEventListener('click', async () => {
