@@ -269,7 +269,7 @@
     border-top: 2px solid var(--obsidian);
     border-bottom: 1px solid var(--line);
 }
-[data-theme="dark"] .stats-row { border-top-color: var(--sage); }
+[data-theme] .stats-row{ border-top-color: var(--sage); }
 .stat-cell {
     padding: var(--s5) var(--s4);
     text-align: left;
@@ -317,7 +317,7 @@
     transition: color .25s ease;
 }
 .stat-cell:hover .stat-value { color: var(--obsidian); }
-[data-theme="dark"] .stat-value { color: var(--sage); }
+[data-theme] .stat-value{ color: var(--sage); }
 .stat-label {
     font-size: .68rem;
     text-transform: uppercase;
@@ -588,7 +588,7 @@
    CTA — dark full-bleed
    ═══════════════════════════════════════ */
 .cta-section {
-    background: linear-gradient(155deg, var(--obsidian) 0%, #163a32 100%);
+    background: linear-gradient(155deg, var(--obsidian) 0%, var(--obsidian-2) 100%);
     color: #fff;
     text-align: center;
     padding: var(--s8) var(--s3);

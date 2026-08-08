@@ -1,0 +1,165 @@
+/* ==========================================================================
+   ECONOVO — themes.css
+   Single source of truth for all 12 palettes. Load AFTER style.css and
+   BEFORE components.css / sections.css / posts.css in every page
+   (index.html, pages/dashboard.html, pages/admin.html) so the same
+   [data-theme="…"] attribute on <html> re-skins the entire site.
+
+   Each block re-defines the same semantic tokens style.css already
+   declares in :root — nothing else needs to change, because every
+   component file consumes var(--bg), var(--text), var(--sage), etc.
+
+   Sources (official palette values):
+   nordtheme.com · rosepinetheme.com · github.com/catppuccin ·
+   draculatheme.com · Gruvbox · ethanschoonover.com/solarized ·
+   Tokyo Night (storm) · Everforest · Ayu Mirage · One Dark (Atom)
+   ========================================================================== */
+
+/* ── Nord — arctic blues ── */
+[data-theme="nord"] {
+    --bg: #2e3440; --bg-raised: #3b4252; --bg-muted: #343a46; --bg-sunken: #2a303c;
+    --text: #eceff4; --text-soft: rgba(236,239,244,.68); --text-muted: rgba(236,239,244,.32);
+    --line: rgba(236,239,244,.1); --rule: rgba(236,239,244,.1);
+    --obsidian: #2e3440; --obsidian-2: #4c566a; --brand: #2e3440; --brand-dark: #2e3440;
+    --sage: #88c0d0; --sage-light: #8fbcbb; --sage-dark: #5e81ac;
+    --sage-dim: rgba(136,192,208,.14); --sage-glow: rgba(136,192,208,.18);
+    --gradient-primary: linear-gradient(155deg, #2e3440 0%, #4c566a 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.25); --shadow-md: 0 4px 16px rgba(0,0,0,.32);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.38); --shadow-lg: 0 20px 60px rgba(0,0,0,.46);
+}
+
+/* ── Rosé Pine — soho vibes ── */
+[data-theme="rosepine"] {
+    --bg: #191724; --bg-raised: #1f1d2e; --bg-muted: #26233a; --bg-sunken: #16141f;
+    --text: #e0def4; --text-soft: rgba(224,222,244,.68); --text-muted: rgba(224,222,244,.32);
+    --line: rgba(224,222,244,.1); --rule: rgba(224,222,244,.1);
+    --obsidian: #191724; --obsidian-2: #403d52; --brand: #191724; --brand-dark: #191724;
+    --sage: #ebbcba; --sage-light: #f6c177; --sage-dark: #c4a7e7;
+    --sage-dim: rgba(235,188,186,.14); --sage-glow: rgba(235,188,186,.18);
+    --gradient-primary: linear-gradient(155deg, #191724 0%, #403d52 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 16px rgba(0,0,0,.38);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.44); --shadow-lg: 0 20px 60px rgba(0,0,0,.52);
+}
+
+/* ── Rosé Pine Dawn — light sibling ── */
+[data-theme="rosepine-dawn"] {
+    --bg: #faf4ed; --bg-raised: #fffaf3; --bg-muted: #f2e9e1; --bg-sunken: #f2e9e1;
+    --text: #575279; --text-soft: rgba(87,82,121,.68); --text-muted: rgba(87,82,121,.4);
+    --line: rgba(87,82,121,.12); --rule: rgba(87,82,121,.12);
+    --obsidian: #575279; --obsidian-2: #403d52; --brand: #575279; --brand-dark: #575279;
+    --sage: #286983; --sage-light: #56949f; --sage-dark: #907aa9;
+    --sage-dim: rgba(40,105,131,.1); --sage-glow: rgba(40,105,131,.14);
+    --gradient-primary: linear-gradient(155deg, #575279 0%, #286983 100%);
+    --shadow-sm: 0 1px 3px rgba(87,82,121,.08); --shadow-md: 0 4px 16px rgba(87,82,121,.1);
+    --shadow-hover: 0 10px 32px rgba(87,82,121,.13); --shadow-lg: 0 20px 60px rgba(87,82,121,.16);
+}
+
+/* ── Catppuccin Mocha — soothing pastels ── */
+[data-theme="catppuccin"] {
+    --bg: #1e1e2e; --bg-raised: #262637; --bg-muted: #202030; --bg-sunken: #181825;
+    --text: #cdd6f4; --text-soft: rgba(205,214,244,.68); --text-muted: rgba(205,214,244,.32);
+    --line: rgba(205,214,244,.1); --rule: rgba(205,214,244,.1);
+    --obsidian: #1e1e2e; --obsidian-2: #45475a; --brand: #1e1e2e; --brand-dark: #1e1e2e;
+    --sage: #cba6f7; --sage-light: #f5c2e7; --sage-dark: #89b4fa;
+    --sage-dim: rgba(203,166,247,.14); --sage-glow: rgba(203,166,247,.18);
+    --gradient-primary: linear-gradient(155deg, #1e1e2e 0%, #45475a 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 16px rgba(0,0,0,.38);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.44); --shadow-lg: 0 20px 60px rgba(0,0,0,.52);
+}
+
+/* ── Dracula — beloved by developers ── */
+[data-theme="dracula"] {
+    --bg: #282a36; --bg-raised: #333544; --bg-muted: #2e3040; --bg-sunken: #21222c;
+    --text: #f8f8f2; --text-soft: rgba(248,248,242,.7); --text-muted: rgba(248,248,242,.32);
+    --line: rgba(248,248,242,.1); --rule: rgba(248,248,242,.1);
+    --obsidian: #282a36; --obsidian-2: #44475a; --brand: #282a36; --brand-dark: #282a36;
+    --sage: #bd93f9; --sage-light: #ff79c6; --sage-dark: #6272a4;
+    --sage-dim: rgba(189,147,249,.14); --sage-glow: rgba(189,147,249,.18);
+    --gradient-primary: linear-gradient(155deg, #282a36 0%, #44475a 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 16px rgba(0,0,0,.38);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.44); --shadow-lg: 0 20px 60px rgba(0,0,0,.52);
+}
+
+/* ── Gruvbox — warm retro contrast ── */
+[data-theme="gruvbox"] {
+    --bg: #282828; --bg-raised: #32302f; --bg-muted: #2d2b2a; --bg-sunken: #1d2021;
+    --text: #ebdbb2; --text-soft: rgba(235,219,178,.7); --text-muted: rgba(235,219,178,.32);
+    --line: rgba(235,219,178,.1); --rule: rgba(235,219,178,.1);
+    --obsidian: #282828; --obsidian-2: #504945; --brand: #282828; --brand-dark: #282828;
+    --sage: #d79921; --sage-light: #fabd2f; --sage-dark: #98971a;
+    --sage-dim: rgba(215,153,33,.14); --sage-glow: rgba(215,153,33,.18);
+    --gradient-primary: linear-gradient(155deg, #282828 0%, #504945 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 16px rgba(0,0,0,.36);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.42); --shadow-lg: 0 20px 60px rgba(0,0,0,.5);
+}
+
+/* ── Solarized Light — precision-engineered ── */
+[data-theme="solarized"] {
+    --bg: #fdf6e3; --bg-raised: #f6efdc; --bg-muted: #eee8d5; --bg-sunken: #eee8d5;
+    --text: #073642; --text-soft: rgba(7,54,66,.68); --text-muted: rgba(7,54,66,.4);
+    --line: rgba(7,54,66,.12); --rule: rgba(7,54,66,.12);
+    --obsidian: #073642; --obsidian-2: #586e75; --brand: #073642; --brand-dark: #073642;
+    --sage: #268bd2; --sage-light: #2aa198; --sage-dark: #6c71c4;
+    --sage-dim: rgba(38,139,210,.1); --sage-glow: rgba(38,139,210,.14);
+    --gradient-primary: linear-gradient(155deg, #073642 0%, #268bd2 100%);
+    --shadow-sm: 0 1px 3px rgba(7,54,66,.08); --shadow-md: 0 4px 16px rgba(7,54,66,.1);
+    --shadow-hover: 0 10px 32px rgba(7,54,66,.13); --shadow-lg: 0 20px 60px rgba(7,54,66,.16);
+}
+
+/* ── Tokyo Night Storm ── */
+[data-theme="tokyonight"] {
+    --bg: #24283b; --bg-raised: #2d3348; --bg-muted: #282e42; --bg-sunken: #1f2335;
+    --text: #c0caf5; --text-soft: rgba(192,202,245,.7); --text-muted: rgba(192,202,245,.32);
+    --line: rgba(192,202,245,.1); --rule: rgba(192,202,245,.1);
+    --obsidian: #24283b; --obsidian-2: #414868; --brand: #24283b; --brand-dark: #24283b;
+    --sage: #7aa2f7; --sage-light: #7dcfff; --sage-dark: #bb9af7;
+    --sage-dim: rgba(122,162,247,.14); --sage-glow: rgba(122,162,247,.18);
+    --gradient-primary: linear-gradient(155deg, #24283b 0%, #414868 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 16px rgba(0,0,0,.38);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.44); --shadow-lg: 0 20px 60px rgba(0,0,0,.52);
+}
+
+/* ── Everforest — lush forest calm ── */
+[data-theme="everforest"] {
+    --bg: #2d353b; --bg-raised: #374247; --bg-muted: #323d42; --bg-sunken: #272e33;
+    --text: #d3c6aa; --text-soft: rgba(211,198,170,.7); --text-muted: rgba(211,198,170,.32);
+    --line: rgba(211,198,170,.1); --rule: rgba(211,198,170,.1);
+    --obsidian: #2d353b; --obsidian-2: #4f5b58; --brand: #2d353b; --brand-dark: #2d353b;
+    --sage: #a7c080; --sage-light: #83c092; --sage-dark: #7fbbb3;
+    --sage-dim: rgba(167,192,128,.14); --sage-glow: rgba(167,192,128,.18);
+    --gradient-primary: linear-gradient(155deg, #2d353b 0%, #4f5b58 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.28); --shadow-md: 0 4px 16px rgba(0,0,0,.34);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.4); --shadow-lg: 0 20px 60px rgba(0,0,0,.48);
+}
+
+/* ── Ayu Mirage — warm dusk tones ── */
+[data-theme="ayu"] {
+    --bg: #1f2430; --bg-raised: #272d3b; --bg-muted: #232834; --bg-sunken: #1a1f29;
+    --text: #cbccc6; --text-soft: rgba(203,204,198,.7); --text-muted: rgba(203,204,198,.32);
+    --line: rgba(203,204,198,.1); --rule: rgba(203,204,198,.1);
+    --obsidian: #1f2430; --obsidian-2: #3c4354; --brand: #1f2430; --brand-dark: #1f2430;
+    --sage: #ffa759; --sage-light: #ffd173; --sage-dark: #73d0ff;
+    --sage-dim: rgba(255,167,89,.14); --sage-glow: rgba(255,167,89,.18);
+    --gradient-primary: linear-gradient(155deg, #1f2430 0%, #3c4354 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 16px rgba(0,0,0,.38);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.44); --shadow-lg: 0 20px 60px rgba(0,0,0,.52);
+}
+
+/* ── One Dark — Atom's classic ── */
+[data-theme="onedark"] {
+    --bg: #282c34; --bg-raised: #333844; --bg-muted: #2e323c; --bg-sunken: #21252b;
+    --text: #abb2bf; --text-soft: rgba(171,178,191,.75); --text-muted: rgba(171,178,191,.36);
+    --line: rgba(171,178,191,.1); --rule: rgba(171,178,191,.1);
+    --obsidian: #282c34; --obsidian-2: #4b5263; --brand: #282c34; --brand-dark: #282c34;
+    --sage: #61afef; --sage-light: #56b6c2; --sage-dark: #c678dd;
+    --sage-dim: rgba(97,175,239,.14); --sage-glow: rgba(97,175,239,.18);
+    --gradient-primary: linear-gradient(155deg, #282c34 0%, #4b5263 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 16px rgba(0,0,0,.38);
+    --shadow-hover: 0 10px 32px rgba(0,0,0,.44); --shadow-lg: 0 20px 60px rgba(0,0,0,.52);
+}
+
+/* ── Reduced motion: theme switch itself should not animate colors
+     harshly for users who opt out of motion — instant swap instead ── */
+@media (prefers-reduced-motion: reduce) {
+    :root, [data-theme] { transition: none !important; }
+}

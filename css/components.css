@@ -258,8 +258,8 @@
     transform: translateY(-2px);
 }
 .btn-primary:active { transform: translateY(0) scale(.98); box-shadow: none; }
-[data-theme="dark"] .btn-primary { background: var(--sage); color: var(--obsidian); }
-[data-theme="dark"] .btn-primary:hover {
+[data-theme] .btn-primary{ background: var(--sage); color: var(--obsidian); }
+[data-theme] .btn-primary:hover{
     background: var(--sage-light);
     box-shadow: 0 8px 24px rgba(143,184,166,.22);
 }
@@ -326,7 +326,7 @@
                 transform var(--t-base) var(--ease-spring);
     flex-shrink: 0;
 }
-[data-theme="dark"] .icon-tile { color: var(--sage); }
+[data-theme] .icon-tile{ color: var(--sage); }
 .card:hover .icon-tile {
     background: rgba(143,184,166,.22);
     color: var(--obsidian);
@@ -358,7 +358,7 @@
     transition: background var(--t-base);
 }
 .floating-badge:hover .icon-wrap { background: var(--sage); }
-[data-theme="dark"] .floating-badge .icon-wrap { color: var(--sage); }
+[data-theme] .floating-badge .icon-wrap{ color: var(--sage); }
 
 .floating-tag {
     position: absolute; top: -14px; right: -10px;
@@ -425,7 +425,7 @@
     color: var(--obsidian);
     border: 1px solid rgba(143,184,166,.3);
 }
-[data-theme="dark"] .pill-open { color: var(--sage); }
+[data-theme] .pill-open{ color: var(--sage); }
 .pill-open::before {
     content: '';
     width: 5px; height: 5px;

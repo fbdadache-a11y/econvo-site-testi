@@ -24,10 +24,10 @@
     box-shadow: 0 4px 12px rgba(14,42,36,.09), 0 1px 4px rgba(14,42,36,.05);
     border-color: color-mix(in srgb, var(--line) 55%, var(--sage) 45%);
 }
-[data-theme="dark"] .post-card {
+[data-theme] .post-card{
     box-shadow: 0 1px 3px rgba(0,0,0,.28);
 }
-[data-theme="dark"] .post-card:hover {
+[data-theme] .post-card:hover{
     box-shadow: 0 4px 14px rgba(0,0,0,.4);
 }
 
@@ -39,7 +39,7 @@
 .post-avatar {
     width: 38px; height: 38px; min-width: 38px;
     border-radius: 50%; overflow: hidden;
-    background: linear-gradient(135deg, var(--obsidian) 0%, #163a32 100%);
+    background: linear-gradient(135deg, var(--obsidian) 0%, var(--obsidian-2) 100%);
     color: var(--sage);
     display: flex; align-items: center; justify-content: center;
     font-size: .68rem; font-weight: 800; flex-shrink: 0;
@@ -197,11 +197,11 @@
     background: rgba(224,117,30,.09);
 }
 
-[data-theme="dark"] .reaction-btn[data-key="like"].active    { color: #6ba3e8; border-color: rgba(107,163,232,.35); background: rgba(107,163,232,.10); }
-[data-theme="dark"] .reaction-btn[data-key="helpful"].active { color: #7dd89a; border-color: rgba(125,216,154,.35); background: rgba(125,216,154,.10); }
-[data-theme="dark"] .reaction-btn[data-key="smart"].active   { color: #e8c840; border-color: rgba(232,200,64,.35);  background: rgba(232,200,64,.10);  }
-[data-theme="dark"] .reaction-btn[data-key="relatable"].active { color: #f08080; border-color: rgba(240,128,128,.35); background: rgba(240,128,128,.10); }
-[data-theme="dark"] .reaction-btn[data-key="fire"].active    { color: #f0a060; border-color: rgba(240,160,96,.35);  background: rgba(240,160,96,.10);  }
+[data-theme] .reaction-btn[data-key="like"].active{ color: #6ba3e8; border-color: rgba(107,163,232,.35); background: rgba(107,163,232,.10); }
+[data-theme] .reaction-btn[data-key="helpful"].active{ color: #7dd89a; border-color: rgba(125,216,154,.35); background: rgba(125,216,154,.10); }
+[data-theme] .reaction-btn[data-key="smart"].active{ color: #e8c840; border-color: rgba(232,200,64,.35);  background: rgba(232,200,64,.10);  }
+[data-theme] .reaction-btn[data-key="relatable"].active{ color: #f08080; border-color: rgba(240,128,128,.35); background: rgba(240,128,128,.10); }
+[data-theme] .reaction-btn[data-key="fire"].active{ color: #f0a060; border-color: rgba(240,160,96,.35);  background: rgba(240,160,96,.10);  }
 
 /* Comment toggle */
 .post-comment-toggle {
@@ -366,7 +366,7 @@
 .post-edit-save:hover { background: var(--obsidian-2); transform: translateY(-1px); }
 .post-edit-save:active { transform: translateY(0); }
 .post-edit-save:disabled { opacity: .55; cursor: not-allowed; transform: none; }
-[data-theme="dark"] .post-edit-save { background: var(--sage); color: var(--obsidian); }
+[data-theme] .post-edit-save{ background: var(--sage); color: var(--obsidian); }
 .post-edit-error { font-size: .78rem; color: #c84444; margin-top: 6px; display: none; }
 
 /* ══════════════════════════════════════════════════════
@@ -452,8 +452,8 @@
 .btn-publish:active { transform: translateY(0); box-shadow: none; }
 .btn-publish:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn-publish svg { width: 12px; height: 12px; flex-shrink: 0; }
-[data-theme="dark"] .btn-publish { background: var(--sage); color: var(--obsidian); }
-[data-theme="dark"] .btn-publish:hover { background: var(--sage-light, #b8d4c8); }
+[data-theme] .btn-publish{ background: var(--sage); color: var(--obsidian); }
+[data-theme] .btn-publish:hover{ background: var(--sage-light, #b8d4c8); }
 
 /* Image preview strip */
 .img-btn-badge {
@@ -479,7 +479,7 @@
     box-shadow: 0 12px 32px rgba(14,42,36,.14), 0 3px 8px rgba(14,42,36,.07);
     z-index: 9999;
 }
-[data-theme="dark"] .post-menu-dropdown {
+[data-theme] .post-menu-dropdown{
     box-shadow: 0 12px 36px rgba(0,0,0,.5);
 }
 .menu-item-btn {
@@ -558,7 +558,7 @@
     color: var(--obsidian); background: var(--sage-dim);
     padding: 2px 8px; border-radius: 999px; align-self: flex-start;
 }
-[data-theme="dark"] .post-group-tag { color: var(--sage-light, #b8d4c8); }
+[data-theme] .post-group-tag{ color: var(--sage-light, #b8d4c8); }
 
 /* ══════════════════════════════════════════════════════
    MOBILE
