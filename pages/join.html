@@ -830,7 +830,9 @@ document.getElementById('submit-btn').addEventListener('click', async () => {
 
     // Save session if auto-confirmed
     if (data.access_token) {
-      localStorage.setItem('econovo-token', data.access_token);
+      localStorage.setItem('econovo-token',   data.access_token);
+      if (data.refresh_token) localStorage.setItem('econovo-refresh', data.refresh_token);
+      if (data.expires_at)    localStorage.setItem('econovo-expires', String(data.expires_at));
       localStorage.setItem('econovo-user', JSON.stringify(data.user));
     }
 
