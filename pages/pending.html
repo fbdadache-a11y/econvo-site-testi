@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Awaiting Approval — Econovo Club</title>
+<meta name="theme-color" content="#F4F7F2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100svh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+}
+.pending-card {
+    max-width: 420px; width: 100%; text-align: center;
+    background: var(--bg-raised); border: 1px solid var(--line);
+    border-radius: var(--r-lg); padding: 40px 32px;
+    box-shadow: var(--shadow-md);
+}
+.pending-icon {
+    width: 56px; height: 56px; border-radius: 16px; margin: 0 auto 20px;
+    background: var(--sage-dim); display: flex; align-items: center; justify-content: center;
+    color: var(--obsidian);
+}
+[data-theme="dark"] .pending-icon { color: var(--sage); }
+.pending-icon svg { width: 26px; height: 26px; }
+.pending-title { font-size: 1.25rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 10px; }
+.pending-sub { font-size: .9rem; color: var(--text-soft); line-height: 1.6; margin-bottom: 26px; }
+.pending-status {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .1em;
+    background: rgba(230,180,60,.12); color: #a37a1f;
+    border: 1px solid rgba(230,180,60,.25);
+    padding: 6px 14px; border-radius: var(--r-pill); margin-bottom: 26px;
+}
+.pending-status::before { content:''; width:6px; height:6px; border-radius:50%; background:#e6b43c; }
+.pending-actions { display: flex; flex-direction: column; gap: 10px; }
+</style>
+</head>
+<body>
+
+<div class="pending-card">
+    <div class="pending-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+    </div>
+    <h1 class="pending-title">Your account is pending approval</h1>
+    <p class="pending-sub">
+        Thanks for signing up! An Econovo Club admin needs to approve your
+        membership before you can access the dashboard. This usually takes
+        a day or two.
+    </p>
+    <div class="pending-status">Awaiting review</div>
+    <div class="pending-actions">
+        <button class="btn btn-outline" id="btnRefresh">Check again</button>
+        <button class="btn btn-outline" id="btnSignOut" style="color:#c94444;border-color:rgba(200,80,80,.3)">Sign out</button>
+    </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script>
+(function () {
+    if (window.lucide) lucide.createIcons();
+
+    if (!EconovoAuth.isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    document.getElementById('btnRefresh').addEventListener('click', async () => {
+        const btn = document.getElementById('btnRefresh');
+        btn.textContent = 'Checking…';
+        btn.disabled = true;
+        try {
+            const profile = await EconovoAuth.getMyProfile();
+            if (profile && profile.status === 'approved') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            if (profile && profile.status === 'rejected') {
+                await EconovoAuth.signOut();
+                window.location.href = 'login.html?rejected=1';
+                return;
+            }
+        } catch (e) { /* stay on page */ }
+        btn.textContent = 'Check again';
+        btn.disabled = false;
+    });
+
+    document.getElementById('btnSignOut').addEventListener('click', async () => {
+        await EconovoAuth.signOut();
+        window.location.href = 'login.html';
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Admin — Econovo Club</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F4F7F2" id="themeColorMeta">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-body">
+
+<style>
+/* ══════════════════════════════════════════════
+   ADMIN PORTAL — v1
+   Extends the design tokens from style.css / components.css.
+   Dials: VARIANCE 4 / MOTION 3 / DENSITY 5 — a control room,
+   not a landing page. Clarity and speed of decision over flourish.
+   ══════════════════════════════════════════════ */
+
+:root {
+    --nav-h: 60px;
+    --side-w: 240px;
+}
+
+body.admin-body {
+    font-family: var(--font);
+    background: var(--bg-muted);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Gate screens (loading / denied) ── */
+.gate-screen {
+    min-height: 100svh;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 14px; text-align: center; padding: 24px;
+}
+.gate-spinner {
+    width: 28px; height: 28px; border: 3px solid var(--line);
+    border-top-color: var(--sage); border-radius: 50%;
+    animation: adminSpin .7s linear infinite;
+}
+@keyframes adminSpin { to { transform: rotate(360deg); } }
+.gate-title { font-size: 1.1rem; font-weight: 800; letter-spacing: -.02em; }
+.gate-sub { font-size: .87rem; color: var(--text-soft); max-width: 340px; }
+
+/* ── Top bar ── */
+.admin-topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; padding: 0 20px; gap: 16px;
+    z-index: 500;
+}
+.admin-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: .82rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text); flex-shrink: 0;
+}
+.admin-brand img { width: 26px; height: 26px; border-radius: 6px; }
+.admin-brand .tag {
+    font-family: var(--font-mono); font-size: .58rem; font-weight: 700;
+    background: var(--obsidian); color: var(--sage);
+    padding: 2px 8px; border-radius: var(--r-pill); letter-spacing: .08em;
+}
+[data-theme="dark"] .admin-brand .tag { background: var(--sage); color: var(--obsidian); }
+
+.admin-topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.back-to-site {
+    font-size: .78rem; font-weight: 600; color: var(--text-soft);
+    padding: 7px 13px; border: 1px solid var(--line); border-radius: var(--r-md);
+    transition: background 150ms, border-color 150ms, color 150ms;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.back-to-site:hover { background: var(--bg-raised); border-color: rgba(143,184,166,.4); color: var(--text); }
+.back-to-site svg { width: 13px; height: 13px; }
+
+.admin-who {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .8rem; font-weight: 600; color: var(--text);
+    padding: 5px 10px 5px 5px; border-radius: var(--r-pill);
+    border: 1px solid var(--line);
+}
+.admin-who .av {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--obsidian), #1a4035);
+    color: var(--sage); display: flex; align-items: center; justify-content: center;
+    font-size: .58rem; font-weight: 800; overflow: hidden; flex-shrink: 0;
+}
+.admin-who .av img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Layout ── */
+.admin-shell {
+    display: grid; grid-template-columns: var(--side-w) 1fr;
+    min-height: 100vh; padding-top: var(--nav-h);
+}
+.admin-sidebar {
+    position: sticky; top: var(--nav-h); height: calc(100vh - var(--nav-h));
+    border-right: 1px solid var(--line);
+    padding: 20px 12px; display: flex; flex-direction: column; gap: 2px;
+    overflow-y: auto;
+}
+.admin-nav-label {
+    font-family: var(--font-mono); font-size: .58rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .14em; color: var(--text-muted);
+    padding: 14px 10px 6px;
+}
+.admin-nav-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: var(--r-md);
+    font-size: .84rem; font-weight: 500; color: var(--text-soft);
+    cursor: pointer; transition: background 150ms, color 150ms; position: relative;
+}
+.admin-nav-link svg { width: 15px; height: 15px; flex-shrink: 0; stroke-width: 1.75; }
+.admin-nav-link:hover { background: var(--bg-raised); color: var(--text); }
+.admin-nav-link.active {
+    background: linear-gradient(90deg, rgba(143,184,166,.18), rgba(143,184,166,.06));
+    color: var(--obsidian); font-weight: 700;
+    border: 1px solid rgba(143,184,166,.2);
+}
+[data-theme="dark"] .admin-nav-link.active { color: var(--sage); }
+.admin-nav-link.active::before {
+    content: ''; position: absolute; left: -1px; top: 4px; bottom: 4px;
+    width: 3px; background: var(--sage); border-radius: 0 3px 3px 0;
+}
+.admin-nav-badge {
+    margin-left: auto; background: #c94444; color: #fff;
+    font-family: var(--font-mono); font-size: .58rem; font-weight: 700;
+    padding: 1px 7px; border-radius: var(--r-pill); min-width: 18px; text-align: center;
+}
+.admin-nav-badge.zero { display: none; }
+
+/* ── Main content ── */
+.admin-main { padding: 28px 28px 60px; max-width: 1040px; }
+.admin-view { display: none; }
+.admin-view.active { display: block; animation: adminViewIn .2s ease-out; }
+@keyframes adminViewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.admin-hdr { margin-bottom: 22px; }
+.admin-eyebrow {
+    font-family: var(--font-mono); font-size: .6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .14em; color: var(--sage);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.admin-eyebrow::before { content: ''; width: 18px; height: 1.5px; background: var(--sage); border-radius: 2px; }
+.admin-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 4px; }
+.admin-sub { font-size: .87rem; color: var(--text-soft); }
+
+/* ── Stat cards ── */
+.admin-stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    margin-bottom: 24px;
+}
+.admin-stat-card {
+    background: var(--bg-raised); border: 1px solid var(--line);
+    border-radius: var(--r-lg); padding: 16px;
+    box-shadow: var(--shadow-sm);
+}
+.admin-stat-num {
+    font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700;
+    letter-spacing: -.03em; color: var(--text); line-height: 1;
+}
+.admin-stat-lbl {
+    font-size: .72rem; color: var(--text-muted); margin-top: 6px;
+    text-transform: uppercase; letter-spacing: .06em; font-weight: 600;
+}
+
+/* ── Member request cards ── */
+.member-card {
+    background: var(--bg-raised); border: 1px solid var(--line);
+    border-radius: var(--r-lg); padding: 16px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 200ms, border-color 200ms;
+}
+.member-card:hover { box-shadow: var(--shadow-md); border-color: rgba(143,184,166,.25); }
+.member-av {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--obsidian), #1a4035);
+    color: var(--sage); display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 800; overflow: hidden;
+}
+.member-av img { width: 100%; height: 100%; object-fit: cover; }
+.member-info { flex: 1; min-width: 0; }
+.member-name { font-size: .92rem; font-weight: 700; letter-spacing: -.01em; }
+.member-email { font-size: .76rem; color: var(--text-muted); font-family: var(--font-mono); }
+.member-meta { font-size: .72rem; color: var(--text-soft); margin-top: 3px; }
+.member-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.btn-approve, .btn-reject {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: var(--r-md);
+    font-size: .78rem; font-weight: 700; cursor: pointer;
+    transition: background 150ms, transform 150ms, box-shadow 150ms;
+    border: 1px solid transparent;
+}
+.btn-approve svg, .btn-reject svg { width: 13px; height: 13px; }
+.btn-approve { background: var(--obsidian); color: var(--sage); }
+.btn-approve:hover { background: #0a1e1a; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(14,42,36,.25); }
+[data-theme="dark"] .btn-approve { background: var(--sage); color: var(--obsidian); }
+.btn-reject { background: transparent; border-color: rgba(200,80,80,.3); color: #c94444; }
+.btn-reject:hover { background: rgba(200,80,80,.07); }
+
+.admin-empty {
+    text-align: center; padding: 48px 20px;
+    border: 1.5px dashed var(--line); border-radius: var(--r-lg);
+    color: var(--text-muted); font-size: .86rem;
+}
+.admin-loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 40px; color: var(--text-muted); font-size: .86rem; }
+
+/* ── Composer for announcements/events ── */
+.composer-panel {
+    background: var(--bg-raised); border: 1px solid var(--line);
+    border-radius: var(--r-lg); padding: 18px; margin-bottom: 22px;
+    box-shadow: var(--shadow-sm);
+}
+.composer-panel-title { font-size: .95rem; font-weight: 700; margin-bottom: 14px; letter-spacing: -.01em; }
+.form-row { margin-bottom: 12px; }
+.form-row label {
+    display: block; font-family: var(--font-mono); font-size: .6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: 6px;
+}
+.form-row input, .form-row textarea, .form-row select {
+    width: 100%; padding: 10px 13px; border: 1px solid var(--line);
+    border-radius: var(--r-md); background: var(--bg-muted); color: var(--text);
+    font-family: var(--font); font-size: .87rem; outline: none;
+    transition: border-color 200ms, box-shadow 200ms, background 200ms;
+}
+.form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+    border-color: rgba(143,184,166,.5); background: var(--bg-raised);
+    box-shadow: 0 0 0 3px rgba(143,184,166,.15);
+}
+.form-row textarea { resize: vertical; min-height: 90px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+.btn-publish-admin {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 20px; background: var(--obsidian); color: var(--sage);
+    font-size: .84rem; font-weight: 700; border-radius: var(--r-md);
+    border: none; cursor: pointer;
+    transition: background 150ms, transform 150ms, box-shadow 150ms;
+}
+.btn-publish-admin:hover { background: #0a1e1a; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(14,42,36,.25); }
+[data-theme="dark"] .btn-publish-admin { background: var(--sage); color: var(--obsidian); }
+.btn-publish-admin:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ── List rows for existing announcements/events ── */
+.admin-list-item {
+    background: var(--bg-raised); border: 1px solid var(--line);
+    border-radius: var(--r-lg); padding: 14px 16px; margin-bottom: 8px;
+    display: flex; align-items: flex-start; gap: 12px;
+}
+.admin-list-body { flex: 1; min-width: 0; }
+.admin-list-title { font-size: .88rem; font-weight: 700; margin-bottom: 3px; }
+.admin-list-meta { font-size: .72rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 5px; }
+.admin-list-text { font-size: .8rem; color: var(--text-soft); line-height: 1.5; }
+.admin-list-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.icon-action-btn {
+    width: 30px; height: 30px; border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: 1px solid var(--line); color: var(--text-muted); cursor: pointer;
+    transition: background 150ms, color 150ms, border-color 150ms;
+}
+.icon-action-btn:hover { background: var(--bg-muted); color: var(--text); }
+.icon-action-btn.danger:hover { background: rgba(200,80,80,.08); color: #c94444; border-color: rgba(200,80,80,.3); }
+.icon-action-btn svg { width: 13px; height: 13px; }
+.status-pill {
+    font-family: var(--font-mono); font-size: .58rem; font-weight: 700;
+    padding: 2px 8px; border-radius: var(--r-pill); text-transform: uppercase; letter-spacing: .06em;
+    flex-shrink: 0;
+}
+.status-pill.published { background: rgba(143,184,166,.15); color: var(--obsidian); border: 1px solid rgba(143,184,166,.25); }
+[data-theme="dark"] .status-pill.published { color: var(--sage); }
+.status-pill.draft { background: var(--bg-muted); color: var(--text-muted); border: 1px solid var(--line); }
+
+/* ── Members table (all members view) ── */
+.role-pill {
+    font-family: var(--font-mono); font-size: .58rem; font-weight: 700;
+    padding: 2px 8px; border-radius: var(--r-pill); text-transform: uppercase; letter-spacing: .06em;
+}
+.role-pill.admin { background: var(--obsidian); color: var(--sage); }
+[data-theme="dark"] .role-pill.admin { background: var(--sage); color: var(--obsidian); }
+.role-pill.member { background: var(--bg-muted); color: var(--text-soft); border: 1px solid var(--line); }
+
+#toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(12px);
+    padding: 10px 20px; border-radius: 10px; font-size: .83rem; font-weight: 600;
+    z-index: 9999; opacity: 0; transition: opacity .22s, transform .22s;
+    pointer-events: none; max-width: 320px; text-align: center; color: #fff;
+}
+
+@media (max-width: 900px) {
+    .admin-sidebar { display: none; }
+    .admin-shell { grid-template-columns: 1fr; }
+    .admin-stats-row { grid-template-columns: repeat(2, 1fr); }
+    .form-grid-2 { grid-template-columns: 1fr; }
+    .member-card { flex-wrap: wrap; }
+}
+</style>
+
+<!-- ══════════════ GATE (shown until access is confirmed) ══════════════ -->
+<div id="gate" class="gate-screen">
+    <div class="gate-spinner"></div>
+    <div class="gate-title">Checking access…</div>
+    <div class="gate-sub">Confirming your admin permissions before loading the control room.</div>
+</div>
+
+<!-- ══════════════ ADMIN SHELL (hidden until gate passes) ══════════════ -->
+<div id="adminApp" style="display:none;">
+
+    <header class="admin-topbar">
+        <div class="admin-brand">
+            <img src="../assets/images/logo.png" alt="" onerror="this.style.display='none'">
+            Econovo <span class="tag">ADMIN</span>
+        </div>
+        <div class="admin-topbar-right">
+            <a href="../index.html" class="back-to-site">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back to site
+            </a>
+            <div class="admin-who">
+                <span class="av" id="whoAv">A</span>
+                <span id="whoName">Admin</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <div class="admin-nav-label">Moderation</div>
+            <div class="admin-nav-link active" data-view="pending">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+                Pending Members
+                <span class="admin-nav-badge zero" id="pendingBadge">0</span>
+            </div>
+            <div class="admin-nav-link" data-view="members">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                All Members
+            </div>
+
+            <div class="admin-nav-label">Content</div>
+            <div class="admin-nav-link" data-view="announcements">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+                Announcements
+            </div>
+            <div class="admin-nav-link" data-view="events">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                Events
+            </div>
+
+            <div class="admin-nav-label">System</div>
+            <div class="admin-nav-link" data-view="log">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+                Activity Log
+            </div>
+        </aside>
+
+        <main class="admin-main">
+
+            <!-- ═══ PENDING MEMBERS ═══ -->
+            <section class="admin-view active" id="view-pending">
+                <div class="admin-hdr">
+                    <div class="admin-eyebrow">Moderation Queue</div>
+                    <h1 class="admin-title">Pending Members</h1>
+                    <p class="admin-sub">New sign-ups wait here until approved. Rejected accounts are signed out and cannot access the dashboard.</p>
+                </div>
+                <div id="pendingList"><div class="admin-loading">Loading…</div></div>
+            </section>
+
+            <!-- ═══ ALL MEMBERS ═══ -->
+            <section class="admin-view" id="view-members">
+                <div class="admin-hdr">
+                    <div class="admin-eyebrow">Directory</div>
+                    <h1 class="admin-title">All Members</h1>
+                    <p class="admin-sub">Every approved member of Econovo Club.</p>
+                </div>
+                <div class="admin-stats-row" id="memberStats"></div>
+                <div id="membersList"><div class="admin-loading">Loading…</div></div>
+            </section>
+
+            <!-- ═══ ANNOUNCEMENTS ═══ -->
+            <section class="admin-view" id="view-announcements">
+                <div class="admin-hdr">
+                    <div class="admin-eyebrow">Publish</div>
+                    <h1 class="admin-title">Announcements</h1>
+                    <p class="admin-sub">Published announcements appear immediately in every member's dashboard.</p>
+                </div>
+
+                <div class="composer-panel">
+                    <div class="composer-panel-title">New announcement</div>
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="annTitle" placeholder="e.g. Applications open for Fall workshops">
+                    </div>
+                    <div class="form-row">
+                        <label>Body</label>
+                        <textarea id="annBody" placeholder="Write the announcement…"></textarea>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-row">
+                            <label>Date label <span style="opacity:.6">(optional, e.g. "Aug 12")</span></label>
+                            <input type="text" id="annDateLabel" placeholder="Aug 12">
+                        </div>
+                        <div class="form-row">
+                            <label>Status</label>
+                            <select id="annPublished">
+                                <option value="true">Published — visible now</option>
+                                <option value="false">Draft — hidden</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-publish-admin" id="btnPublishAnn">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                            Publish
+                        </button>
+                    </div>
+                </div>
+
+                <div id="annList"><div class="admin-loading">Loading…</div></div>
+            </section>
+
+            <!-- ═══ EVENTS ═══ -->
+            <section class="admin-view" id="view-events">
+                <div class="admin-hdr">
+                    <div class="admin-eyebrow">Publish</div>
+                    <h1 class="admin-title">Events</h1>
+                    <p class="admin-sub">Upcoming events appear on the dashboard and in the events widget automatically.</p>
+                </div>
+
+                <div class="composer-panel">
+                    <div class="composer-panel-title">New event</div>
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="evTitle" placeholder="e.g. FinTech Speaker Night">
+                    </div>
+                    <div class="form-row">
+                        <label>Description</label>
+                        <textarea id="evDesc" placeholder="What is this event about?"></textarea>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-row">
+                            <label>Date &amp; time</label>
+                            <input type="datetime-local" id="evDate">
+                        </div>
+                        <div class="form-row">
+                            <label>Tag <span style="opacity:.6">(optional)</span></label>
+                            <input type="text" id="evTag" placeholder="Workshop / Social / Talk">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-publish-admin" id="btnPublishEv">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                            Publish
+                        </button>
+                    </div>
+                </div>
+
+                <div id="evList"><div class="admin-loading">Loading…</div></div>
+            </section>
+
+            <!-- ═══ ACTIVITY LOG ═══ -->
+            <section class="admin-view" id="view-log">
+                <div class="admin-hdr">
+                    <div class="admin-eyebrow">Audit Trail</div>
+                    <h1 class="admin-title">Activity Log</h1>
+                    <p class="admin-sub">Every moderation action, who did it, and when.</p>
+                </div>
+                <div id="logList"><div class="admin-loading">Loading…</div></div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>
