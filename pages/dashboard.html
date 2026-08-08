@@ -802,6 +802,18 @@ img { display: block; max-width: 100%; }
             <div class="profile-badge">Active Member</div>
           </div>
         </div>
+        <div id="profile-admin-card" style="display:none; align-items:center; gap:12px; padding:14px 16px; margin-bottom:20px; background:var(--card); border:1px solid var(--line); border-radius:14px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--obsidian);color:var(--sage);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2 3 7v6c0 5 4 9 9 9s9-4 9-9V7l-9-5Z"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:.85rem;font-weight:700;">Admin Access</div>
+            <div style="font-size:.76rem;color:var(--text-soft);">Manage members, announcements, and events.</div>
+          </div>
+          <button class="btn-save" id="profile-admin-link" type="button" style="padding:8px 16px;font-size:.8rem;">
+            <span class="btn-lbl">Open</span>
+          </button>
+        </div>
         <div class="form-notice" id="profile-notice"></div>
         <div class="form-grid">
           <div class="field-blk"><label class="field-lbl" for="pf-fname">First Name</label><input class="field-inp" type="text" id="pf-fname"></div>
@@ -1068,6 +1080,16 @@ document.addEventListener('econovo:auth-ready', () => {
         Admin
       </button>`;
     document.getElementById('sidebar-admin-link')
+      ?.addEventListener('click', () => { window.location.href = 'admin.html'; });
+  }
+
+  // Profile-page admin card — this is the entry point on mobile, since
+  // the left sidebar (and its admin link above) is hidden under 740px
+  // and the bottom tab bar has no free slot for a 6th tab.
+  const profileAdminCard = document.getElementById('profile-admin-card');
+  if (profileAdminCard && IS_ADMIN) {
+    profileAdminCard.style.display = 'flex';
+    document.getElementById('profile-admin-link')
       ?.addEventListener('click', () => { window.location.href = 'admin.html'; });
   }
 
