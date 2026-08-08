@@ -107,6 +107,7 @@
         if (window.lucide) window.lucide.createIcons();
 
         initNav();
+        initThemePicker();
         loadPending();
         loadMembers();
         loadAnnouncements();
@@ -125,6 +126,63 @@
                 document.getElementById('view-' + link.dataset.view)?.classList.add('active');
             });
         });
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       THEME PICKER — 12 palettes, same list & same localStorage key
+       ('econovo-theme') as pages/dashboard.html, so switching the
+       theme here or there stays in sync across the whole portal on
+       this device. The <html data-theme> is already set before this
+       runs (see the inline FOUC-prevention script in <head>) — this
+       function only needs to build the visual grid and wire clicks.
+    ══════════════════════════════════════════════════════════════ */
+    const THEMES = [
+        { id: 'light',         name: 'Econovo Light',  swatch: ['#F4F7F2', '#0E2A24', '#8FB8A6'] },
+        { id: 'dark',          name: 'Econovo Dark',   swatch: ['#0e0e0e', '#8FB8A6', '#b8d4c8'] },
+        { id: 'nord',          name: 'Nord',           swatch: ['#2e3440', '#88c0d0', '#8fbcbb'] },
+        { id: 'rosepine',      name: 'Rosé Pine',      swatch: ['#191724', '#ebbcba', '#f6c177'] },
+        { id: 'rosepine-dawn', name: 'Rosé Pine Dawn', swatch: ['#faf4ed', '#286983', '#b4637a'] },
+        { id: 'catppuccin',    name: 'Catppuccin',     swatch: ['#1e1e2e', '#cba6f7', '#f5c2e7'] },
+        { id: 'dracula',       name: 'Dracula',        swatch: ['#282a36', '#bd93f9', '#ff79c6'] },
+        { id: 'gruvbox',       name: 'Gruvbox',        swatch: ['#282828', '#d79921', '#fabd2f'] },
+        { id: 'solarized',     name: 'Solarized',      swatch: ['#fdf6e3', '#268bd2', '#2aa198'] },
+        { id: 'tokyonight',    name: 'Tokyo Night',    swatch: ['#24283b', '#7aa2f7', '#7dcfff'] },
+        { id: 'everforest',    name: 'Everforest',     swatch: ['#2d353b', '#a7c080', '#83c092'] },
+        { id: 'ayu',           name: 'Ayu Mirage',     swatch: ['#1f2430', '#ffa759', '#ffd173'] },
+        { id: 'onedark',       name: 'One Dark',       swatch: ['#282c34', '#61afef', '#56b6c2'] },
+    ];
+
+    function applyTheme(t) {
+        if (t && t !== 'light') document.documentElement.setAttribute('data-theme', t);
+        else document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('econovo-theme', t);
+        document.querySelectorAll('.theme-swatch').forEach(el => {
+            el.classList.toggle('selected', el.dataset.theme === t);
+        });
+        const meta = document.getElementById('themeColorMeta');
+        if (meta) meta.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#F4F7F2');
+    }
+
+    function initThemePicker() {
+        const grid = document.getElementById('themeGrid');
+        if (!grid) return;
+
+        grid.innerHTML = THEMES.map(t => `
+            <button class="theme-swatch" type="button" data-theme="${t.id}" aria-label="${t.name}">
+                <div class="theme-swatch-preview" style="background:${t.swatch[0]}">
+                    <span style="background:${t.swatch[1]}"></span>
+                    <span style="background:${t.swatch[2]}"></span>
+                </div>
+                <div class="theme-swatch-name">${t.name}</div>
+            </button>
+        `).join('');
+
+        grid.querySelectorAll('.theme-swatch').forEach(btn => {
+            btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+        });
+
+        const current = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+        applyTheme(current); // sync selected-swatch highlight now that the grid exists
     }
 
     /* ══════════════════════════════════════════════════════════════
