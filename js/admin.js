@@ -106,14 +106,37 @@
 
         if (window.lucide) window.lucide.createIcons();
 
+        // Bind the composer buttons FIRST and unconditionally. This is
+        // pure DOM wiring with no network calls, so it cannot fail — and
+        // it must never be blocked by a later async load erroring out.
+        // (Previously this was last in the list: if loadPending/loadMembers/
+        // etc. threw before reaching it, the publish buttons ended up with
+        // no click handler at all, silently.)
+        bindComposers();
         initNav();
         initThemePicker();
-        loadPending();
-        loadMembers();
-        loadAnnouncements();
-        loadEvents();
-        loadLog();
-        bindComposers();
+
+        // Each data load is independent and shouldn't be able to take
+        // down the others — wrap every one so a single failure (network,
+        // RLS, a renamed column) only shows a toast instead of aborting
+        // the rest of boot().
+        safeRun(loadPending, 'pending members');
+        safeRun(loadMembers, 'members');
+        safeRun(loadAnnouncements, 'announcements');
+        safeRun(loadEvents, 'events');
+        safeRun(loadLog, 'activity log');
+    }
+
+    /* Runs an async init function and never lets it throw past this point.
+       Logs to console for debugging and toasts the admin once, so a
+       failure is visible instead of silently breaking unrelated UI. */
+    function safeRun(fn, label) {
+        Promise.resolve()
+            .then(fn)
+            .catch(err => {
+                console.error(`[admin] ${label} failed to load:`, err);
+                toast(`Couldn't load ${label}: ${err.message || err}`, 'err');
+            });
     }
 
     /* ── sidebar navigation ─────────────────────────────────────── */
