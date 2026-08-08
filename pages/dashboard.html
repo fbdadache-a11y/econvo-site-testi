@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/posts.css">
 <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
+<script src="../js/auth.js" defer></script>
 <script src="../js/icons.js" defer></script>
 <script src="../js/posts.js" defer></script>
 <style>
@@ -637,6 +638,7 @@ img { display: block; max-width: 100%; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       Profile
     </button>
+    <div id="sidebar-admin-slot"></div>
   </aside>
 
   <!-- MAIN -->
@@ -896,28 +898,79 @@ img { display: block; max-width: 100%; }
 const SB_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const SB_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 
-const TOKEN    = localStorage.getItem('econovo-token');
+/* ── AUTH GATE ──────────────────────────────────────────────────
+   Delegates to EconovoAuth.requireApproved() (js/auth.js), which:
+   - sends signed-out visitors to login.html
+   - sends pending members to pending.html
+   - signs out + redirects rejected members to login.html?rejected=1
+   - returns the profile row { id, role, status, full_name, ... }
+     for approved members only
+
+   Everything below this block only runs for approved members — the
+   main dashboard init() listens for 'econovo:auth-ready' (dispatched
+   below) instead of raw 'DOMContentLoaded', so no profile/posts/events
+   data is fetched until the approval check has actually resolved.
+────────────────────────────────────────────────────────────────── */
+const TOKEN = localStorage.getItem('econovo-token');
 const USER_RAW = localStorage.getItem('econovo-user');
-if (!TOKEN || !USER_RAW) { window.location.replace('login.html'); throw new Error('no-auth'); }
-try {
-  const _payload = JSON.parse(atob(TOKEN.split('.')[1]));
-  if (_payload.exp && _payload.exp * 1000 < Date.now()) {
-    localStorage.removeItem('econovo-token');
-    localStorage.removeItem('econovo-user');
-    window.location.replace('login.html'); throw new Error('token-expired');
-  }
-} catch(e) {
-  if (e.message === 'token-expired' || e.message === 'no-auth') throw e;
-  window.location.replace('login.html'); throw new Error('bad-token');
-}
 
 let USER = {}, META = {};
-try { USER = JSON.parse(USER_RAW) || {}; META = USER.user_metadata || {}; } catch(_) {}
-const FULL_NAME = (META.first_name && META.last_name)
+try { USER = JSON.parse(USER_RAW || 'null') || {}; META = USER.user_metadata || {}; } catch (_) {}
+
+let FULL_NAME = (META.first_name && META.last_name)
   ? (META.first_name + ' ' + META.last_name).trim()
   : (META.full_name || USER.email?.split('@')[0] || 'Member');
-const INITIALS = FULL_NAME.trim().split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-const USER_ID = USER.id || null;
+let INITIALS = FULL_NAME.trim().split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+let USER_ID = USER.id || null;
+let ME_PROFILE = null;   // filled in once the gate resolves
+let IS_ADMIN = false;
+
+function initDashboard() {
+  document.dispatchEvent(new CustomEvent('econovo:auth-ready'));
+}
+
+function runGate() {
+  (async function gate() {
+    // auth.js is loaded with `defer`, so by the time DOMContentLoaded fires
+    // (or, for the readyState fallback below, by the time this synchronous
+    // inline <script> would otherwise have already run) it is guaranteed
+    // to have executed. We still guard for a failed/blocked script load.
+    if (!window.EconovoAuth) {
+      window.location.replace('login.html');
+      return;
+    }
+
+    const profile = await EconovoAuth.requireApproved();
+    if (!profile) return; // requireApproved() already redirected — stop here
+
+    ME_PROFILE = profile;
+    IS_ADMIN = profile.role === 'admin';
+
+    // Prefer the live profile row over the cached auth-metadata guess,
+    // now that we actually have it.
+    if (profile.full_name) {
+      FULL_NAME = profile.full_name;
+      INITIALS = FULL_NAME.trim().split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    }
+    USER_ID = profile.id || USER_ID;
+
+    document.body.classList.add('auth-ready');
+    initDashboard();
+  })();
+}
+
+// This inline <script> block is NOT deferred, so it can run before
+// `../js/auth.js` (which IS deferred) has executed. Deferred scripts are
+// guaranteed to run before DOMContentLoaded, so wait for that event before
+// touching window.EconovoAuth — this removes the race entirely rather than
+// polling for it.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', runGate);
+} else {
+  // Document already parsed (e.g. script injected late) — defer scripts
+  // have necessarily already run by this point too.
+  runGate();
+}
 
 let EVENTS = [];
 let ANNOUNCEMENTS = [];
@@ -993,7 +1046,7 @@ async function loadUserAvatar() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('econovo:auth-ready', () => {
 
   document.getElementById('nav-name').textContent      = META.first_name || FULL_NAME;
   document.getElementById('sb-name').textContent       = FULL_NAME;
@@ -1004,6 +1057,19 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('pf-email').value = USER.email || '';
   document.getElementById('pf-major').value = META.major || '';
   document.getElementById('pf-year').value  = META.year  || '';
+
+  // Admin-only sidebar link — only rendered for role === 'admin'.
+  // Safe no-op if #sidebar-admin-slot isn't in the markup yet.
+  const adminSlot = document.getElementById('sidebar-admin-slot');
+  if (adminSlot && IS_ADMIN) {
+    adminSlot.innerHTML = `
+      <button class="sidebar-link" id="sidebar-admin-link" type="button" style="margin-top:2px">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2 3 7v6c0 5 4 9 9 9s9-4 9-9V7l-9-5Z"/></svg>
+        Admin
+      </button>`;
+    document.getElementById('sidebar-admin-link')
+      ?.addEventListener('click', () => { window.location.href = 'admin.html'; });
+  }
 
   ['nav-av','sb-av','composer-av','profile-av'].forEach(id => {
     const el = document.getElementById(id);
@@ -1632,7 +1698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-}); // end DOMContentLoaded
+}); // end econovo:auth-ready
 })();
 </script>
 </body>
