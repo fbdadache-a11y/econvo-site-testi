@@ -1,49 +1,112 @@
-ECONOVO NON-COMMERCIAL SOURCE LICENSE
+ECONOVO SOURCE-AVAILABLE NON-COMMERCIAL LICENSE
 Version 1.0
 
-Copyright (c) 2026 Fouad Dadache
+Copyright (c) 2026 Fouad Dadache / Econovo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation (the "Software") to use, copy,
-study, modify, and build upon the Software for personal, educational,
-academic, research, student, and other non-commercial purposes.
+of this software and associated documentation files (the "Software"), to use,
+study, copy, modify, and build upon the Software, subject to the following
+conditions:
+
+1. EDUCATIONAL AND NON-COMMERCIAL USE
+
+The Software may be freely used, studied, modified, and shared for personal,
+educational, academic, student, research, and other non-commercial purposes.
 
 Students, student organizations, educational institutions, and non-profit
-organizations may freely use and modify the Software for such purposes.
+organizations are explicitly permitted to modify and build upon the Software
+for non-commercial purposes.
 
-Commercial use is NOT permitted without prior written permission from
-Fouad Dadache.
+2. COMMERCIAL USE
 
-For the purposes of this license, "Commercial Use" includes, but is not limited
-to, selling, licensing, sublicensing, renting, monetizing, advertising,
-sponsorship, paid services, SaaS, subscriptions, resale, or using the Software
-or a substantial portion of it to obtain commercial advantage or monetary
-compensation.
+Commercial use of the Software is NOT permitted without prior written
+permission from the copyright holder.
 
-Modified and derivative versions may be shared only for non-commercial
-purposes and must:
+Commercial use includes, but is not limited to:
 
-1. Include this license;
-2. Preserve the original copyright notice;
-3. Clearly indicate that they are modified versions; and
-4. Not imply that they are the official Econovo project.
+- Selling the Software or modified versions of it;
+- Selling templates, products, or services substantially based on the Software;
+- Incorporating substantial portions of the Software into a commercial product;
+- Offering the Software or a derivative work as a paid service;
+- Monetizing the Software or a derivative work;
+- Redistributing the Software for commercial advantage or monetary
+  compensation.
 
-This license does not grant permission to use the name "Econovo", its logo,
-trademarks, visual identity, or other branding. Such use requires separate
-permission.
+Permission for commercial use may be granted separately by the copyright
+holder at their sole discretion.
 
-No rights are granted beyond those expressly stated in this license.
+3. REDISTRIBUTION
 
-Any violation of this license terminates the permissions granted herein.
+Copies and modified versions of the Software may be shared for educational
+and non-commercial purposes, provided that:
+
+- This license is included with the redistributed copy;
+- The original copyright notice is preserved;
+- The recipient is informed that the Software is subject to this license;
+- The Software is not redistributed for commercial purposes.
+
+4. DERIVATIVE WORKS
+
+You may modify, adapt, extend, or otherwise build upon the Software for
+educational and non-commercial purposes.
+
+Derivative works remain subject to the non-commercial restrictions of this
+license when they contain substantial portions of the original Software.
+
+5. TRADEMARKS AND BRANDING
+
+This license does not grant permission to use the name "Econovo", the Econovo
+logo, trademarks, visual identity, branding, or other distinctive assets of
+Econovo.
+
+The Software may not be presented in a manner that falsely suggests that a
+modified or derivative version is the official software, website, or product
+of Econovo.
+
+6. ATTRIBUTION
+
+When publicly sharing a modified or derivative version of the Software for
+non-commercial purposes, reasonable attribution to the original project and
+its copyright holder is required.
+
+A suitable attribution is:
+
+"Based on Econovo, developed by Fouad Dadache / Econovo."
+
+7. NO WARRANTY
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED. IN NO EVENT SHALL FOUAD DADACHE OR ECONOVO BE LIABLE FOR ANY CLAIM,
-DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR ECONOVO BE LIABLE FOR ANY CLAIM,
+DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+8. TERMINATION
+
+Any rights granted under this license terminate automatically if the terms
+of this license are violated.
+
+Upon termination, the recipient must cease the unauthorized use,
+distribution, or commercialization of the Software.
+
+9. PURPOSE
+
+This license is intended to keep the Software freely available as a learning
+and educational resource while preventing its commercialization without
+permission.
+
+The goal is to encourage students and learners to study the Software,
+experiment with it, improve it, and build new educational and non-commercial
+projects from it.
+
+---
 
 For permissions beyond the scope of this license, contact:
 
 Fouad Dadache
 Econovo
 
-Copyright (c) 2026 Fouad Dadache
-All rights reserved except as expressly granted above.
+Copyright (c) 2026 Fouad Dadache / Econovo
+All rights reserved except as expressly granted by this license.
