@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
-<script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
+<script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t&&t!=='light')document.documentElement.setAttribute('data-theme',t);})();</script>
 <link rel="stylesheet" href="../css/components.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -135,9 +135,10 @@ img { display: block; max-width: 100%; }
   transition: all .25s;
 }
 .step-dot-wrap.active .step-dot {
-  border-color: #0E2A24; background: #0E2A24; color: #fff;
+  border-color: var(--obsidian, #0E2A24); background: var(--obsidian, #0E2A24); color: #fff;
 }
-[data-theme="dark"] .step-dot-wrap.active .step-dot { border-color: #8FB8A6; background: #8FB8A6; color: #0E2A24; }
+/* For all dark-family themes: use sage accent on active dot */
+[data-theme] .step-dot-wrap.active .step-dot { border-color: var(--sage, #8FB8A6); background: var(--sage, #8FB8A6); color: var(--obsidian, #0E2A24); }
 .step-dot-wrap.done .step-dot {
   border-color: #8FB8A6; background: #8FB8A6; color: #0E2A24;
 }
@@ -266,8 +267,8 @@ img { display: block; max-width: 100%; }
 }
 .form-alert.show { display: block; }
 .form-alert.err { background: rgba(224,82,82,.08); border: 1px solid rgba(224,82,82,.25); color: #c94444; }
-.form-alert.ok { background: rgba(143,184,166,.12); border: 1px solid rgba(143,184,166,.3); color: #0E2A24; }
-[data-theme="dark"] .form-alert.ok { color: #8FB8A6; }
+.form-alert.ok { background: var(--sage-dim, rgba(143,184,166,.12)); border: 1px solid var(--sage-mid, rgba(143,184,166,.3)); color: var(--obsidian, #0E2A24); }
+[data-theme] .form-alert.ok { color: var(--sage, #8FB8A6); }
 
 /* Step nav */
 .step-nav {
@@ -282,14 +283,15 @@ img { display: block; max-width: 100%; }
 .btn-back:hover { border-color: var(--text-soft); color: var(--text); }
 .btn-next, .btn-submit-join {
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 13px 24px; background: #0E2A24; color: #fff;
+  padding: 13px 24px; background: var(--obsidian, #0E2A24); color: #fff;
   font-size: .92rem; font-weight: 700; border-radius: 8px;
   border: none; cursor: pointer; transition: background .18s, box-shadow .18s;
   margin-left: auto;
 }
-.btn-next:hover, .btn-submit-join:hover { background: #163a32; box-shadow: 0 4px 16px rgba(14,42,36,.18); }
-[data-theme="dark"] .btn-next, [data-theme="dark"] .btn-submit-join { background: #8FB8A6; color: #0E2A24; }
-[data-theme="dark"] .btn-next:hover, [data-theme="dark"] .btn-submit-join:hover { background: #b8d4c8; }
+.btn-next:hover, .btn-submit-join:hover { background: var(--obsidian-2, #163a32); box-shadow: 0 4px 16px rgba(14,42,36,.18); }
+/* All dark-family themes: use sage as the primary action color */
+[data-theme] .btn-next, [data-theme] .btn-submit-join { background: var(--sage, #8FB8A6); color: var(--obsidian, #0E2A24); }
+[data-theme] .btn-next:hover, [data-theme] .btn-submit-join:hover { background: var(--sage-light, #b8d4c8); }
 .btn-next svg, .btn-submit-join svg { width: 16px; height: 16px; }
 .btn-spinner {
   width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
@@ -638,21 +640,30 @@ img { display: block; max-width: 100%; }
 const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
 
-/* ── Theme ── */
+/* ── Theme — supports all 12 Econovo palettes ── */
 const root = document.documentElement;
 const themeIcon = document.getElementById('theme-icon');
+const DARK_THEMES = new Set(['dark','nord','rosepine','catppuccin','dracula','gruvbox','tokyonight','everforest','ayu','onedark']);
 function applyTheme(t) {
-  if (t === 'dark') root.setAttribute('data-theme','dark');
+  if (t && t !== 'light') root.setAttribute('data-theme', t);
   else root.removeAttribute('data-theme');
   localStorage.setItem('econovo-theme', t);
-  themeIcon.innerHTML = t === 'dark'
+  const isDark = DARK_THEMES.has(t);
+  themeIcon.innerHTML = isDark
     ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
     : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  const meta = document.getElementById('themeColorMeta');
+  if (meta) {
+    const canvas = getComputedStyle(root).getPropertyValue('--bg').trim();
+    meta.setAttribute('content', canvas || (isDark ? '#1F1F1F' : '#F4F7F2'));
+  }
 }
 const stored = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
 applyTheme(stored);
 document.getElementById('theme-toggle').addEventListener('click', () => {
-  applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  // Toggle: if currently on any dark theme go to light, else go to dark
+  const current = localStorage.getItem('econovo-theme') || 'light';
+  applyTheme(DARK_THEMES.has(current) ? 'light' : 'dark');
 });
 
 /* ── Redirect if already logged in ── */

@@ -1256,7 +1256,10 @@ const SB_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
    below) instead of raw 'DOMContentLoaded', so no profile/posts/events
    data is fetched until the approval check has actually resolved.
 ────────────────────────────────────────────────────────────────── */
-const TOKEN = localStorage.getItem('econovo-token');
+// TOKEN is read lazily so it always reflects the latest refreshed value.
+// Use getToken() instead of TOKEN directly for any fetch that needs auth.
+function getToken() { return localStorage.getItem('econovo-token'); }
+let TOKEN = getToken(); // kept for legacy references; silentRefresh updates localStorage
 const USER_RAW = localStorage.getItem('econovo-user');
 
 let USER = {}, META = {};
@@ -1345,7 +1348,7 @@ function escH(s) {
 async function sbGet(path) {
   const r = await fetch(SB_URL + '/rest/v1/' + path, {
     headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + TOKEN, 'Prefer': '' },
+      'Authorization': 'Bearer ' + getToken(), 'Prefer': '' },
   });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
@@ -1354,7 +1357,7 @@ async function sbPost(path, body) {
   const r = await fetch(SB_URL + '/rest/v1/' + path, {
     method: 'POST',
     headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + TOKEN, 'Prefer': 'return=representation' },
+      'Authorization': 'Bearer ' + getToken(), 'Prefer': 'return=representation' },
     body: JSON.stringify(body),
   });
   if (!r.ok) throw new Error(await r.text());
@@ -1364,7 +1367,7 @@ async function sbDel(path) {
   await fetch(SB_URL + '/rest/v1/' + path, {
     method: 'DELETE',
     headers: { 'Content-Type':'application/json', 'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + TOKEN },
+      'Authorization': 'Bearer ' + getToken() },
   });
 }
 
@@ -1438,6 +1441,40 @@ document.addEventListener('econovo:auth-ready', () => {
     const mdObserver = new MutationObserver(() => applyMarkdownToPostBodies());
     mdObserver.observe(document.body, { childList: true, subtree: true });
   }
+
+  /* ── Silent session refresh — keeps the user logged in past the 1-hour
+     access-token expiry as long as they have a refresh token (i.e. they
+     checked "Remember me" at sign-in). Runs once on page load and then
+     every 10 minutes in the background. If the refresh fails (no refresh
+     token, or it was revoked) we sign out cleanly rather than letting the
+     next API call silently fail. ── */
+  async function silentRefresh() {
+    const refresh = localStorage.getItem('econovo-refresh');
+    if (!refresh) return; // no refresh token → session is intentionally short
+    const expires = localStorage.getItem('econovo-expires');
+    const now = Math.floor(Date.now() / 1000);
+    // Only hit the network if within 10 minutes of expiry
+    if (expires && now < parseInt(expires, 10) - 600) return;
+    try {
+      const res = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+        body: JSON.stringify({ refresh_token: refresh }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.access_token) {
+        if (data.access_token)  localStorage.setItem('econovo-token',   data.access_token);
+        if (data.refresh_token) localStorage.setItem('econovo-refresh',  data.refresh_token);
+        if (data.expires_at)    localStorage.setItem('econovo-expires',  String(data.expires_at));
+        if (data.user)          localStorage.setItem('econovo-user',     JSON.stringify(data.user));
+      } else {
+        // Refresh token invalid or revoked — sign out
+        signOut();
+      }
+    } catch (_) { /* network error — stay logged in, try next cycle */ }
+  }
+  silentRefresh();
+  setInterval(silentRefresh, 10 * 60 * 1000); // check every 10 minutes
 
   loadAnnouncements();
   loadEvents();
@@ -1572,10 +1609,10 @@ document.addEventListener('econovo:auth-ready', () => {
     }
   });
 
-  /* SIGN OUT */
+  /* SIGN OUT — clear every session key so no ghost sessions linger */
   function signOut() {
-    localStorage.removeItem('econovo-token');
-    localStorage.removeItem('econovo-user');
+    ['econovo-token','econovo-refresh','econovo-expires','econovo-user']
+      .forEach(k => localStorage.removeItem(k));
     window.location.replace('login.html');
   }
   document.getElementById('signout-btn').addEventListener('click', signOut);
