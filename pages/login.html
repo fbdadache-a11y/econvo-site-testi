@@ -1,932 +1,532 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#F4F7F2" id="themeColorMeta">
-    <title>Sign In — Econovo Club</title>
-    <meta name="description" content="Sign in to your Econovo member account.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F4F7F2" id="themeColorMeta">
+<title>Sign In — Econovo Club</title>
+<meta name="description" content="Sign in to your Econovo member account.">
 
-    <link rel="icon" href="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png">
-    <link rel="apple-touch-icon" href="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png">
+<link rel="icon" href="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png">
+<link rel="apple-touch-icon" href="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Shared styles -->
-    <link rel="stylesheet" href="../css/style.css">
-    <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t&&t!=='light')document.documentElement.setAttribute('data-theme',t);})();</script>
-    <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/sections.css">
-    <link rel="stylesheet" href="../css/responsive.css">
+<!-- Early theme application — prevents flash of wrong theme.
+     Same 12-palette system as the dashboard's Profile → Appearance. -->
+<script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t&&t!=='light')document.documentElement.setAttribute('data-theme',t);})();</script>
 
-    <style>
-        /* ---- Page shell ---- */
-        .page-shell {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding-top: 80px;
-        }
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/themes.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/sections.css">
+<link rel="stylesheet" href="../css/responsive.css">
 
-        /* ---- Auth layout ---- */
-        .auth-layout {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            min-height: calc(100vh - 80px);
-        }
+<style>
+/* ══════════════════════════════════════════════
+   LOGIN — page-specific layout only.
+   All colors/spacing/motion tokens come from style.css + themes.css —
+   nothing here hardcodes a hex value or a light/dark-only rule.
+   Dials: VARIANCE 5 / MOTION 5 / DENSITY 4 (matches dashboard auth flows)
+   ══════════════════════════════════════════════ */
 
-        /* ---- Left brand panel ---- */
-        .auth-panel {
-            background: var(--gradient-primary);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: var(--sp-64);
-        }
-        .auth-panel::before {
-            content: '';
-            position: absolute;
-            top: -15%;
-            right: -15%;
-            width: 480px;
-            height: 480px;
-            background: radial-gradient(circle, rgba(143,184,166,.22) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .auth-panel::after {
-            content: '';
-            position: absolute;
-            bottom: -10%;
-            left: -10%;
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle, rgba(143,184,166,.14) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .auth-panel .dot-grid {
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(143,184,166,.18) 1px, transparent 1px);
-            background-size: 28px 28px;
-            pointer-events: none;
-        }
-        .auth-panel-content { position: relative; z-index: 2; }
+.page-shell { min-height: 100vh; display: flex; flex-direction: column; padding-top: 80px; }
 
-        .auth-brand {
-            display: flex;
-            align-items: center;
-            gap: var(--sp-12);
-            text-decoration: none;
-        }
-        .auth-brand img { width: 48px; height: 48px; object-fit: contain; border-radius: var(--r-sm); }
-        .auth-brand span { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -.02em; }
+.auth-layout {
+    flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+    min-height: calc(100vh - 80px);
+}
 
-        .auth-panel-hero {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: var(--sp-64) 0;
-        }
+/* ── Left brand panel ── */
+.auth-panel {
+    background: var(--gradient-primary);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: var(--sp-64);
+}
+.auth-panel::before {
+    content: ''; position: absolute; top: -15%; right: -15%;
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, var(--sage-glow) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+    animation: orbPulse 8s ease-in-out infinite;
+}
+.auth-panel::after {
+    content: ''; position: absolute; bottom: -10%; left: -10%;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, var(--sage-dim) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+    animation: orbPulse 8s ease-in-out infinite; animation-delay: -4s;
+}
+@keyframes orbPulse { 0%,100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.15); opacity: 1; } }
+.auth-panel .dot-grid {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.14) 1px, transparent 1px);
+    background-size: 28px 28px; pointer-events: none;
+    animation: dotDrift 22s linear infinite;
+}
+@keyframes dotDrift { from { background-position: 0 0; } to { background-position: 28px 28px; } }
+.auth-panel-content { position: relative; z-index: 2; }
 
-        .auth-panel-eyebrow {
-            font-family: var(--font-mono);
-            font-size: .72rem;
-            text-transform: uppercase;
-            letter-spacing: .14em;
-            color: var(--color-sage);
-            font-weight: 600;
-            margin-bottom: var(--sp-16);
-            display: block;
-        }
+.auth-brand { display: flex; align-items: center; gap: var(--sp-12); text-decoration: none; }
+.auth-brand img { width: 48px; height: 48px; object-fit: contain; border-radius: var(--r-sm); }
+.auth-brand span { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -.02em; }
 
-        .auth-panel h1 {
-            font-size: clamp(2rem, 3.6vw, 3rem);
-            color: #fff;
-            line-height: 1.08;
-            margin-bottom: var(--sp-24);
-        }
-        .auth-panel h1 em { color: var(--color-sage); font-style: normal; }
-        .auth-panel-desc {
-            color: rgba(255,255,255,.72);
-            font-size: 1.05rem;
-            max-width: 400px;
-            line-height: 1.65;
-        }
+.auth-panel-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: var(--sp-64) 0; }
+.auth-panel-eyebrow {
+    font-family: var(--font-mono); font-size: .72rem; text-transform: uppercase;
+    letter-spacing: .14em; color: var(--sage); font-weight: 600;
+    margin-bottom: var(--sp-16); display: block;
+}
+.auth-panel h1 { font-size: clamp(2rem, 3.6vw, 3rem); color: #fff; line-height: 1.08; margin-bottom: var(--sp-24); }
+.auth-panel h1 em { color: var(--sage); font-style: normal; }
+.auth-panel-desc { color: rgba(255,255,255,.72); font-size: 1.05rem; max-width: 400px; line-height: 1.65; }
 
-        /* Quote / member testimonial */
-        .auth-testimonial {
-            background: rgba(143,184,166,.1);
-            border: 1px solid rgba(143,184,166,.22);
-            border-radius: var(--r-md);
-            padding: var(--sp-24);
-        }
-        .auth-testimonial p {
-            color: rgba(255,255,255,.82);
-            font-size: .96rem;
-            line-height: 1.65;
-            margin-bottom: var(--sp-16);
-        }
-        .testimonial-attr {
-            display: flex;
-            align-items: center;
-            gap: var(--sp-12);
-        }
-        .testimonial-avatar {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: var(--gradient-sage);
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-mono); font-size: .85rem; font-weight: 600;
-            color: var(--color-obsidian);
-            flex-shrink: 0;
-        }
-        .testimonial-name { font-size: .88rem; font-weight: 700; color: #fff; }
-        .testimonial-role { font-size: .78rem; color: rgba(255,255,255,.55); }
+.auth-testimonial {
+    background: var(--sage-dim); border: 1px solid var(--sage-mid);
+    border-radius: var(--r-md); padding: var(--sp-24);
+    position: relative; z-index: 2;
+}
+.auth-testimonial p { color: rgba(255,255,255,.82); font-size: .96rem; line-height: 1.65; margin-bottom: var(--sp-16); }
+.testimonial-attr { display: flex; align-items: center; gap: var(--sp-12); }
+.testimonial-avatar {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--sage) 0%, var(--sage-light) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: .85rem; font-weight: 700;
+    color: var(--obsidian); flex-shrink: 0;
+}
+.testimonial-name { font-size: .88rem; font-weight: 700; color: #fff; }
+.testimonial-role { font-size: .78rem; color: rgba(255,255,255,.55); }
 
-        /* ---- Right form panel ---- */
-        .auth-form-panel {
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--sp-64) var(--sp-48);
-        }
+/* ── Right form panel ── */
+.auth-form-panel { background: var(--bg); display: flex; align-items: center; justify-content: center; padding: var(--sp-64) var(--sp-48); }
+.auth-form-inner { width: 100%; max-width: 420px; }
 
-        .auth-form-inner {
-            width: 100%;
-            max-width: 420px;
-        }
+.auth-tabs { display: flex; border-radius: var(--r-md); background: var(--bg-sunken); padding: 4px; gap: 4px; margin-bottom: var(--sp-32); }
+.auth-tab {
+    flex: 1; padding: 10px; border-radius: calc(var(--r-md) - 4px);
+    font-weight: 700; font-size: .92rem; color: var(--text-soft);
+    text-align: center; cursor: pointer; position: relative;
+    transition: color 200ms var(--ease-out);
+}
+.auth-tab.active { background: var(--bg-raised); color: var(--text); box-shadow: var(--shadow-sm); }
+.auth-tab:hover:not(.active) { color: var(--text); }
+.auth-tab.active::after {
+    content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+    background: var(--sage); border-radius: 1px;
+    animation: tabUnderlineIn 260ms var(--ease-spring);
+}
+@keyframes tabUnderlineIn { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); } }
 
-        /* Tab switch: Sign In / Sign Up */
-        .auth-tabs {
-            display: flex;
-            border-radius: var(--r-md);
-            background: var(--bg-sunken);
-            padding: 4px;
-            gap: 4px;
-            margin-bottom: var(--sp-32);
-        }
-        .auth-tab {
-            flex: 1;
-            padding: 10px;
-            border-radius: calc(var(--r-md) - 4px);
-            font-weight: 700;
-            font-size: .92rem;
-            color: var(--text-soft);
-            text-align: center;
-            transition: var(--t-fast);
-            cursor: pointer;
-        }
-        .auth-tab.active {
-            background: var(--bg-raised);
-            color: var(--text);
-            box-shadow: var(--shadow-sm);
-        }
-        .auth-tab:hover:not(.active) { color: var(--text); }
+.auth-form { display: none; }
+.auth-form.active { display: block; }
 
-        /* Forms */
-        .auth-form { display: none; }
-        .auth-form.active { display: block; }
+.form-heading { font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: var(--sp-8); color: var(--text); }
+.form-subheading { color: var(--text-soft); font-size: .96rem; margin-bottom: var(--sp-32); }
 
-        .form-heading {
-            font-size: clamp(1.6rem, 3vw, 2.1rem);
-            margin-bottom: var(--sp-8);
-            color: var(--text);
-        }
-        .form-subheading {
-            color: var(--text-soft);
-            font-size: .96rem;
-            margin-bottom: var(--sp-32);
-        }
+.field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.field-label { font-size: .8rem; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: .06em; font-family: var(--font-mono); }
+.field-label .req { color: var(--sage); margin-left: 2px; }
 
-        /* Fields */
-        .field-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 20px;
-        }
-        .field-label {
-            font-size: .8rem;
-            font-weight: 700;
-            color: var(--text);
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            font-family: var(--font-mono);
-        }
-        .field-label .req { color: var(--color-sage); margin-left: 2px; }
+.field-input-wrap { position: relative; }
+.field-input {
+    width: 100%; padding: 14px 18px; border-radius: var(--r-md);
+    border: 1.5px solid var(--line); background: var(--bg-raised); color: var(--text);
+    font-family: var(--font); font-size: 1rem;
+    transition: border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+    -webkit-appearance: none; appearance: none; outline: none;
+}
+.field-input::placeholder { color: var(--text-soft); opacity: .55; }
+.field-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-glow); }
+.field-input.error { border-color: #e05252; box-shadow: 0 0 0 3px rgba(224,82,82,.12); }
+.field-input.has-icon { padding-right: 48px; }
 
-        .field-input-wrap { position: relative; }
-        .field-input {
-            width: 100%;
-            padding: 14px 18px;
-            border-radius: var(--r-md);
-            border: 1.5px solid var(--line);
-            background: var(--bg-raised);
-            color: var(--text);
-            font-family: var(--font-current);
-            font-size: 1rem;
-            transition: border-color var(--t-fast), box-shadow var(--t-fast);
-            -webkit-appearance: none;
-            appearance: none;
-            outline: none;
-        }
-        .field-input::placeholder { color: var(--text-soft); opacity: .55; }
-        .field-input:focus {
-            border-color: var(--color-sage);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-sage) 18%, transparent);
-        }
-        .field-input.error {
-            border-color: #e05252;
-            box-shadow: 0 0 0 3px rgba(224,82,82,.12);
-        }
-        .field-input.has-icon { padding-right: 48px; }
+.field-icon-btn {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: var(--text-soft);
+    display: flex; align-items: center; justify-content: center;
+    padding: 4px; border-radius: 4px; transition: color 150ms;
+}
+.field-icon-btn:hover { color: var(--text); }
+.field-icon-btn svg { width: 18px; height: 18px; }
 
-        /* Show password toggle */
-        .field-icon-btn {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-soft);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4px;
-            border-radius: 4px;
-            transition: color var(--t-fast);
-        }
-        .field-icon-btn:hover { color: var(--text); }
-        .field-icon-btn svg { width: 18px; height: 18px; }
+.field-error { font-size: .78rem; color: #c94444; font-weight: 600; display: none; }
+.field-error.visible { display: block; }
 
-        .field-error {
-            font-size: .78rem;
-            color: #c94444;
-            font-weight: 600;
-            display: none;
-        }
-        .field-error.visible { display: block; }
+.field-row-inline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.checkbox-inline { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: .88rem; color: var(--text-soft); }
+.checkbox-inline input { display: none; }
+.check-box {
+    width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--sage);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: background 150ms;
+}
+.check-box::after {
+    content: ''; width: 10px; height: 10px; border-radius: 2px;
+    background: var(--sage); transform: scale(0);
+    transition: transform 180ms var(--ease-bounce);
+}
+.checkbox-inline input:checked ~ .check-box { background: var(--sage-dim); }
+.checkbox-inline input:checked ~ .check-box::after { transform: scale(1); }
 
-        /* Password strength bar */
-        .pw-strength {
-            margin-top: 8px;
-            display: none;
-        }
-        .pw-strength.visible { display: block; }
-        .pw-strength-bar {
-            height: 3px;
-            border-radius: 99px;
-            background: var(--line);
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-        .pw-strength-fill {
-            height: 100%;
-            border-radius: 99px;
-            width: 0%;
-            transition: width .3s var(--ease), background .3s;
-        }
-        .pw-strength-label {
-            font-family: var(--font-mono);
-            font-size: .7rem;
-            color: var(--text-soft);
-        }
+.link-muted { font-size: .88rem; color: var(--text-soft); border-bottom: 1.5px solid var(--line); transition: color 150ms, border-color 150ms; }
+.link-muted:hover { color: var(--text); border-color: var(--sage); }
 
-        /* Remember / forgot row */
-        .field-row-inline {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-        }
-        .checkbox-inline {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: .88rem;
-            color: var(--text-soft);
-        }
-        .checkbox-inline input { display: none; }
-        .check-box {
-            width: 18px; height: 18px; border-radius: 4px;
-            border: 1.5px solid var(--color-sage);
-            flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            transition: var(--t-fast);
-        }
-        .check-box::after {
-            content: '';
-            width: 10px; height: 10px; border-radius: 2px;
-            background: var(--color-sage); transform: scale(0);
-            transition: transform .15s var(--ease-bounce);
-        }
-        .checkbox-inline input:checked ~ .check-box { background: color-mix(in srgb, var(--color-sage) 12%, transparent); }
-        .checkbox-inline input:checked ~ .check-box::after { transform: scale(1); }
+.auth-alert { padding: 12px 16px; border-radius: var(--r-sm); font-size: .88rem; font-weight: 600; margin-bottom: var(--sp-20); display: none; }
+.auth-alert.visible { display: block; }
+.auth-alert.error { background: rgba(224,82,82,.1); border: 1px solid rgba(224,82,82,.3); color: #c94444; }
+.auth-alert.success { background: var(--sage-dim); border: 1px solid var(--sage-mid); color: var(--brand-dark); }
+[data-theme] .auth-alert.success { color: var(--sage); }
 
-        .link-muted {
-            font-size: .88rem;
-            color: var(--text-soft);
-            border-bottom: 1.5px solid var(--line);
-            transition: color var(--t-fast), border-color var(--t-fast);
-        }
-        .link-muted:hover { color: var(--text); border-color: var(--color-sage); }
+.btn-submit { width: 100%; padding: 17px 30px; font-size: 1.05rem; margin-top: var(--sp-8); }
+.btn-submit .spinner {
+    width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,.35);
+    border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none;
+}
+.btn-submit.loading .btn-text { display: none; }
+.btn-submit.loading .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Alert box */
-        .auth-alert {
-            padding: 12px 16px;
-            border-radius: var(--r-sm);
-            font-size: .88rem;
-            font-weight: 600;
-            margin-bottom: var(--sp-20);
-            display: none;
-        }
-        .auth-alert.visible { display: block; }
-        .auth-alert.error { background: rgba(224,82,82,.1); border: 1px solid rgba(224,82,82,.3); color: #c94444; }
-        .auth-alert.success { background: color-mix(in srgb, var(--color-sage) 12%, transparent); border: 1px solid color-mix(in srgb, var(--color-sage) 35%, transparent); color: var(--brand-dark); }
-        [data-theme="dark"] .auth-alert.success { color: var(--color-sage); }
+.no-account { text-align: center; margin-top: var(--sp-24); font-size: .9rem; color: var(--text-soft); }
+.no-account a { color: var(--brand-dark); font-weight: 700; border-bottom: 1.5px solid var(--sage); }
+[data-theme] .no-account a { color: var(--sage); }
+.no-account a:hover { color: var(--sage); }
 
-        /* Submit button */
-        .btn-submit {
-            width: 100%;
-            padding: 17px 30px;
-            font-size: 1.05rem;
-            margin-top: var(--sp-8);
-        }
-        .btn-submit .spinner {
-            width: 20px; height: 20px;
-            border: 2.5px solid rgba(255,255,255,.35);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-            display: none;
-        }
-        .btn-submit.loading .btn-text { display: none; }
-        .btn-submit.loading .spinner { display: block; }
+@media (max-width: 900px) {
+    .auth-layout { grid-template-columns: 1fr; }
+    .auth-panel { display: none; }
+    .auth-form-panel { padding: var(--sp-32) var(--sp-24); }
+}
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+/* ══ Entrance choreography — same spring timing as dashboard hero ══ */
+.auth-panel-content { opacity: 0; transform: translateY(20px); }
+.auth-form-inner { opacity: 0; transform: translateY(18px); }
 
-        /* Divider */
-        .or-divider {
-            display: flex;
-            align-items: center;
-            gap: var(--sp-16);
-            margin: var(--sp-24) 0;
-        }
-        .or-divider::before,
-        .or-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--line);
-        }
-        .or-divider span {
-            font-size: .78rem;
-            color: var(--text-soft);
-            font-family: var(--font-mono);
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            white-space: nowrap;
-        }
-
-        /* No-account CTA */
-        .no-account {
-            text-align: center;
-            margin-top: var(--sp-24);
-            font-size: .9rem;
-            color: var(--text-soft);
-        }
-        .no-account a {
-            color: var(--brand-dark);
-            font-weight: 700;
-            border-bottom: 1.5px solid var(--color-sage);
-        }
-        [data-theme="dark"] .no-account a { color: var(--color-sage); }
-        .no-account a:hover { color: var(--color-sage); }
-
-        /* Agree row */
-        .agree-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-        .agree-row .checkbox-inline { font-size: .85rem; line-height: 1.5; }
-        .agree-row a { color: var(--brand-dark); border-bottom: 1.5px solid var(--color-sage); font-weight: 700; }
-        [data-theme="dark"] .agree-row a { color: var(--color-sage); }
-
-        /* ---- Responsive ---- */
-        @media (max-width: 900px) {
-            .auth-layout { grid-template-columns: 1fr; }
-            .auth-panel { display: none; }
-            .auth-form-panel { padding: var(--sp-32) var(--sp-24); }
-        }
-
-        /* ══ Page entrance animations ══ */
-        .auth-panel-content {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: authPanelIn .7s var(--ease-out) .1s forwards;
-        }
-        .auth-form-inner {
-            opacity: 0;
-            transform: translateY(18px);
-            animation: authPanelIn .65s var(--ease-out) .2s forwards;
-        }
-        @keyframes authPanelIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Animated dot grid on panel */
-        .auth-panel .dot-grid {
-            animation: dotDrift 20s linear infinite;
-        }
-        @keyframes dotDrift {
-            from { background-position: 0 0; }
-            to   { background-position: 28px 28px; }
-        }
-        /* Panel orbs pulse */
-        .auth-panel::before {
-            animation: orbPulse 8s ease-in-out infinite;
-        }
-        .auth-panel::after {
-            animation: orbPulse 8s ease-in-out infinite;
-            animation-delay: -4s;
-        }
-        @keyframes orbPulse {
-            0%, 100% { transform: scale(1); opacity: .9; }
-            50% { transform: scale(1.15); opacity: 1; }
-        }
-        /* Input focus enhancement */
-        .form-input:focus {
-            border-color: var(--sage) !important;
-            box-shadow: 0 0 0 3px var(--sage-dim) !important;
-        }
-        /* Auth tab active underline animation */
-        .auth-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0;
-            width: 100%; height: 2px;
-            background: var(--sage);
-            border-radius: 1px;
-            animation: tabUnderlineIn .25s var(--ease-spring);
-        }
-        @keyframes tabUnderlineIn {
-            from { transform: scaleX(0); transform-origin: left; }
-            to   { transform: scaleX(1); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .auth-panel-content, .auth-form-inner { animation: none; opacity: 1; transform: none; }
-            .auth-panel .dot-grid, .auth-panel::before, .auth-panel::after { animation: none; }
-        }
-    </style>
+@media (prefers-reduced-motion: reduce) {
+    .auth-panel-content, .auth-form-inner { opacity: 1 !important; transform: none !important; }
+    .auth-panel .dot-grid, .auth-panel::before, .auth-panel::after { animation: none !important; }
+}
+</style>
 </head>
 <body>
 
-    <div class="scroll-progress" id="scrollProgress"></div>
+<div class="scroll-progress" id="scrollProgress"></div>
 
-    <!-- NAVBAR -->
-    <nav class="navbar" id="navbar">
-        <div class="container nav-container">
-            <a href="../index.html" class="brand">
-                <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo logo" class="logo-img">
-                <span>ECONOVO</span>
-            </a>
-            <ul class="nav-links">
-                <li><a href="../index.html#about" class="nav-link">About Us</a></li>
-                <li><a href="../index.html#pillars" class="nav-link">Our Focus</a></li>
-                <li><a href="../index.html#team" class="nav-link">Team</a></li>
-                <li><a href="../index.html#events" class="nav-link">Events</a></li>
-            </ul>
-            <div class="nav-actions" id="nav-actions">
-                <button class="icon-btn js-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-                    <i class="js-theme-icon" id="themeToggleIcon" data-lucide="moon"></i>
-                </button>
-                <a href="join.html" class="btn btn-primary btn-sm" id="nav-join-btn">Join Now</a>
-                <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu">
-                    <i data-lucide="menu"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- MOBILE MENU -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
-    <aside class="mobile-menu" id="mobileMenu">
-        <button class="icon-btn mobile-menu-close" id="mobileMenuClose" aria-label="Close menu"><i data-lucide="x"></i></button>
-        <div class="mobile-menu-utility">
-            <button class="icon-btn js-theme-toggle" aria-label="Toggle dark mode">
-                <i class="js-theme-icon" data-lucide="moon"></i>
-            </button>
-        </div>
-        <ul>
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+    <div class="container nav-container">
+        <a href="../index.html" class="brand">
+            <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo logo" class="logo-img">
+            <span>ECONOVO</span>
+        </a>
+        <ul class="nav-links">
             <li><a href="../index.html#about" class="nav-link">About Us</a></li>
             <li><a href="../index.html#pillars" class="nav-link">Our Focus</a></li>
             <li><a href="../index.html#team" class="nav-link">Team</a></li>
             <li><a href="../index.html#events" class="nav-link">Events</a></li>
         </ul>
-        <a href="join.html" class="btn btn-primary">Join Now</a>
-    </aside>
-
-    <!-- MAIN -->
-    <div class="page-shell">
-        <div class="auth-layout">
-
-            <!-- Left brand panel -->
-            <div class="auth-panel">
-                <div class="dot-grid"></div>
-                <div class="auth-panel-content">
-                    <a href="../index.html" class="auth-brand">
-                        <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo">
-                        <span>ECONOVO</span>
-                    </a>
-                </div>
-
-                <div class="auth-panel-hero">
-                    <span class="auth-panel-eyebrow">Member Portal</span>
-                    <h1>Welcome <em>back</em> to Econovo.</h1>
-                    <p class="auth-panel-desc">Sign in to access your member dashboard — upcoming events, club resources, and your community.</p>
-                </div>
-
-                <div class="auth-testimonial">
-                    <p>"Econovo changed how I think about economics. It's not just theory — we actually build things and solve real problems."</p>
-                    <div class="testimonial-attr">
-                        <div class="testimonial-avatar">HY</div>
-                        <div>
-                            <div class="testimonial-name">Houssem Yettou</div>
-                            <div class="testimonial-role">Vice President, Econovo</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right: sign in / sign up -->
-            <div class="auth-form-panel">
-                <div class="auth-form-inner">
-
-                    <!-- Tab switcher -->
-                    <div class="auth-tabs" role="tablist">
-                        <button class="auth-tab active" id="tab-signin" role="tab" aria-selected="true" aria-controls="form-signin">Sign In</button>
-                    </div>
-
-                    <!-- ===== SIGN IN ===== -->
-                    <div class="auth-form active" id="form-signin" role="tabpanel">
-                        <h2 class="form-heading">Sign In</h2>
-                        <p class="form-subheading">Access your Econovo member account.</p>
-
-                        <div class="auth-alert" id="signin-alert"></div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="si-email">Email <span class="req">*</span></label>
-                            <input class="field-input" type="email" id="si-email" placeholder="your@email.com" autocomplete="email" required>
-                            <span class="field-error" id="err-si-email">Enter a valid email.</span>
-                        </div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="si-password">Password <span class="req">*</span></label>
-                            <div class="field-input-wrap">
-                                <input class="field-input has-icon" type="password" id="si-password" placeholder="Your password" autocomplete="current-password" required>
-                                <button class="field-icon-btn" id="toggle-si-pw" type="button" aria-label="Show password">
-                                    <svg id="si-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                </button>
-                            </div>
-                            <span class="field-error" id="err-si-password">Enter your password.</span>
-                        </div>
-
-                        <div class="field-row-inline">
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="si-remember">
-                                <div class="check-box"></div>
-                                Remember me
-                            </label>
-                            <a href="#" class="link-muted" id="forgot-link">Forgot password?</a>
-                        </div>
-
-                        <button class="btn btn-primary btn-submit" id="signin-btn" type="button">
-                            <span class="btn-text">Sign In</span>
-                            <div class="spinner"></div>
-                        </button>
-
-                        <p class="no-account">Not a member yet? <a href="join.html">Apply to join →</a></p>
-                    </div>
-
-                    <!-- Forgot password inline (hidden by default) -->
-                    <div class="auth-form" id="form-forgot">
-                        <h2 class="form-heading" style="font-size:1.7rem;">Reset Password</h2>
-                        <p class="form-subheading">Enter your email and we'll send a reset link.</p>
-
-                        <div class="auth-alert" id="forgot-alert"></div>
-
-                        <div class="field-group">
-                            <label class="field-label" for="forgot-email">Email <span class="req">*</span></label>
-                            <input class="field-input" type="email" id="forgot-email" placeholder="your@email.com" autocomplete="email">
-                            <span class="field-error" id="err-forgot">Enter a valid email.</span>
-                        </div>
-
-                        <button class="btn btn-primary btn-submit" id="forgot-btn" type="button">
-                            <span class="btn-text">Send Reset Link</span>
-                            <div class="spinner"></div>
-                        </button>
-
-                        <p class="no-account" style="margin-top:var(--sp-16);"><a href="#" id="back-to-signin">← Back to Sign In</a></p>
-                    </div>
-
-                </div>
-            </div>
-
+        <div class="nav-actions" id="nav-actions">
+            <a href="join.html" class="btn btn-primary btn-sm" id="nav-join-btn">Join Now</a>
+            <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu">
+                <i data-lucide="menu"></i>
+            </button>
         </div>
     </div>
+</nav>
 
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-    (function () {
-        'use strict';
+<!-- MOBILE MENU -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+<aside class="mobile-menu" id="mobileMenu">
+    <button class="icon-btn mobile-menu-close" id="mobileMenuClose" aria-label="Close menu"><i data-lucide="x"></i></button>
+    <ul>
+        <li><a href="../index.html#about" class="nav-link">About Us</a></li>
+        <li><a href="../index.html#pillars" class="nav-link">Our Focus</a></li>
+        <li><a href="../index.html#team" class="nav-link">Team</a></li>
+        <li><a href="../index.html#events" class="nav-link">Events</a></li>
+    </ul>
+    <a href="join.html" class="btn btn-primary">Join Now</a>
+</aside>
 
-        // --- Theme — supports all 12 Econovo palettes ---
-        const DARK_THEMES = new Set(['dark','nord','rosepine','catppuccin','dracula','gruvbox','tokyonight','everforest','ayu','onedark']);
-        function applyTheme(theme) {
-            const root = document.documentElement;
-            if (theme && theme !== 'light') root.setAttribute('data-theme', theme);
-            else root.removeAttribute('data-theme');
-            const isDark = DARK_THEMES.has(theme);
-            document.querySelectorAll('.js-theme-icon').forEach(icon => {
-                icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-            });
-            if (window.lucide) window.lucide.createIcons();
-            const meta = document.getElementById('themeColorMeta');
-            if (meta) {
-                const canvas = getComputedStyle(root).getPropertyValue('--bg').trim();
-                meta.setAttribute('content', canvas || (isDark ? '#1F1F1F' : '#F4F7F2'));
-            }
+<!-- MAIN -->
+<div class="page-shell">
+    <div class="auth-layout">
+
+        <!-- Left brand panel -->
+        <div class="auth-panel">
+            <div class="dot-grid"></div>
+            <div class="auth-panel-content">
+                <a href="../index.html" class="auth-brand">
+                    <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo">
+                    <span>ECONOVO</span>
+                </a>
+            </div>
+
+            <div class="auth-panel-hero">
+                <span class="auth-panel-eyebrow">Member Portal</span>
+                <h1>Welcome <em>back</em> to Econovo.</h1>
+                <p class="auth-panel-desc">Sign in to access your member dashboard — upcoming events, club resources, and your community.</p>
+            </div>
+
+            <div class="auth-testimonial">
+                <p>"Econovo changed how I think about economics. It's not just theory — we actually build things and solve real problems."</p>
+                <div class="testimonial-attr">
+                    <div class="testimonial-avatar">HY</div>
+                    <div>
+                        <div class="testimonial-name">Houssem Yettou</div>
+                        <div class="testimonial-role">Vice President, Econovo</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: sign in -->
+        <div class="auth-form-panel">
+            <div class="auth-form-inner">
+
+                <div class="auth-tabs" role="tablist">
+                    <button class="auth-tab active" id="tab-signin" role="tab" aria-selected="true" aria-controls="form-signin">Sign In</button>
+                </div>
+
+                <!-- ===== SIGN IN ===== -->
+                <div class="auth-form active" id="form-signin" role="tabpanel">
+                    <h2 class="form-heading">Sign In</h2>
+                    <p class="form-subheading">Access your Econovo member account.</p>
+
+                    <div class="auth-alert" id="signin-alert"></div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="si-email">Email <span class="req">*</span></label>
+                        <input class="field-input" type="email" id="si-email" placeholder="your@email.com" autocomplete="email" required>
+                        <span class="field-error" id="err-si-email">Enter a valid email.</span>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="si-password">Password <span class="req">*</span></label>
+                        <div class="field-input-wrap">
+                            <input class="field-input has-icon" type="password" id="si-password" placeholder="Your password" autocomplete="current-password" required>
+                            <button class="field-icon-btn" id="toggle-si-pw" type="button" aria-label="Show password">
+                                <svg id="si-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                        <span class="field-error" id="err-si-password">Enter your password.</span>
+                    </div>
+
+                    <div class="field-row-inline">
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="si-remember" checked>
+                            <div class="check-box"></div>
+                            Remember me
+                        </label>
+                        <a href="#" class="link-muted" id="forgot-link">Forgot password?</a>
+                    </div>
+
+                    <button class="btn btn-primary btn-submit" id="signin-btn" type="button">
+                        <span class="btn-text">Sign In</span>
+                        <div class="spinner"></div>
+                    </button>
+
+                    <p class="no-account">Not a member yet? <a href="join.html">Apply to join →</a></p>
+                </div>
+
+                <!-- Forgot password inline -->
+                <div class="auth-form" id="form-forgot">
+                    <h2 class="form-heading" style="font-size:1.7rem;">Reset Password</h2>
+                    <p class="form-subheading">Enter your email and we'll send a reset link.</p>
+
+                    <div class="auth-alert" id="forgot-alert"></div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="forgot-email">Email <span class="req">*</span></label>
+                        <input class="field-input" type="email" id="forgot-email" placeholder="your@email.com" autocomplete="email">
+                        <span class="field-error" id="err-forgot">Enter a valid email.</span>
+                    </div>
+
+                    <button class="btn btn-primary btn-submit" id="forgot-btn" type="button">
+                        <span class="btn-text">Send Reset Link</span>
+                        <div class="spinner"></div>
+                    </button>
+
+                    <p class="no-account" style="margin-top:var(--sp-16);"><a href="#" id="back-to-signin">← Back to Sign In</a></p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/login-animations.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) window.lucide.createIcons();
+
+        // Navbar scroll
+        const nav = document.getElementById('navbar');
+        window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
+
+        // Scroll progress
+        const bar = document.getElementById('scrollProgress');
+        window.addEventListener('scroll', () => {
+            const doc = document.documentElement;
+            const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
+            bar.style.width = Math.min(pct || 0, 100) + '%';
+        }, { passive: true });
+
+        // Mobile menu
+        const openBtn = document.getElementById('navToggle');
+        const closeBtn = document.getElementById('mobileMenuClose');
+        const menu = document.getElementById('mobileMenu');
+        const overlay = document.getElementById('mobileMenuOverlay');
+        const open = () => { menu.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; };
+        const close = () => { menu.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; };
+        openBtn.addEventListener('click', open);
+        closeBtn.addEventListener('click', close);
+        overlay.addEventListener('click', close);
+
+        // ---- Forgot password inline toggle ----
+        const tabs = document.querySelectorAll('.auth-tab');
+        const forms = document.querySelectorAll('.auth-form');
+        function switchTab(name) {
+            forms.forEach(f => f.classList.remove('active'));
+            document.getElementById('form-' + name).classList.add('active');
         }
-        const stored = localStorage.getItem('econovo-theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(stored || (prefersDark ? 'dark' : 'light'));
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) window.lucide.createIcons();
-
-            // Theme toggle — if a dark theme is active go to light, else go to dark
-            document.querySelectorAll('.js-theme-toggle').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const current = localStorage.getItem('econovo-theme') || 'light';
-                    const next = DARK_THEMES.has(current) ? 'light' : 'dark';
-                    applyTheme(next);
-                    localStorage.setItem('econovo-theme', next);
-                });
-            });
-
-            // Navbar scroll
-            const nav = document.getElementById('navbar');
-            window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
-
-            // Scroll progress
-            const bar = document.getElementById('scrollProgress');
-            window.addEventListener('scroll', () => {
-                const doc = document.documentElement;
-                const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
-                bar.style.width = Math.min(pct || 0, 100) + '%';
-            }, { passive: true });
-
-            // Mobile menu
-            const openBtn = document.getElementById('navToggle');
-            const closeBtn = document.getElementById('mobileMenuClose');
-            const menu = document.getElementById('mobileMenu');
-            const overlay = document.getElementById('mobileMenuOverlay');
-            const open = () => { menu.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; };
-            const close = () => { menu.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; };
-            openBtn.addEventListener('click', open);
-            closeBtn.addEventListener('click', close);
-            overlay.addEventListener('click', close);
-
-            // ---- Forgot password flow ----
-            document.getElementById('forgot-link').addEventListener('click', (e) => {
-                e.preventDefault();
-                forms.forEach(f => f.classList.remove('active'));
-                document.getElementById('form-forgot').classList.add('active');
-                tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-            });
-            document.getElementById('back-to-signin').addEventListener('click', (e) => {
-                e.preventDefault();
-                switchTab('signin');
-            });
-
-            // ---- Password visibility toggles ----
-            function makeToggle(btnId, inputId, iconId) {
-                const btn = document.getElementById(btnId);
-                const input = document.getElementById(inputId);
-                if (!btn || !input) return;
-                btn.addEventListener('click', () => {
-                    const show = input.type === 'password';
-                    input.type = show ? 'text' : 'password';
-                    const icon = document.getElementById(iconId);
-                    if (icon) {
-                        icon.innerHTML = show
-                            ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
-                            : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
-                    }
-                });
-            }
-            makeToggle('toggle-si-pw', 'si-password', 'si-eye-icon');
-
-            // ---- Error helpers ----
-            function showErr(inputId, errId, show) {
-                const input = document.getElementById(inputId);
-                const err = document.getElementById(errId);
-                if (input) input.classList.toggle('error', show);
-                if (err) err.classList.toggle('visible', show);
-                return !show;
-            }
-
-            function setAlert(alertId, msg, type) {
-                const el = document.getElementById(alertId);
-                if (!el) return;
-                if (!msg) { el.classList.remove('visible'); return; }
-                el.textContent = msg;
-                el.className = 'auth-alert visible ' + (type || 'error');
-            }
-
-            function startLoading(btnId) {
-                const btn = document.getElementById(btnId);
-                if (btn) { btn.classList.add('loading'); btn.disabled = true; }
-            }
-            function stopLoading(btnId) {
-                const btn = document.getElementById(btnId);
-                if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
-            }
-
-            // Clear errors on type
-            document.querySelectorAll('.field-input').forEach(el => {
-                el.addEventListener('input', () => {
-                    el.classList.remove('error');
-                    const err = document.getElementById('err-' + el.id);
-                    if (err) err.classList.remove('visible');
-                });
-            });
-
-            // ---- Supabase config ----
-            const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
-            const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
-
-            async function supaFetch(path, options = {}) {
-                // Auth endpoints (/auth/v1/token, /auth/v1/signup, /auth/v1/recover)
-                // only need apikey — NOT a Bearer token (the key is not a JWT).
-                // Bearer is only used for REST calls AFTER login, with the real access_token.
-                const res = await fetch(SUPABASE_URL + path, {
-                    ...options,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_KEY,
-                        ...(options.headers || {}),
-                    },
-                });
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(data.error_description || data.msg || data.message || 'Request failed');
-                return data;
-            }
-
-            function saveSession(data) {
-                if (data.access_token)  localStorage.setItem('econovo-token',   data.access_token);
-                if (data.refresh_token) localStorage.setItem('econovo-refresh',  data.refresh_token);
-                if (data.expires_at)    localStorage.setItem('econovo-expires',  String(data.expires_at));
-                if (data.user)          localStorage.setItem('econovo-user',     JSON.stringify(data.user));
-            }
-
-            function clearSession() {
-                ['econovo-token','econovo-refresh','econovo-expires','econovo-user']
-                    .forEach(k => localStorage.removeItem(k));
-            }
-
-            // ---- Auto-refresh token before expiry ----
-            // Called on page load to keep the session alive if the user
-            // has a valid refresh token (i.e. they previously signed in with
-            // "Remember me" or the token hasn't expired yet).
-            async function maybeRefreshOnLoad() {
-                const expires = localStorage.getItem('econovo-expires');
-                const refresh = localStorage.getItem('econovo-refresh');
-                if (!expires || !refresh) return;
-                const now = Math.floor(Date.now() / 1000);
-                // Refresh if within 10 minutes of expiry
-                if (now >= parseInt(expires, 10) - 600) {
-                    await refreshSession();
-                }
-            }
-            maybeRefreshOnLoad();
-
-            async function refreshSession() {
-                const refresh = localStorage.getItem('econovo-refresh');
-                if (!refresh) return false;
-                try {
-                    const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
-                        body: JSON.stringify({ refresh_token: refresh }),
-                    });
-                    const data = await res.json().catch(() => ({}));
-                    if (res.ok && data.access_token) { saveSession(data); return true; }
-                } catch (_) {}
-                clearSession();
-                return false;
-            }
-
-            async function getValidToken() {
-                const expires = localStorage.getItem('econovo-expires');
-                const now = Math.floor(Date.now() / 1000);
-                if (expires && now >= (parseInt(expires, 10) - 300)) {
-                    const ok = await refreshSession();
-                    if (!ok) return null;
-                }
-                return localStorage.getItem('econovo-token');
-            }
-
-            // Redirect if already logged in — try refresh if needed
-            (async () => {
-                const hasToken   = !!localStorage.getItem('econovo-token');
-                const hasUser    = !!localStorage.getItem('econovo-user');
-                const hasRefresh = !!localStorage.getItem('econovo-refresh');
-                if ((hasToken && hasUser) || hasRefresh) {
-                    const token = await getValidToken();
-                    if (token) window.location.href = 'dashboard.html';
-                }
-            })();
-
-            // ---- Sign In ----
-            document.getElementById('signin-btn').addEventListener('click', async () => {
-                const email = document.getElementById('si-email').value.trim();
-                const pw = document.getElementById('si-password').value;
-                const remember = document.getElementById('si-remember').checked;
-                const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                let ok = true;
-                ok = showErr('si-email', 'err-si-email', !emailRe.test(email)) && ok;
-                ok = showErr('si-password', 'err-si-password', pw.length < 1) && ok;
-                if (!ok) return;
-
-                startLoading('signin-btn');
-                setAlert('signin-alert', '', '');
-
-                try {
-                    const data = await supaFetch('/auth/v1/token?grant_type=password', {
-                        method: 'POST',
-                        body: JSON.stringify({ email, password: pw }),
-                    });
-                    saveSession(data);
-                    // If "Remember me" is NOT checked, remove the refresh token so
-                    // the session ends when the stored access token expires (~1h).
-                    // If it IS checked, the refresh token stays and auth.js will
-                    // silently renew the session on every dashboard load.
-                    if (!remember) {
-                        localStorage.removeItem('econovo-refresh');
-                    }
-                    setAlert('signin-alert', '✓ Signed in successfully! Redirecting…', 'success');
-                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
-                } catch (err) {
-                    stopLoading('signin-btn');
-                    const msg = err.message.toLowerCase();
-                    if (msg.includes('invalid') || msg.includes('credentials') || msg.includes('password')) {
-                        setAlert('signin-alert', 'Incorrect email or password. Please try again.', 'error');
-                    } else if (msg.includes('confirm') || msg.includes('email')) {
-                        setAlert('signin-alert', 'Please confirm your email before signing in. Check your inbox.', 'error');
-                    } else {
-                        setAlert('signin-alert', err.message, 'error');
-                    }
-                }
-            });
-
-            // ---- Forgot password ----
-            document.getElementById('forgot-btn').addEventListener('click', async () => {
-                const email = document.getElementById('forgot-email').value.trim();
-                const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRe.test(email)) {
-                    showErr('forgot-email', 'err-forgot', true);
-                    return;
-                }
-                showErr('forgot-email', 'err-forgot', false);
-                startLoading('forgot-btn');
-
-                try {
-                    await supaFetch('/auth/v1/recover', {
-                        method: 'POST',
-                        body: JSON.stringify({ email }),
-                    });
-                } catch (_) { /* silent — don't reveal if email exists */ }
-
-                stopLoading('forgot-btn');
-                setAlert('forgot-alert', '✓ If that email belongs to a member account, a reset link is on its way.', 'success');
-            });
-
+        document.getElementById('forgot-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            forms.forEach(f => f.classList.remove('active'));
+            document.getElementById('form-forgot').classList.add('active');
         });
-    })();
-    </script>
+        document.getElementById('back-to-signin').addEventListener('click', (e) => {
+            e.preventDefault();
+            switchTab('signin');
+        });
+
+        // ---- Password visibility toggle ----
+        function makeToggle(btnId, inputId, iconId) {
+            const btn = document.getElementById(btnId);
+            const input = document.getElementById(inputId);
+            if (!btn || !input) return;
+            btn.addEventListener('click', () => {
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                const icon = document.getElementById(iconId);
+                if (icon) {
+                    icon.innerHTML = show
+                        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+                        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+                }
+            });
+        }
+        makeToggle('toggle-si-pw', 'si-password', 'si-eye-icon');
+
+        // ---- Error helpers ----
+        function showErr(inputId, errId, show) {
+            const input = document.getElementById(inputId);
+            const err = document.getElementById(errId);
+            if (input) input.classList.toggle('error', show);
+            if (err) err.classList.toggle('visible', show);
+            return !show;
+        }
+        function setAlert(alertId, msg, type) {
+            const el = document.getElementById(alertId);
+            if (!el) return;
+            if (!msg) { el.classList.remove('visible'); return; }
+            el.textContent = msg;
+            el.className = 'auth-alert visible ' + (type || 'error');
+        }
+        function startLoading(btnId) {
+            const btn = document.getElementById(btnId);
+            if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+        }
+        function stopLoading(btnId) {
+            const btn = document.getElementById(btnId);
+            if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
+        }
+
+        document.querySelectorAll('.field-input').forEach(el => {
+            el.addEventListener('input', () => {
+                el.classList.remove('error');
+                const err = document.getElementById('err-' + el.id);
+                if (err) err.classList.remove('visible');
+            });
+        });
+
+        // ── Redirect if already logged in — EconovoAuth.getValidToken()
+        //    silently refreshes an expired access token using the stored
+        //    refresh_token before deciding the session is actually gone.
+        //    This is the fix for "the site doesn't remember me": before,
+        //    this page (and the rest of the app) only ever checked the
+        //    raw access_token, which expires in ~1 hour regardless of
+        //    "Remember me".
+        (async () => {
+            if (!EconovoAuth.isLoggedIn()) return;
+            const token = await EconovoAuth.getValidToken();
+            if (token) window.location.href = 'dashboard.html';
+        })();
+
+        // ---- Sign In ----
+        document.getElementById('signin-btn').addEventListener('click', async () => {
+            const email = document.getElementById('si-email').value.trim();
+            const pw = document.getElementById('si-password').value;
+            const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            let ok = true;
+            ok = showErr('si-email', 'err-si-email', !emailRe.test(email)) && ok;
+            ok = showErr('si-password', 'err-si-password', pw.length < 1) && ok;
+            if (!ok) return;
+
+            startLoading('signin-btn');
+            setAlert('signin-alert', '', '');
+
+            try {
+                await EconovoAuth.signIn({ email, password: pw });
+                setAlert('signin-alert', '✓ Signed in successfully! Redirecting…', 'success');
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
+            } catch (err) {
+                stopLoading('signin-btn');
+                const msg = err.message.toLowerCase();
+                if (msg.includes('invalid') || msg.includes('credentials') || msg.includes('password')) {
+                    setAlert('signin-alert', 'Incorrect email or password. Please try again.', 'error');
+                } else if (msg.includes('confirm') || msg.includes('email')) {
+                    setAlert('signin-alert', 'Please confirm your email before signing in. Check your inbox.', 'error');
+                } else {
+                    setAlert('signin-alert', err.message, 'error');
+                }
+            }
+        });
+
+        // ---- Forgot password ----
+        document.getElementById('forgot-btn').addEventListener('click', async () => {
+            const email = document.getElementById('forgot-email').value.trim();
+            const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRe.test(email)) {
+                showErr('forgot-email', 'err-forgot', true);
+                return;
+            }
+            showErr('forgot-email', 'err-forgot', false);
+            startLoading('forgot-btn');
+
+            try {
+                await EconovoAuth.sendPasswordReset(email);
+            } catch (_) { /* silent — don't reveal if email exists */ }
+
+            stopLoading('forgot-btn');
+            setAlert('forgot-alert', '✓ If that email belongs to a member account, a reset link is on its way.', 'success');
+        });
+
+        // If redirected here because an admin rejected the account
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('rejected') === '1') {
+            setAlert('signin-alert', 'Your membership application was declined. Contact the club board for details.', 'error');
+        }
+    });
+})();
+</script>
 </body>
 </html>

@@ -10,51 +10,56 @@
 <link rel="apple-touch-icon" href="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Early theme application — same 12-palette system as the dashboard. -->
 <script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t&&t!=='light')document.documentElement.setAttribute('data-theme',t);})();</script>
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/themes.css">
 <link rel="stylesheet" href="../css/components.css">
+
 <style>
+/* ══════════════════════════════════════════════
+   JOIN — page-specific layout only.
+   Every color below is a token from style.css/themes.css — no hardcoded
+   hex, so switching to any of the 12 palettes re-skins this page too.
+   Dials: VARIANCE 5 / MOTION 5 / DENSITY 4
+   ══════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; }
-body { font-family: var(--font-sans, 'Host Grotesk', system-ui, sans-serif); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh; }
 a { text-decoration: none; color: inherit; }
 button { font-family: inherit; cursor: pointer; }
 img { display: block; max-width: 100%; }
 ::selection { background: var(--sage); color: var(--obsidian); }
 
-/* ── shell ── */
-.join-shell {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
-}
+.join-shell { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
 
 /* ── LEFT BRAND PANEL ── */
 .brand-panel {
-  background: var(--gradient-primary, linear-gradient(155deg, #0E2A24 0%, #163a32 100%));
-  position: relative; overflow: hidden;
-  display: flex; flex-direction: column;
-  padding: 48px 52px;
+    background: var(--gradient-primary);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; padding: 48px 52px;
 }
 .brand-panel .dot-bg {
-  position: absolute; inset: 0;
-  background-image: radial-gradient(rgba(143,184,166,.15) 1px, transparent 1px);
-  background-size: 26px 26px; pointer-events: none;
-  animation: dotDrift 28s linear infinite;
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.14) 1px, transparent 1px);
+    background-size: 26px 26px; pointer-events: none;
+    animation: dotDrift 28s linear infinite;
 }
 @keyframes dotDrift { from { background-position: 0 0; } to { background-position: 26px 26px; } }
 .brand-panel .orb-a {
-  position: absolute; top: -18%; right: -14%; width: 480px; height: 480px;
-  background: radial-gradient(circle, rgba(143,184,166,.18) 0%, transparent 70%);
-  border-radius: 50%; pointer-events: none;
-  animation: orbFloat 10s ease-in-out infinite;
+    position: absolute; top: -18%; right: -14%; width: 480px; height: 480px;
+    background: radial-gradient(circle, var(--sage-glow) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+    animation: orbFloat 10s ease-in-out infinite;
 }
 .brand-panel .orb-b {
-  position: absolute; bottom: -12%; left: -10%; width: 340px; height: 340px;
-  background: radial-gradient(circle, rgba(143,184,166,.12) 0%, transparent 70%);
-  border-radius: 50%; pointer-events: none;
-  animation: orbFloat 10s ease-in-out infinite; animation-delay: -5s;
+    position: absolute; bottom: -12%; left: -10%; width: 340px; height: 340px;
+    background: radial-gradient(circle, var(--sage-dim) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+    animation: orbFloat 10s ease-in-out infinite; animation-delay: -5s;
 }
 @keyframes orbFloat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
 
@@ -63,617 +68,485 @@ img { display: block; max-width: 100%; }
 .brand-logo img { width: 38px; height: 38px; border-radius: 8px; object-fit: contain; }
 .brand-logo span { font-size: 1.1rem; font-weight: 800; color: #fff; letter-spacing: .08em; text-transform: uppercase; }
 
-.brand-body {
-  position: relative; z-index: 2;
-  flex: 1; display: flex; flex-direction: column; justify-content: center;
-  padding: 60px 0 40px;
-}
+.brand-body { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px 0 40px; }
 .brand-eyebrow {
-  font-family: 'IBM Plex Mono', monospace; font-size: .66rem; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .18em;
-  color: rgba(143,184,166,.9); margin-bottom: 18px; display: block;
+    font-family: var(--font-mono); font-size: .66rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .18em;
+    color: var(--sage); margin-bottom: 18px; display: block;
 }
-.brand-headline {
-  font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 800; color: #fff;
-  line-height: 1.05; letter-spacing: -.04em; margin-bottom: 20px;
-}
-.brand-headline em { color: #8FB8A6; font-style: normal; }
-.brand-desc {
-  font-size: 1rem; color: rgba(255,255,255,.68); max-width: 380px; line-height: 1.7;
-  margin-bottom: 40px;
-}
-.brand-pillars {
-  display: flex; flex-direction: column; gap: 10px;
-}
-.pillar {
-  display: flex; align-items: center; gap: 12px;
-  font-size: .88rem; color: rgba(255,255,255,.72);
-}
-.pillar-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: #8FB8A6; flex-shrink: 0;
-}
+.brand-headline { font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 800; color: #fff; line-height: 1.05; letter-spacing: -.04em; margin-bottom: 20px; }
+.brand-headline em { color: var(--sage); font-style: normal; }
+.brand-desc { font-size: 1rem; color: rgba(255,255,255,.68); max-width: 380px; line-height: 1.7; margin-bottom: 40px; }
+.brand-pillars { display: flex; flex-direction: column; gap: 10px; }
+.pillar { display: flex; align-items: center; gap: 12px; font-size: .88rem; color: rgba(255,255,255,.72); }
+.pillar-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sage); flex-shrink: 0; }
 
 .brand-footer {
-  position: relative; z-index: 2;
-  background: rgba(143,184,166,.1); border: 1px solid rgba(143,184,166,.2);
-  border-radius: 10px; padding: 20px 22px;
+    position: relative; z-index: 2;
+    background: var(--sage-dim); border: 1px solid var(--sage-mid);
+    border-radius: 10px; padding: 20px 22px;
 }
 .brand-quote { font-size: .9rem; color: rgba(255,255,255,.78); line-height: 1.65; margin-bottom: 14px; }
 .quote-attr { display: flex; align-items: center; gap: 10px; }
 .quote-av {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, #8FB8A6 0%, #b8d4c8 100%);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'IBM Plex Mono', monospace; font-size: .74rem; font-weight: 700;
-  color: #0E2A24; flex-shrink: 0;
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--sage) 0%, var(--sage-light) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: .74rem; font-weight: 700;
+    color: var(--obsidian); flex-shrink: 0;
 }
 .quote-name { font-size: .84rem; font-weight: 700; color: #fff; }
 .quote-role { font-size: .74rem; color: rgba(255,255,255,.5); }
 
 /* ── RIGHT FORM PANEL ── */
-.form-panel {
-  background: var(--bg); display: flex; align-items: flex-start;
-  justify-content: center; padding: 48px 48px 60px;
-  overflow-y: auto;
-}
+.form-panel { background: var(--bg); display: flex; align-items: flex-start; justify-content: center; padding: 48px 48px 60px; overflow-y: auto; }
 .form-inner { width: 100%; max-width: 460px; padding-top: 8px; }
 
-/* ── Step progress ── */
-.step-progress {
-  display: flex; align-items: center; gap: 0; margin-bottom: 36px;
-}
-.step-dot-wrap {
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  position: relative; z-index: 1;
-}
+.step-progress { display: flex; align-items: center; gap: 0; margin-bottom: 36px; }
+.step-dot-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; position: relative; z-index: 1; }
 .step-dot {
-  width: 34px; height: 34px; border-radius: 50%;
-  border: 2px solid var(--line, rgba(14,42,36,.1));
-  background: var(--bg); color: var(--text-soft, rgba(14,42,36,.52));
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'IBM Plex Mono', monospace; font-size: .72rem; font-weight: 700;
-  transition: all .25s;
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 2px solid var(--line); background: var(--bg); color: var(--text-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: .72rem; font-weight: 700;
+    transition: border-color 220ms var(--ease-out), background 220ms var(--ease-out), color 220ms var(--ease-out);
 }
-.step-dot-wrap.active .step-dot {
-  border-color: var(--obsidian, #0E2A24); background: var(--obsidian, #0E2A24); color: #fff;
-}
-/* For all dark-family themes: use sage accent on active dot */
-[data-theme] .step-dot-wrap.active .step-dot { border-color: var(--sage, #8FB8A6); background: var(--sage, #8FB8A6); color: var(--obsidian, #0E2A24); }
-.step-dot-wrap.done .step-dot {
-  border-color: #8FB8A6; background: #8FB8A6; color: #0E2A24;
-}
-.step-lbl {
-  font-family: 'IBM Plex Mono', monospace; font-size: .6rem; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .1em; color: var(--text-soft);
-  white-space: nowrap;
-}
+.step-dot-wrap.active .step-dot { border-color: var(--obsidian); background: var(--obsidian); color: #fff; }
+[data-theme] .step-dot-wrap.active .step-dot { border-color: var(--sage); background: var(--sage); color: var(--obsidian); }
+.step-dot-wrap.done .step-dot { border-color: var(--sage); background: var(--sage); color: var(--obsidian); }
+.step-lbl { font-family: var(--font-mono); font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-soft); white-space: nowrap; }
 .step-dot-wrap.active .step-lbl { color: var(--text); }
-.step-connector {
-  flex: 1; height: 2px; background: var(--line);
-  margin-bottom: 20px; position: relative;
-  transition: background .3s;
-}
-.step-connector.done { background: #8FB8A6; }
+.step-connector { flex: 1; height: 2px; background: var(--line); margin-bottom: 20px; position: relative; transition: background 300ms; }
+.step-connector.done { background: var(--sage); }
 
-/* ── Form heading ── */
 .form-heading-row { margin-bottom: 28px; }
-.form-step-eyebrow {
-  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .14em; color: #8FB8A6;
-  margin-bottom: 6px; display: block;
-}
+.form-step-eyebrow { font-family: var(--font-mono); font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .14em; color: var(--sage); margin-bottom: 6px; display: block; }
 .form-heading { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.04em; color: var(--text); margin-bottom: 4px; }
 .form-subtext { font-size: .9rem; color: var(--text-soft); }
-.form-subtext a { color: #0E2A24; font-weight: 700; border-bottom: 1.5px solid #8FB8A6; }
-[data-theme="dark"] .form-subtext a { color: #8FB8A6; }
+.form-subtext a { color: var(--obsidian); font-weight: 700; border-bottom: 1.5px solid var(--sage); }
+[data-theme] .form-subtext a { color: var(--sage); }
 
-/* ── Fields ── */
 .field-group { margin-bottom: 18px; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.field-label {
-  font-family: 'IBM Plex Mono', monospace; font-size: .64rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .08em; color: var(--text-soft);
-  display: block; margin-bottom: 6px;
-}
-.req { color: #8FB8A6; }
+.field-label { font-family: var(--font-mono); font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-soft); display: block; margin-bottom: 6px; }
+.req { color: var(--sage); }
 .field-wrap { position: relative; }
 .field-input, .field-select, .field-textarea {
-  width: 100%; padding: 13px 16px;
-  border: 1.5px solid var(--line); border-radius: 8px;
-  background: var(--bg-raised, #fff); color: var(--text);
-  font-family: inherit; font-size: .92rem;
-  transition: border-color .18s, box-shadow .18s;
-  outline: none; -webkit-appearance: none; appearance: none;
+    width: 100%; padding: 13px 16px;
+    border: 1.5px solid var(--line); border-radius: 8px;
+    background: var(--bg-raised); color: var(--text);
+    font-family: inherit; font-size: .92rem;
+    transition: border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+    outline: none; -webkit-appearance: none; appearance: none;
 }
 .field-input::placeholder, .field-textarea::placeholder { color: var(--text-soft); opacity: .55; }
-.field-input:focus, .field-select:focus, .field-textarea:focus {
-  border-color: #8FB8A6;
-  box-shadow: 0 0 0 3px rgba(143,184,166,.15);
-}
+.field-input:focus, .field-select:focus, .field-textarea:focus { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-glow); }
 .field-input.err { border-color: #e05252; box-shadow: 0 0 0 3px rgba(224,82,82,.1); }
 .field-input.has-icon { padding-right: 48px; }
 .field-select { cursor: pointer; }
 .field-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
 
 .pw-toggle-btn {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; cursor: pointer; color: var(--text-soft);
-  padding: 4px; border-radius: 4px; display: flex; align-items: center;
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: var(--text-soft);
+    padding: 4px; border-radius: 4px; display: flex; align-items: center;
+    transition: color 150ms;
 }
 .pw-toggle-btn:hover { color: var(--text); }
 .pw-toggle-btn svg { width: 17px; height: 17px; }
 
-.field-error {
-  font-size: .76rem; color: #c94444; font-weight: 600;
-  margin-top: 4px; display: none;
-}
+.field-error { font-size: .76rem; color: #c94444; font-weight: 600; margin-top: 4px; display: none; }
 .field-error.show { display: block; }
 
-/* Password strength */
 .pw-strength { margin-top: 7px; display: none; }
 .pw-strength.show { display: block; }
 .pw-bar { height: 3px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 4px; }
-.pw-fill { height: 100%; border-radius: 99px; width: 0; transition: width .3s, background .3s; }
-.pw-lbl { font-family: 'IBM Plex Mono', monospace; font-size: .66rem; }
+.pw-fill { height: 100%; border-radius: 99px; width: 0; transition: width 300ms, background 300ms; }
+.pw-lbl { font-family: var(--font-mono); font-size: .66rem; }
 
-/* Toggle pills */
 .toggle-group { display: flex; flex-wrap: wrap; gap: 7px; }
 .toggle-pill {
-  display: inline-flex; align-items: center;
-  padding: 7px 14px; border-radius: 99px;
-  border: 1.5px solid var(--line); background: transparent;
-  font-size: .82rem; font-weight: 600; cursor: pointer;
-  color: var(--text-soft); transition: all .15s;
+    display: inline-flex; align-items: center; padding: 7px 14px; border-radius: 99px;
+    border: 1.5px solid var(--line); background: transparent;
+    font-size: .82rem; font-weight: 600; cursor: pointer; color: var(--text-soft);
+    transition: border-color 150ms, background 150ms, color 150ms;
 }
 .toggle-pill input { display: none; }
-.toggle-pill:has(input:checked) {
-  border-color: #8FB8A6; background: rgba(143,184,166,.1); color: var(--text);
-}
+.toggle-pill:has(input:checked) { border-color: var(--sage); background: var(--sage-dim); color: var(--text); }
 
-/* Checkbox grid */
 .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .checkbox-label {
-  display: flex; align-items: center; gap: 9px;
-  padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 8px;
-  cursor: pointer; font-size: .84rem; font-weight: 500; color: var(--text-soft);
-  transition: all .15s;
+    display: flex; align-items: center; gap: 9px; padding: 9px 12px;
+    border: 1.5px solid var(--line); border-radius: 8px; cursor: pointer;
+    font-size: .84rem; font-weight: 500; color: var(--text-soft);
+    transition: border-color 150ms, background 150ms, color 150ms;
 }
-.checkbox-label:hover { border-color: #8FB8A6; color: var(--text); }
+.checkbox-label:hover { border-color: var(--sage); color: var(--text); }
 .checkbox-label input { display: none; }
 .checkbox-check {
-  width: 18px; height: 18px; border-radius: 5px;
-  border: 1.5px solid var(--line); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
+    width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--line);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: border-color 150ms;
 }
-.checkbox-check::after {
-  content: ''; width: 10px; height: 10px; border-radius: 2px;
-  background: #8FB8A6; transform: scale(0); transition: transform .15s;
-}
-.checkbox-label:has(input:checked) {
-  border-color: #8FB8A6; background: rgba(143,184,166,.07); color: var(--text);
-}
-.checkbox-label:has(input:checked) .checkbox-check { border-color: #8FB8A6; }
+.checkbox-check::after { content: ''; width: 10px; height: 10px; border-radius: 2px; background: var(--sage); transform: scale(0); transition: transform 180ms var(--ease-bounce); }
+.checkbox-label:has(input:checked) { border-color: var(--sage); background: var(--sage-dim); color: var(--text); }
+.checkbox-label:has(input:checked) .checkbox-check { border-color: var(--sage); }
 .checkbox-label:has(input:checked) .checkbox-check::after { transform: scale(1); }
 
-/* Char count */
 .field-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
-.char-count { font-family: 'IBM Plex Mono', monospace; font-size: .66rem; color: var(--text-soft); }
+.char-count { font-family: var(--font-mono); font-size: .66rem; color: var(--text-soft); }
 
-/* Alert */
-.form-alert {
-  padding: 11px 15px; border-radius: 8px; font-size: .86rem;
-  font-weight: 600; margin-bottom: 16px; display: none;
-}
+.form-alert { padding: 11px 15px; border-radius: 8px; font-size: .86rem; font-weight: 600; margin-bottom: 16px; display: none; }
 .form-alert.show { display: block; }
 .form-alert.err { background: rgba(224,82,82,.08); border: 1px solid rgba(224,82,82,.25); color: #c94444; }
-.form-alert.ok { background: var(--sage-dim, rgba(143,184,166,.12)); border: 1px solid var(--sage-mid, rgba(143,184,166,.3)); color: var(--obsidian, #0E2A24); }
-[data-theme] .form-alert.ok { color: var(--sage, #8FB8A6); }
+.form-alert.ok { background: var(--sage-dim); border: 1px solid var(--sage-mid); color: var(--brand-dark); }
+[data-theme] .form-alert.ok { color: var(--sage); }
 
-/* Step nav */
-.step-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-top: 24px; gap: 10px;
-}
+.step-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; gap: 10px; }
 .btn-back {
-  font-size: .85rem; font-weight: 600; color: var(--text-soft);
-  padding: 11px 16px; border: 1.5px solid var(--line); border-radius: 8px;
-  background: transparent; transition: all .15s;
+    font-size: .85rem; font-weight: 600; color: var(--text-soft);
+    padding: 11px 16px; border: 1.5px solid var(--line); border-radius: 8px;
+    background: transparent; transition: border-color 150ms, color 150ms;
 }
 .btn-back:hover { border-color: var(--text-soft); color: var(--text); }
 .btn-next, .btn-submit-join {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 13px 24px; background: var(--obsidian, #0E2A24); color: #fff;
-  font-size: .92rem; font-weight: 700; border-radius: 8px;
-  border: none; cursor: pointer; transition: background .18s, box-shadow .18s;
-  margin-left: auto;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 24px; background: var(--obsidian); color: #fff;
+    font-size: .92rem; font-weight: 700; border-radius: 8px;
+    border: none; cursor: pointer; transition: background 180ms, box-shadow 180ms, transform 180ms;
+    margin-left: auto;
 }
-.btn-next:hover, .btn-submit-join:hover { background: var(--obsidian-2, #163a32); box-shadow: 0 4px 16px rgba(14,42,36,.18); }
-/* All dark-family themes: use sage as the primary action color */
-[data-theme] .btn-next, [data-theme] .btn-submit-join { background: var(--sage, #8FB8A6); color: var(--obsidian, #0E2A24); }
-[data-theme] .btn-next:hover, [data-theme] .btn-submit-join:hover { background: var(--sage-light, #b8d4c8); }
+.btn-next:hover, .btn-submit-join:hover { background: var(--obsidian-2); box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+[data-theme] .btn-next, [data-theme] .btn-submit-join { background: var(--sage); color: var(--obsidian); }
+[data-theme] .btn-next:hover, [data-theme] .btn-submit-join:hover { background: var(--sage-light); }
 .btn-next svg, .btn-submit-join svg { width: 16px; height: 16px; }
 .btn-spinner {
-  width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
-  border-top-color: #fff; border-radius: 50%; animation: jspin .65s linear infinite;
-  display: none;
+    width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff; border-radius: 50%; animation: jspin .65s linear infinite; display: none;
 }
+[data-theme] .btn-spinner { border-color: rgba(14,42,36,.3); border-top-color: var(--obsidian); }
 .is-loading .btn-lbl { display: none; }
 .is-loading .btn-spinner { display: block; }
 @keyframes jspin { to { transform: rotate(360deg); } }
 
-/* Steps container */
 .form-step { display: none; }
 .form-step.active { display: block; }
 
-/* Success */
 .form-success { display: none; text-align: center; padding: 20px 0; }
 .form-success.show { display: block; }
 .success-icon {
-  width: 64px; height: 64px; border-radius: 50%;
-  background: rgba(143,184,166,.15); border: 2px solid rgba(143,184,166,.4);
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 20px;
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--sage-dim); border: 2px solid var(--sage-mid);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
 }
-.success-icon svg { width: 28px; height: 28px; stroke: #8FB8A6; }
+.success-icon svg { width: 28px; height: 28px; stroke: var(--sage); }
 .success-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 10px; }
 .success-body { font-size: .9rem; color: var(--text-soft); line-height: 1.65; max-width: 340px; margin: 0 auto 24px; }
 .success-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .btn-outline-sm {
-  padding: 10px 18px; border: 1.5px solid var(--line); border-radius: 8px;
-  font-size: .85rem; font-weight: 600; color: var(--text-soft);
-  background: transparent; transition: all .15s;
+    padding: 10px 18px; border: 1.5px solid var(--line); border-radius: 8px;
+    font-size: .85rem; font-weight: 600; color: var(--text-soft);
+    background: transparent; transition: border-color 150ms, color 150ms;
 }
 .btn-outline-sm:hover { border-color: var(--text); color: var(--text); }
 .btn-primary-sm {
-  padding: 10px 18px; background: #0E2A24; color: #fff;
-  border-radius: 8px; font-size: .85rem; font-weight: 700; border: none;
-  display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 18px; background: var(--obsidian); color: #fff;
+    border-radius: 8px; font-size: .85rem; font-weight: 700; border: none;
+    display: inline-flex; align-items: center; gap: 6px;
 }
+[data-theme] .btn-primary-sm { background: var(--sage); color: var(--obsidian); }
 
-/* Section title inside form step */
-.form-section-title {
-  font-family: 'IBM Plex Mono', monospace; font-size: .64rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .12em; color: var(--text-soft);
-  margin-bottom: 18px;
-}
-
-/* Theme toggle in corner */
-.corner-theme {
-  position: fixed; top: 18px; right: 22px; z-index: 100;
-  width: 36px; height: 36px; border-radius: 8px;
-  border: 1px solid rgba(14,42,36,.12); background: var(--bg);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--text-soft); transition: all .15s;
-}
-.corner-theme:hover { border-color: var(--text-soft); color: var(--text); }
-.corner-theme svg { width: 16px; height: 16px; }
+.form-section-title { font-family: var(--font-mono); font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--text-soft); margin-bottom: 18px; }
 
 /* ── Responsive ── */
 @media (max-width: 860px) {
-  .join-shell { grid-template-columns: 1fr; }
-  .brand-panel { display: none; }
-  .form-panel { padding: 40px 24px 60px; align-items: flex-start; }
+    .join-shell { grid-template-columns: 1fr; }
+    .brand-panel { display: none; }
+    .form-panel { padding: 40px 24px 60px; align-items: flex-start; }
 }
 @media (max-width: 480px) {
-  .form-panel { padding: 32px 18px 50px; }
-  .field-row { grid-template-columns: 1fr; }
-  .checkbox-grid { grid-template-columns: 1fr; }
+    .form-panel { padding: 32px 18px 50px; }
+    .field-row { grid-template-columns: 1fr; }
+    .checkbox-grid { grid-template-columns: 1fr; }
 }
 
-/* Entrance */
-.form-inner { animation: formIn .5s ease both .1s; }
-@keyframes formIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
-@media (prefers-reduced-motion: reduce) { .form-inner { animation: none; } .brand-panel .dot-bg, .brand-panel .orb-a, .brand-panel .orb-b { animation: none; } }
+/* ── Entrance (initial state — animated by join-animations.js) ── */
+.form-inner { opacity: 0; transform: translateY(14px); }
+@media (prefers-reduced-motion: reduce) {
+    .form-inner { opacity: 1 !important; transform: none !important; }
+    .brand-panel .dot-bg, .brand-panel .orb-a, .brand-panel .orb-b { animation: none !important; }
+}
 </style>
 </head>
 <body>
 
-<!-- Theme toggle -->
-<button class="corner-theme" id="theme-toggle" aria-label="Toggle dark mode">
-  <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-  </svg>
-</button>
-
 <div class="join-shell">
 
-  <!-- ── LEFT BRAND PANEL ── -->
-  <div class="brand-panel">
-    <div class="dot-bg"></div>
-    <div class="orb-a"></div>
-    <div class="orb-b"></div>
+    <!-- ── LEFT BRAND PANEL ── -->
+    <div class="brand-panel">
+        <div class="dot-bg"></div>
+        <div class="orb-a"></div>
+        <div class="orb-b"></div>
 
-    <div class="brand-top">
-      <a href="../index.html" class="brand-logo">
-        <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo">
-        <span>Econovo</span>
-      </a>
+        <div class="brand-top">
+            <a href="../index.html" class="brand-logo">
+                <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo">
+                <span>Econovo</span>
+            </a>
+        </div>
+
+        <div class="brand-body">
+            <span class="brand-eyebrow">Member Application</span>
+            <h1 class="brand-headline">Build something <em>real.</em></h1>
+            <p class="brand-desc">Econovo is where economics meets action. Join a community of students turning ideas into real projects, workshops, and connections.</p>
+            <div class="brand-pillars">
+                <div class="pillar"><div class="pillar-dot"></div>Workshops, seminars, and guest speakers</div>
+                <div class="pillar"><div class="pillar-dot"></div>Business case competitions</div>
+                <div class="pillar"><div class="pillar-dot"></div>Community groups around your interests</div>
+                <div class="pillar"><div class="pillar-dot"></div>Direct access to professors and mentors</div>
+            </div>
+        </div>
+
+        <div class="brand-footer">
+            <p class="brand-quote">"Econovo changed how I think about economics. It's not just theory — we actually build things and solve real problems."</p>
+            <div class="quote-attr">
+                <div class="quote-av">HY</div>
+                <div>
+                    <div class="quote-name">Houssem Yettou</div>
+                    <div class="quote-role">Vice President, Econovo</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="brand-body">
-      <span class="brand-eyebrow">Member Application</span>
-      <h1 class="brand-headline">Build something <em>real.</em></h1>
-      <p class="brand-desc">Econovo is where economics meets action. Join a community of students turning ideas into real projects, workshops, and connections.</p>
-      <div class="brand-pillars">
-        <div class="pillar"><div class="pillar-dot"></div>Workshops, seminars, and guest speakers</div>
-        <div class="pillar"><div class="pillar-dot"></div>Business case competitions</div>
-        <div class="pillar"><div class="pillar-dot"></div>Community groups around your interests</div>
-        <div class="pillar"><div class="pillar-dot"></div>Direct access to professors and mentors</div>
-      </div>
-    </div>
+    <!-- ── RIGHT FORM PANEL ── -->
+    <div class="form-panel">
+        <div class="form-inner">
 
-    <div class="brand-footer">
-      <p class="brand-quote">"Econovo changed how I think about economics. It's not just theory — we actually build things and solve real problems."</p>
-      <div class="quote-attr">
-        <div class="quote-av">HY</div>
-        <div>
-          <div class="quote-name">Houssem Yettou</div>
-          <div class="quote-role">Vice President, Econovo</div>
-        </div>
-      </div>
-    </div>
-  </div>
+            <div class="step-progress" id="step-progress">
+                <div class="step-dot-wrap active" id="dot-1">
+                    <div class="step-dot">01</div>
+                    <span class="step-lbl">You</span>
+                </div>
+                <div class="step-connector" id="conn-1"></div>
+                <div class="step-dot-wrap" id="dot-2">
+                    <div class="step-dot">02</div>
+                    <span class="step-lbl">Academic</span>
+                </div>
+                <div class="step-connector" id="conn-2"></div>
+                <div class="step-dot-wrap" id="dot-3">
+                    <div class="step-dot">03</div>
+                    <span class="step-lbl">Interests</span>
+                </div>
+            </div>
 
-  <!-- ── RIGHT FORM PANEL ── -->
-  <div class="form-panel">
-    <div class="form-inner">
+            <div id="form-alert" class="form-alert"></div>
 
-      <!-- Progress -->
-      <div class="step-progress" id="step-progress">
-        <div class="step-dot-wrap active" id="dot-1">
-          <div class="step-dot">01</div>
-          <span class="step-lbl">You</span>
-        </div>
-        <div class="step-connector" id="conn-1"></div>
-        <div class="step-dot-wrap" id="dot-2">
-          <div class="step-dot">02</div>
-          <span class="step-lbl">Academic</span>
-        </div>
-        <div class="step-connector" id="conn-2"></div>
-        <div class="step-dot-wrap" id="dot-3">
-          <div class="step-dot">03</div>
-          <span class="step-lbl">Interests</span>
-        </div>
-      </div>
+            <!-- ── STEP 1: Personal ── -->
+            <div class="form-step active" id="step-1">
+                <div class="form-heading-row">
+                    <span class="form-step-eyebrow">Step 1 of 3</span>
+                    <h2 class="form-heading">Let's start with you.</h2>
+                    <p class="form-subtext">Already a member? <a href="login.html">Sign in here</a></p>
+                </div>
 
-      <div id="form-alert" class="form-alert"></div>
+                <div class="field-row">
+                    <div class="field-group">
+                        <label class="field-label" for="firstName">First Name <span class="req">*</span></label>
+                        <input class="field-input" type="text" id="firstName" placeholder="Ahmed" autocomplete="given-name" required>
+                        <div class="field-error" id="err-firstName">Enter your first name.</div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="lastName">Last Name <span class="req">*</span></label>
+                        <input class="field-input" type="text" id="lastName" placeholder="Benali" autocomplete="family-name" required>
+                        <div class="field-error" id="err-lastName">Enter your last name.</div>
+                    </div>
+                </div>
 
-      <!-- ── STEP 1: Personal ── -->
-      <div class="form-step active" id="step-1">
-        <div class="form-heading-row">
-          <span class="form-step-eyebrow">Step 1 of 3</span>
-          <h2 class="form-heading">Let's start with you.</h2>
-          <p class="form-subtext">Already a member? <a href="login.html">Sign in here</a></p>
-        </div>
+                <div class="field-group">
+                    <label class="field-label" for="email">Email Address <span class="req">*</span></label>
+                    <input class="field-input" type="email" id="email" placeholder="ahmed@university.dz" autocomplete="email" required>
+                    <div class="field-error" id="err-email">Enter a valid email address.</div>
+                </div>
 
-        <div class="field-row">
-          <div class="field-group">
-            <label class="field-label" for="firstName">First Name <span class="req">*</span></label>
-            <input class="field-input" type="text" id="firstName" placeholder="Ahmed" autocomplete="given-name" required>
-            <div class="field-error" id="err-firstName">Enter your first name.</div>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="lastName">Last Name <span class="req">*</span></label>
-            <input class="field-input" type="text" id="lastName" placeholder="Benali" autocomplete="family-name" required>
-            <div class="field-error" id="err-lastName">Enter your last name.</div>
-          </div>
-        </div>
+                <div class="field-group">
+                    <label class="field-label" for="phone">Phone Number</label>
+                    <input class="field-input" type="tel" id="phone" placeholder="+213 0XX XXX XXXX" autocomplete="tel">
+                </div>
 
-        <div class="field-group">
-          <label class="field-label" for="email">Email Address <span class="req">*</span></label>
-          <input class="field-input" type="email" id="email" placeholder="ahmed@university.dz" autocomplete="email" required>
-          <div class="field-error" id="err-email">Enter a valid email address.</div>
-        </div>
+                <div class="field-group">
+                    <label class="field-label" for="join-password">Create Password <span class="req">*</span></label>
+                    <div class="field-wrap">
+                        <input class="field-input has-icon" type="password" id="join-password" placeholder="Min. 8 characters" autocomplete="new-password" required>
+                        <button type="button" class="pw-toggle-btn" id="toggle-pw1" aria-label="Toggle password">
+                            <svg id="eye1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                    <div class="pw-strength" id="pw-strength">
+                        <div class="pw-bar"><div class="pw-fill" id="pw-fill"></div></div>
+                        <span class="pw-lbl" id="pw-lbl">Weak</span>
+                    </div>
+                    <div class="field-error" id="err-join-password">Password must be at least 8 characters.</div>
+                </div>
 
-        <div class="field-group">
-          <label class="field-label" for="phone">Phone Number</label>
-          <input class="field-input" type="tel" id="phone" placeholder="+213 0XX XXX XXXX" autocomplete="tel">
-        </div>
+                <div class="field-group">
+                    <label class="field-label" for="join-confirm">Confirm Password <span class="req">*</span></label>
+                    <div class="field-wrap">
+                        <input class="field-input has-icon" type="password" id="join-confirm" placeholder="Repeat your password" autocomplete="new-password" required>
+                        <button type="button" class="pw-toggle-btn" id="toggle-pw2" aria-label="Toggle confirm password">
+                            <svg id="eye2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                    <div class="field-error" id="err-join-confirm">Passwords do not match.</div>
+                </div>
 
-        <div class="field-group">
-          <label class="field-label" for="join-password">Create Password <span class="req">*</span></label>
-          <div class="field-wrap">
-            <input class="field-input has-icon" type="password" id="join-password" placeholder="Min. 8 characters" autocomplete="new-password" required>
-            <button type="button" class="pw-toggle-btn" id="toggle-pw1" aria-label="Toggle password">
-              <svg id="eye1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-          <div class="pw-strength" id="pw-strength">
-            <div class="pw-bar"><div class="pw-fill" id="pw-fill"></div></div>
-            <span class="pw-lbl" id="pw-lbl">Weak</span>
-          </div>
-          <div class="field-error" id="err-join-password">Password must be at least 8 characters.</div>
-        </div>
+                <div class="step-nav">
+                    <button class="btn-next" id="next-1">
+                        <span class="btn-lbl">Continue</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
+                </div>
+            </div>
 
-        <div class="field-group">
-          <label class="field-label" for="join-confirm">Confirm Password <span class="req">*</span></label>
-          <div class="field-wrap">
-            <input class="field-input has-icon" type="password" id="join-confirm" placeholder="Repeat your password" autocomplete="new-password" required>
-            <button type="button" class="pw-toggle-btn" id="toggle-pw2" aria-label="Toggle confirm password">
-              <svg id="eye2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-          <div class="field-error" id="err-join-confirm">Passwords do not match.</div>
-        </div>
+            <!-- ── STEP 2: Academic ── -->
+            <div class="form-step" id="step-2">
+                <div class="form-heading-row">
+                    <span class="form-step-eyebrow">Step 2 of 3</span>
+                    <h2 class="form-heading">Your academic background.</h2>
+                </div>
 
-        <div class="step-nav">
-          <button class="btn-next" id="next-1">
-            <span class="btn-lbl">Continue</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
+                <div class="field-group">
+                    <label class="field-label" for="major">Field of Study <span class="req">*</span></label>
+                    <select class="field-select" id="major" required>
+                        <option value="" disabled selected>Select your major</option>
+                        <option>Economics</option>
+                        <option>Business Administration</option>
+                        <option>Finance &amp; Accounting</option>
+                        <option>Computer Science</option>
+                        <option>Engineering</option>
+                        <option>Law</option>
+                        <option>Mathematics</option>
+                        <option>Social Sciences</option>
+                        <option>Other</option>
+                    </select>
+                    <div class="field-error" id="err-major">Please select your major.</div>
+                </div>
 
-      <!-- ── STEP 2: Academic ── -->
-      <div class="form-step" id="step-2">
-        <div class="form-heading-row">
-          <span class="form-step-eyebrow">Step 2 of 3</span>
-          <h2 class="form-heading">Your academic background.</h2>
-        </div>
+                <div class="field-group">
+                    <label class="field-label" for="year">Year of Study <span class="req">*</span></label>
+                    <select class="field-select" id="year" required>
+                        <option value="" disabled selected>Select your year</option>
+                        <option>1st Year (L1)</option>
+                        <option>2nd Year (L2)</option>
+                        <option>3rd Year (L3)</option>
+                        <option>Master 1 (M1)</option>
+                        <option>Master 2 (M2)</option>
+                        <option>PhD / Doctorate</option>
+                    </select>
+                    <div class="field-error" id="err-year">Please select your year.</div>
+                </div>
 
-        <div class="field-group">
-          <label class="field-label" for="major">Field of Study <span class="req">*</span></label>
-          <select class="field-select" id="major" required>
-            <option value="" disabled selected>Select your major</option>
-            <option>Economics</option>
-            <option>Business Administration</option>
-            <option>Finance &amp; Accounting</option>
-            <option>Computer Science</option>
-            <option>Engineering</option>
-            <option>Law</option>
-            <option>Mathematics</option>
-            <option>Social Sciences</option>
-            <option>Other</option>
-          </select>
-          <div class="field-error" id="err-major">Please select your major.</div>
-        </div>
+                <div class="field-group">
+                    <label class="field-label">When are you usually available?</label>
+                    <div class="toggle-group">
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="mornings"> Mornings</label>
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="afternoons"> Afternoons</label>
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="evenings"> Evenings</label>
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="weekends"> Weekends</label>
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="flexible"> Flexible</label>
+                    </div>
+                </div>
 
-        <div class="field-group">
-          <label class="field-label" for="year">Year of Study <span class="req">*</span></label>
-          <select class="field-select" id="year" required>
-            <option value="" disabled selected>Select your year</option>
-            <option>1st Year (L1)</option>
-            <option>2nd Year (L2)</option>
-            <option>3rd Year (L3)</option>
-            <option>Master 1 (M1)</option>
-            <option>Master 2 (M2)</option>
-            <option>PhD / Doctorate</option>
-          </select>
-          <div class="field-error" id="err-year">Please select your year.</div>
-        </div>
+                <div class="step-nav">
+                    <button class="btn-back" id="back-2">← Back</button>
+                    <button class="btn-next" id="next-2">
+                        <span class="btn-lbl">Continue</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
+                </div>
+            </div>
 
-        <div class="field-group">
-          <label class="field-label">When are you usually available?</label>
-          <div class="toggle-group">
-            <label class="toggle-pill"><input type="checkbox" name="avail" value="mornings"> Mornings</label>
-            <label class="toggle-pill"><input type="checkbox" name="avail" value="afternoons"> Afternoons</label>
-            <label class="toggle-pill"><input type="checkbox" name="avail" value="evenings"> Evenings</label>
-            <label class="toggle-pill"><input type="checkbox" name="avail" value="weekends"> Weekends</label>
-            <label class="toggle-pill"><input type="checkbox" name="avail" value="flexible"> Flexible</label>
-          </div>
-        </div>
+            <!-- ── STEP 3: Interests ── -->
+            <div class="form-step" id="step-3">
+                <div class="form-heading-row">
+                    <span class="form-step-eyebrow">Step 3 of 3</span>
+                    <h2 class="form-heading">What drives you?</h2>
+                </div>
 
-        <div class="step-nav">
-          <button class="btn-back" id="back-2">← Back</button>
-          <button class="btn-next" id="next-2">
-            <span class="btn-lbl">Continue</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
+                <div class="field-group">
+                    <label class="field-label">Which areas interest you most?</label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label"><input type="checkbox" value="economics"><div class="checkbox-check"></div> Economics</label>
+                        <label class="checkbox-label"><input type="checkbox" value="business"><div class="checkbox-check"></div> Business</label>
+                        <label class="checkbox-label"><input type="checkbox" value="innovation"><div class="checkbox-check"></div> Innovation</label>
+                        <label class="checkbox-label"><input type="checkbox" value="fintech"><div class="checkbox-check"></div> FinTech</label>
+                        <label class="checkbox-label"><input type="checkbox" value="projects"><div class="checkbox-check"></div> Real Projects</label>
+                        <label class="checkbox-label"><input type="checkbox" value="networking"><div class="checkbox-check"></div> Networking</label>
+                    </div>
+                </div>
 
-      <!-- ── STEP 3: Interests ── -->
-      <div class="form-step" id="step-3">
-        <div class="form-heading-row">
-          <span class="form-step-eyebrow">Step 3 of 3</span>
-          <h2 class="form-heading">What drives you?</h2>
-        </div>
+                <div class="field-group">
+                    <label class="field-label" for="motivation">Why do you want to join? <span class="req">*</span></label>
+                    <textarea class="field-textarea" id="motivation" maxlength="400" required placeholder="Tell us briefly what draws you to Econovo and what you hope to learn or build here."></textarea>
+                    <div class="field-footer">
+                        <div class="field-error" id="err-motivation">Please write a short motivation (min 30 characters).</div>
+                        <span class="char-count"><span id="charCount">0</span>/400</span>
+                    </div>
+                </div>
 
-        <div class="field-group">
-          <label class="field-label">Which areas interest you most?</label>
-          <div class="checkbox-grid">
-            <label class="checkbox-label"><input type="checkbox" value="economics"><div class="checkbox-check"></div> Economics</label>
-            <label class="checkbox-label"><input type="checkbox" value="business"><div class="checkbox-check"></div> Business</label>
-            <label class="checkbox-label"><input type="checkbox" value="innovation"><div class="checkbox-check"></div> Innovation</label>
-            <label class="checkbox-label"><input type="checkbox" value="fintech"><div class="checkbox-check"></div> FinTech</label>
-            <label class="checkbox-label"><input type="checkbox" value="projects"><div class="checkbox-check"></div> Real Projects</label>
-            <label class="checkbox-label"><input type="checkbox" value="networking"><div class="checkbox-check"></div> Networking</label>
-          </div>
-        </div>
+                <div class="field-group">
+                    <label class="field-label" for="referral">How did you hear about us?</label>
+                    <select class="field-select" id="referral">
+                        <option value="">Select an option</option>
+                        <option>Instagram</option>
+                        <option>Facebook</option>
+                        <option>A friend or classmate</option>
+                        <option>University notice board</option>
+                        <option>A club event</option>
+                        <option>Other</option>
+                    </select>
+                </div>
 
-        <div class="field-group">
-          <label class="field-label" for="motivation">Why do you want to join? <span class="req">*</span></label>
-          <textarea class="field-textarea" id="motivation" maxlength="400" required placeholder="Tell us briefly what draws you to Econovo and what you hope to learn or build here."></textarea>
-          <div class="field-footer">
-            <div class="field-error" id="err-motivation">Please write a short motivation (min 30 characters).</div>
-            <span class="char-count"><span id="charCount">0</span>/400</span>
-          </div>
-        </div>
+                <div class="step-nav">
+                    <button class="btn-back" id="back-3">← Back</button>
+                    <button class="btn-submit-join" id="submit-btn">
+                        <span class="btn-lbl">Submit Application</span>
+                        <div class="btn-spinner"></div>
+                    </button>
+                </div>
+            </div>
 
-        <div class="field-group">
-          <label class="field-label" for="referral">How did you hear about us?</label>
-          <select class="field-select" id="referral">
-            <option value="">Select an option</option>
-            <option>Instagram</option>
-            <option>Facebook</option>
-            <option>A friend or classmate</option>
-            <option>University notice board</option>
-            <option>A club event</option>
-            <option>Other</option>
-          </select>
-        </div>
+            <!-- ── SUCCESS ── -->
+            <div class="form-success" id="form-success">
+                <div class="success-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <div class="success-title">Application received!</div>
+                <p class="success-body">Thanks for applying to Econovo. We'll review your application and reach out within a few days with onboarding details. Check your email for confirmation.</p>
+                <div class="success-actions">
+                    <a href="../index.html" class="btn-outline-sm">Back to Home</a>
+                    <a href="https://www.instagram.com/econovo.club" target="_blank" class="btn-primary-sm">Follow on Instagram</a>
+                </div>
+            </div>
 
-        <div class="step-nav">
-          <button class="btn-back" id="back-3">← Back</button>
-          <button class="btn-submit-join" id="submit-btn">
-            <span class="btn-lbl">Submit Application</span>
-            <div class="btn-spinner"></div>
-          </button>
-        </div>
-      </div>
-
-      <!-- ── SUCCESS ── -->
-      <div class="form-success" id="form-success">
-        <div class="success-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-        </div>
-        <div class="success-title">Application received!</div>
-        <p class="success-body">Thanks for applying to Econovo. We'll review your application and reach out within a few days with onboarding details. Check your email for confirmation.</p>
-        <div class="success-actions">
-          <a href="../index.html" class="btn-outline-sm">Back to Home</a>
-          <a href="https://www.instagram.com/econovo.club" target="_blank" class="btn-primary-sm">
-            Follow on Instagram
-          </a>
-        </div>
-      </div>
-
-    </div><!-- /form-inner -->
-  </div><!-- /form-panel -->
+        </div><!-- /form-inner -->
+    </div><!-- /form-panel -->
 
 </div><!-- /join-shell -->
 
+<script src="../js/auth.js"></script>
+<script src="../js/join-animations.js"></script>
 <script>
 (function(){
 'use strict';
 
-const SUPABASE_URL = 'https://nufftndrdfxtdauowkzr.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_y9AzlOLE2fohYgJU1cJ9TQ_r6LigVlL';
-
-/* ── Theme — supports all 12 Econovo palettes ── */
-const root = document.documentElement;
-const themeIcon = document.getElementById('theme-icon');
-const DARK_THEMES = new Set(['dark','nord','rosepine','catppuccin','dracula','gruvbox','tokyonight','everforest','ayu','onedark']);
-function applyTheme(t) {
-  if (t && t !== 'light') root.setAttribute('data-theme', t);
-  else root.removeAttribute('data-theme');
-  localStorage.setItem('econovo-theme', t);
-  const isDark = DARK_THEMES.has(t);
-  themeIcon.innerHTML = isDark
-    ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
-    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-  const meta = document.getElementById('themeColorMeta');
-  if (meta) {
-    const canvas = getComputedStyle(root).getPropertyValue('--bg').trim();
-    meta.setAttribute('content', canvas || (isDark ? '#1F1F1F' : '#F4F7F2'));
-  }
-}
-const stored = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
-applyTheme(stored);
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  // Toggle: if currently on any dark theme go to light, else go to dark
-  const current = localStorage.getItem('econovo-theme') || 'light';
-  applyTheme(DARK_THEMES.has(current) ? 'light' : 'dark');
-});
-
-/* ── Redirect if already logged in ── */
-(function(){
-  const t = localStorage.getItem('econovo-token');
-  if (!t) return;
-  try {
-    const p = JSON.parse(atob(t.split('.')[1]));
-    if (p.exp && p.exp * 1000 > Date.now()) { window.location.href = 'dashboard.html'; }
-  } catch(_) {}
+/* ── Redirect if already logged in — same fix as login.html:
+     getValidToken() silently refreshes an expired access token via the
+     stored refresh_token instead of trusting a possibly-stale JWT. ── */
+(async () => {
+    if (!EconovoAuth.isLoggedIn()) return;
+    const token = await EconovoAuth.getValidToken();
+    if (token) window.location.href = 'dashboard.html';
 })();
 
 /* ── Multi-step ── */
@@ -681,39 +554,36 @@ let currentStep = 1;
 const TOTAL = 3;
 
 function showStep(n) {
-  document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
-  document.getElementById('step-' + n)?.classList.add('active');
-  // Update dots
-  for (let i = 1; i <= TOTAL; i++) {
-    const dot = document.getElementById('dot-' + i);
-    if (!dot) continue;
-    dot.classList.remove('active','done');
-    if (i < n) dot.classList.add('done');
-    else if (i === n) dot.classList.add('active');
-  }
-  // Update connectors
-  for (let i = 1; i < TOTAL; i++) {
-    const conn = document.getElementById('conn-' + i);
-    if (conn) conn.classList.toggle('done', i < n);
-  }
-  // Hide/show progress and form-inner header
-  document.getElementById('form-alert').className = 'form-alert';
-  currentStep = n;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+    document.getElementById('step-' + n)?.classList.add('active');
+    for (let i = 1; i <= TOTAL; i++) {
+        const dot = document.getElementById('dot-' + i);
+        if (!dot) continue;
+        dot.classList.remove('active','done');
+        if (i < n) dot.classList.add('done');
+        else if (i === n) dot.classList.add('active');
+    }
+    for (let i = 1; i < TOTAL; i++) {
+        const conn = document.getElementById('conn-' + i);
+        if (conn) conn.classList.toggle('done', i < n);
+    }
+    document.getElementById('form-alert').className = 'form-alert';
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /* ── Password toggle ── */
 function makePwToggle(btnId, inputId, iconId) {
-  const btn = document.getElementById(btnId);
-  const inp = document.getElementById(inputId);
-  if (!btn || !inp) return;
-  btn.addEventListener('click', () => {
-    const show = inp.type === 'password';
-    inp.type = show ? 'text' : 'password';
-    document.getElementById(iconId).innerHTML = show
-      ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
-      : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
-  });
+    const btn = document.getElementById(btnId);
+    const inp = document.getElementById(inputId);
+    if (!btn || !inp) return;
+    btn.addEventListener('click', () => {
+        const show = inp.type === 'password';
+        inp.type = show ? 'text' : 'password';
+        document.getElementById(iconId).innerHTML = show
+            ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+            : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    });
 }
 makePwToggle('toggle-pw1','join-password','eye1');
 makePwToggle('toggle-pw2','join-confirm','eye2');
@@ -724,22 +594,22 @@ const pwStr = document.getElementById('pw-strength');
 const pwFill = document.getElementById('pw-fill');
 const pwLbl  = document.getElementById('pw-lbl');
 const PW_MAP = [
-  { w:'20%', color:'#e05252', lbl:'Weak' },
-  { w:'40%', color:'#e07a52', lbl:'Fair' },
-  { w:'60%', color:'#d4b44a', lbl:'Moderate' },
-  { w:'80%', color:'#6fbf73', lbl:'Strong' },
-  { w:'100%', color:'#4CAF7D', lbl:'Very Strong' },
+    { w:'20%', color:'#e05252', lbl:'Weak' },
+    { w:'40%', color:'#e07a52', lbl:'Fair' },
+    { w:'60%', color:'#d4b44a', lbl:'Moderate' },
+    { w:'80%', color:'#6fbf73', lbl:'Strong' },
+    { w:'100%', color:'#4CAF7D', lbl:'Very Strong' },
 ];
 pwInp.addEventListener('input', () => {
-  const v = pwInp.value;
-  if (!v) { pwStr.classList.remove('show'); return; }
-  pwStr.classList.add('show');
-  let s = 0;
-  if (v.length >= 8) s++; if (v.length >= 12) s++;
-  if (/[A-Z]/.test(v)) s++; if (/[0-9]/.test(v)) s++; if (/[^A-Za-z0-9]/.test(v)) s++;
-  const m = PW_MAP[Math.min(s, 4)];
-  pwFill.style.width = m.w; pwFill.style.background = m.color;
-  pwLbl.textContent = m.lbl; pwLbl.style.color = m.color;
+    const v = pwInp.value;
+    if (!v) { pwStr.classList.remove('show'); return; }
+    pwStr.classList.add('show');
+    let s = 0;
+    if (v.length >= 8) s++; if (v.length >= 12) s++;
+    if (/[A-Z]/.test(v)) s++; if (/[0-9]/.test(v)) s++; if (/[^A-Za-z0-9]/.test(v)) s++;
+    const m = PW_MAP[Math.min(s, 4)];
+    pwFill.style.width = m.w; pwFill.style.background = m.color;
+    pwLbl.textContent = m.lbl; pwLbl.style.color = m.color;
 });
 
 /* ── Char count ── */
@@ -749,114 +619,99 @@ motiv?.addEventListener('input', () => { charCount.textContent = motiv.value.len
 
 /* ── Field clear errors on input ── */
 document.querySelectorAll('.field-input, .field-select, .field-textarea').forEach(el => {
-  el.addEventListener('input', () => {
-    el.classList.remove('err');
-    const errEl = document.getElementById('err-' + el.id);
-    if (errEl) errEl.classList.remove('show');
-  });
+    el.addEventListener('input', () => {
+        el.classList.remove('err');
+        const errEl = document.getElementById('err-' + el.id);
+        if (errEl) errEl.classList.remove('show');
+    });
 });
 
 /* ── Validation helpers ── */
 function showErr(inputId, errId, fail) {
-  const inp = document.getElementById(inputId);
-  const err = document.getElementById(errId);
-  if (inp) inp.classList.toggle('err', fail);
-  if (err) err.classList.toggle('show', fail);
-  return !fail;
+    const inp = document.getElementById(inputId);
+    const err = document.getElementById(errId);
+    if (inp) inp.classList.toggle('err', fail);
+    if (err) err.classList.toggle('show', fail);
+    return !fail;
 }
 function showAlert(msg, type = 'err') {
-  const el = document.getElementById('form-alert');
-  el.textContent = msg;
-  el.className = 'form-alert show ' + type;
+    const el = document.getElementById('form-alert');
+    el.textContent = msg;
+    el.className = 'form-alert show ' + type;
 }
 function clearAlert() {
-  document.getElementById('form-alert').className = 'form-alert';
+    document.getElementById('form-alert').className = 'form-alert';
 }
 
 /* ── STEP 1 next ── */
 document.getElementById('next-1').addEventListener('click', () => {
-  const fn  = document.getElementById('firstName').value.trim();
-  const ln  = document.getElementById('lastName').value.trim();
-  const em  = document.getElementById('email').value.trim();
-  const pw  = document.getElementById('join-password').value;
-  const cf  = document.getElementById('join-confirm').value;
-  const re  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  let ok = true;
-  ok = showErr('firstName','err-firstName', !fn) && ok;
-  ok = showErr('lastName', 'err-lastName',  !ln) && ok;
-  ok = showErr('email',    'err-email',     !re.test(em)) && ok;
-  ok = showErr('join-password','err-join-password', pw.length < 8) && ok;
-  ok = showErr('join-confirm', 'err-join-confirm',  pw !== cf) && ok;
-  if (ok) { clearAlert(); showStep(2); }
+    const fn  = document.getElementById('firstName').value.trim();
+    const ln  = document.getElementById('lastName').value.trim();
+    const em  = document.getElementById('email').value.trim();
+    const pw  = document.getElementById('join-password').value;
+    const cf  = document.getElementById('join-confirm').value;
+    const re  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let ok = true;
+    ok = showErr('firstName','err-firstName', !fn) && ok;
+    ok = showErr('lastName', 'err-lastName',  !ln) && ok;
+    ok = showErr('email',    'err-email',     !re.test(em)) && ok;
+    ok = showErr('join-password','err-join-password', pw.length < 8) && ok;
+    ok = showErr('join-confirm', 'err-join-confirm',  pw !== cf) && ok;
+    if (ok) { clearAlert(); showStep(2); }
 });
 
 /* ── STEP 2 ── */
 document.getElementById('back-2').addEventListener('click', () => showStep(1));
 document.getElementById('next-2').addEventListener('click', () => {
-  let ok = true;
-  ok = showErr('major','err-major', !document.getElementById('major').value) && ok;
-  ok = showErr('year', 'err-year',  !document.getElementById('year').value) && ok;
-  if (ok) { clearAlert(); showStep(3); }
+    let ok = true;
+    ok = showErr('major','err-major', !document.getElementById('major').value) && ok;
+    ok = showErr('year', 'err-year',  !document.getElementById('year').value) && ok;
+    if (ok) { clearAlert(); showStep(3); }
 });
 
 /* ── STEP 3 ── */
 document.getElementById('back-3').addEventListener('click', () => showStep(2));
 
 document.getElementById('submit-btn').addEventListener('click', async () => {
-  const mv = motiv.value.trim();
-  if (!showErr('motivation','err-motivation', mv.length < 30)) return;
-  clearAlert();
+    const mv = motiv.value.trim();
+    if (!showErr('motivation','err-motivation', mv.length < 30)) return;
+    clearAlert();
 
-  const btn = document.getElementById('submit-btn');
-  btn.classList.add('is-loading'); btn.disabled = true;
+    const btn = document.getElementById('submit-btn');
+    btn.classList.add('is-loading'); btn.disabled = true;
 
-  const firstName = document.getElementById('firstName').value.trim();
-  const lastName  = document.getElementById('lastName').value.trim();
-  const email     = document.getElementById('email').value.trim();
-  const password  = document.getElementById('join-password').value;
-  const major     = document.getElementById('major').value;
-  const year      = document.getElementById('year').value;
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName  = document.getElementById('lastName').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const password  = document.getElementById('join-password').value;
+    const major     = document.getElementById('major').value;
+    const year      = document.getElementById('year').value;
 
-  try {
-    const res = await fetch(SUPABASE_URL + '/auth/v1/signup', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'apikey': SUPABASE_KEY },
-      body: JSON.stringify({
-        email, password,
-        data: { first_name: firstName, last_name: lastName, full_name: (firstName+' '+lastName).trim(), major, year },
-      }),
-    });
-    const data = await res.json();
+    try {
+        // Single source of truth: EconovoAuth.signUp() handles the
+        // Supabase call AND session persistence (access + refresh token +
+        // expiry) in one place — this page no longer touches
+        // localStorage or fetch() directly for auth.
+        await EconovoAuth.signUp({
+            email, password, firstName, lastName,
+            extra: { major, year },
+        });
 
-    if (!res.ok) {
-      const msg = (data.error_description || data.msg || data.message || '').toLowerCase();
-      if (msg.includes('already') || msg.includes('registered')) {
-        showAlert('An account with this email already exists. Try signing in instead.');
-      } else {
-        showAlert(data.error_description || data.message || 'Something went wrong. Please try again.');
-      }
-      btn.classList.remove('is-loading'); btn.disabled = false;
-      return;
+        // Show success
+        document.getElementById('step-progress').style.display = 'none';
+        document.getElementById('form-alert').className = 'form-alert';
+        document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+        document.getElementById('form-success').classList.add('show');
+
+    } catch (err) {
+        const msg = (err.message || '').toLowerCase();
+        if (msg.includes('already') || msg.includes('registered')) {
+            showAlert('An account with this email already exists. Try signing in instead.');
+        } else {
+            showAlert(err.message || 'Something went wrong. Please try again.');
+        }
+        btn.classList.remove('is-loading'); btn.disabled = false;
     }
-
-    // Save session if auto-confirmed
-    if (data.access_token) {
-      localStorage.setItem('econovo-token',   data.access_token);
-      if (data.refresh_token) localStorage.setItem('econovo-refresh', data.refresh_token);
-      if (data.expires_at)    localStorage.setItem('econovo-expires', String(data.expires_at));
-      localStorage.setItem('econovo-user', JSON.stringify(data.user));
-    }
-
-    // Show success
-    document.getElementById('step-progress').style.display = 'none';
-    document.getElementById('form-alert').className = 'form-alert';
-    document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
-    document.getElementById('form-success').classList.add('show');
-
-  } catch(e) {
-    showAlert('Network error. Please check your connection and try again.');
-    btn.classList.remove('is-loading'); btn.disabled = false;
-  }
 });
 
 })();
