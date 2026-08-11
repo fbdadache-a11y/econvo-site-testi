@@ -338,6 +338,11 @@ img { display: block; max-width: 100%; }
                     <div class="step-dot">03</div>
                     <span class="step-lbl">Interests</span>
                 </div>
+                <div class="step-connector" id="conn-3"></div>
+                <div class="step-dot-wrap" id="dot-4">
+                    <div class="step-dot">04</div>
+                    <span class="step-lbl">Commitment</span>
+                </div>
             </div>
 
             <div id="form-alert" class="form-alert"></div>
@@ -345,7 +350,7 @@ img { display: block; max-width: 100%; }
             <!-- ── STEP 1: Personal ── -->
             <div class="form-step active" id="step-1">
                 <div class="form-heading-row">
-                    <span class="form-step-eyebrow">Step 1 of 3</span>
+                    <span class="form-step-eyebrow">Step 1 of 4</span>
                     <h2 class="form-heading">Let's start with you.</h2>
                     <p class="form-subtext">Already a member? <a href="login.html">Sign in here</a></p>
                 </div>
@@ -411,25 +416,35 @@ img { display: block; max-width: 100%; }
             <!-- ── STEP 2: Academic ── -->
             <div class="form-step" id="step-2">
                 <div class="form-heading-row">
-                    <span class="form-step-eyebrow">Step 2 of 3</span>
+                    <span class="form-step-eyebrow">Step 2 of 4</span>
                     <h2 class="form-heading">Your academic background.</h2>
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="major">Field of Study <span class="req">*</span></label>
-                    <select class="field-select" id="major" required>
-                        <option value="" disabled selected>Select your major</option>
-                        <option>Economics</option>
-                        <option>Business Administration</option>
-                        <option>Finance &amp; Accounting</option>
-                        <option>Computer Science</option>
-                        <option>Engineering</option>
-                        <option>Law</option>
-                        <option>Mathematics</option>
-                        <option>Social Sciences</option>
-                        <option>Other</option>
+                    <label class="field-label" for="reg-number">Registration Number / رقم التسجيل <span class="req">*</span></label>
+                    <input class="field-input" type="text" id="reg-number" placeholder="e.g. 2024123456" required>
+                    <div class="field-error" id="err-reg-number">Please enter your registration number.</div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="faculty">Faculty / الكلية <span class="req">*</span></label>
+                    <select class="field-select" id="faculty" required>
+                        <option value="" disabled selected>Select your faculty</option>
+                        <option value="eco">كلية العلوم الاقتصادية و علوم التسيير</option>
+                        <option value="math">كلية الرياضيات و الإعلام الآلي</option>
+                        <option value="snv">كلية علوم الطبيعة و الحياة و علوم الكون</option>
+                        <option value="law">كلية الحقوق والعلوم السياسية</option>
+                        <option value="tech">كلية العلوم و التكنولوجيا</option>
+                        <option value="lit">كلية الآداب و اللغات</option>
+                        <option value="ens">ملحقة المدرسة العليا للأساتذة</option>
                     </select>
-                    <div class="field-error" id="err-major">Please select your major.</div>
+                    <div class="field-error" id="err-faculty">Please select your faculty.</div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="major">Major &amp; Academic Level / التخصص والمستوى <span class="req">*</span></label>
+                    <input class="field-input" type="text" id="major" placeholder="e.g. Finance — L2" required>
+                    <div class="field-error" id="err-major">Please enter your major and level.</div>
                 </div>
 
                 <div class="field-group">
@@ -446,17 +461,6 @@ img { display: block; max-width: 100%; }
                     <div class="field-error" id="err-year">Please select your year.</div>
                 </div>
 
-                <div class="field-group">
-                    <label class="field-label">When are you usually available?</label>
-                    <div class="toggle-group">
-                        <label class="toggle-pill"><input type="checkbox" name="avail" value="mornings"> Mornings</label>
-                        <label class="toggle-pill"><input type="checkbox" name="avail" value="afternoons"> Afternoons</label>
-                        <label class="toggle-pill"><input type="checkbox" name="avail" value="evenings"> Evenings</label>
-                        <label class="toggle-pill"><input type="checkbox" name="avail" value="weekends"> Weekends</label>
-                        <label class="toggle-pill"><input type="checkbox" name="avail" value="flexible"> Flexible</label>
-                    </div>
-                </div>
-
                 <div class="step-nav">
                     <button class="btn-back" id="back-2">← Back</button>
                     <button class="btn-next" id="next-2">
@@ -466,27 +470,53 @@ img { display: block; max-width: 100%; }
                 </div>
             </div>
 
-            <!-- ── STEP 3: Interests ── -->
+            <!-- ── STEP 3: Interests & Skills ── -->
             <div class="form-step" id="step-3">
                 <div class="form-heading-row">
-                    <span class="form-step-eyebrow">Step 3 of 3</span>
-                    <h2 class="form-heading">What drives you?</h2>
+                    <span class="form-step-eyebrow">Step 3 of 4</span>
+                    <h2 class="form-heading">Interests &amp; Skills</h2>
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label">Which areas interest you most?</label>
+                    <label class="field-label">Which areas interest you most? / ما هي المجالات التي تهمك؟ <span class="req">*</span></label>
                     <div class="checkbox-grid">
-                        <label class="checkbox-label"><input type="checkbox" value="economics"><div class="checkbox-check"></div> Economics</label>
-                        <label class="checkbox-label"><input type="checkbox" value="business"><div class="checkbox-check"></div> Business</label>
-                        <label class="checkbox-label"><input type="checkbox" value="innovation"><div class="checkbox-check"></div> Innovation</label>
-                        <label class="checkbox-label"><input type="checkbox" value="fintech"><div class="checkbox-check"></div> FinTech</label>
-                        <label class="checkbox-label"><input type="checkbox" value="projects"><div class="checkbox-check"></div> Real Projects</label>
-                        <label class="checkbox-label"><input type="checkbox" value="networking"><div class="checkbox-check"></div> Networking</label>
+                        <label class="checkbox-label"><input type="checkbox" name="interests" value="economics_finance"><div class="checkbox-check"></div> Economics &amp; Finance</label>
+                        <label class="checkbox-label"><input type="checkbox" name="interests" value="business_mgmt"><div class="checkbox-check"></div> Business &amp; Management</label>
+                        <label class="checkbox-label"><input type="checkbox" name="interests" value="marketing"><div class="checkbox-check"></div> Marketing &amp; Branding</label>
+                        <label class="checkbox-label"><input type="checkbox" name="interests" value="innovation"><div class="checkbox-check"></div> Innovation &amp; Startups</label>
+                        <label class="checkbox-label"><input type="checkbox" name="interests" value="digital_tech"><div class="checkbox-check"></div> Digital Tools &amp; Technology</label>
+                        <label class="checkbox-label"><input type="checkbox" name="interests" value="media"><div class="checkbox-check"></div> Media &amp; Content Creation</label>
+                    </div>
+                    <div class="field-error" id="err-interests">Please select at least one area of interest.</div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Your current skills / ما هي مهاراتك الحالية؟ <span class="req">*</span></label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label"><input type="checkbox" name="skills" value="data_excel"><div class="checkbox-check"></div> Data Analysis / Excel</label>
+                        <label class="checkbox-label"><input type="checkbox" name="skills" value="research_writing"><div class="checkbox-check"></div> Research &amp; Writing</label>
+                        <label class="checkbox-label"><input type="checkbox" name="skills" value="marketing_social"><div class="checkbox-check"></div> Marketing &amp; Social Media</label>
+                        <label class="checkbox-label"><input type="checkbox" name="skills" value="design"><div class="checkbox-check"></div> Design (Canva, Photoshop…)</label>
+                        <label class="checkbox-label"><input type="checkbox" name="skills" value="programming"><div class="checkbox-check"></div> Programming / No-code Tools</label>
+                        <label class="checkbox-label"><input type="checkbox" name="skills" value="public_speaking"><div class="checkbox-check"></div> Communication &amp; Public Speaking</label>
+                        <label class="checkbox-label"><input type="checkbox" name="skills" value="team_mgmt"><div class="checkbox-check"></div> Team Management</label>
+                    </div>
+                    <div class="field-error" id="err-skills">Please select at least one skill.</div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Have you ever participated in / هل سبق لك المشاركة في:</label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label"><input type="checkbox" name="experience" value="student_clubs"><div class="checkbox-check"></div> Student Clubs</label>
+                        <label class="checkbox-label"><input type="checkbox" name="experience" value="startup_projects"><div class="checkbox-check"></div> Startup Projects</label>
+                        <label class="checkbox-label"><input type="checkbox" name="experience" value="competitions"><div class="checkbox-check"></div> Competitions or Hackathons</label>
+                        <label class="checkbox-label"><input type="checkbox" name="experience" value="online_courses"><div class="checkbox-check"></div> Online Courses</label>
+                        <label class="checkbox-label"><input type="checkbox" name="experience" value="none"><div class="checkbox-check"></div> None</label>
                     </div>
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="motivation">Why do you want to join? <span class="req">*</span></label>
+                    <label class="field-label" for="motivation">Why do you want to join Econovo? / لماذا ترغب في الانضمام؟ <span class="req">*</span></label>
                     <textarea class="field-textarea" id="motivation" maxlength="400" required placeholder="Tell us briefly what draws you to Econovo and what you hope to learn or build here."></textarea>
                     <div class="field-footer">
                         <div class="field-error" id="err-motivation">Please write a short motivation (min 30 characters).</div>
@@ -509,6 +539,68 @@ img { display: block; max-width: 100%; }
 
                 <div class="step-nav">
                     <button class="btn-back" id="back-3">← Back</button>
+                    <button class="btn-next" id="next-3">
+                        <span class="btn-lbl">Continue</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── STEP 4: Commitment ── -->
+            <div class="form-step" id="step-4">
+                <div class="form-heading-row">
+                    <span class="form-step-eyebrow">Step 4 of 4</span>
+                    <h2 class="form-heading">Your commitment.</h2>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Preferred role / تفضل أن تكون <span class="req">*</span></label>
+                    <div class="toggle-group" id="role-group">
+                        <label class="toggle-pill"><input type="radio" name="role" value="active_member"> Active Member</label>
+                        <label class="toggle-pill"><input type="radio" name="role" value="project_team"> Project Team Member</label>
+                        <label class="toggle-pill"><input type="radio" name="role" value="leadership"> Leadership / Staff Role</label>
+                        <label class="toggle-pill"><input type="radio" name="role" value="open"> I'm Open to Any Role</label>
+                    </div>
+                    <div class="field-error" id="err-role">Please select a preferred role.</div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Weekly hours available / ساعات أسبوعية <span class="req">*</span></label>
+                    <div class="toggle-group" id="hours-group">
+                        <label class="toggle-pill"><input type="radio" name="hours" value="1-2h"> 1–2 hours</label>
+                        <label class="toggle-pill"><input type="radio" name="hours" value="3-5h"> 3–5 hours</label>
+                        <label class="toggle-pill"><input type="radio" name="hours" value="5h+"> More than 5 hours</label>
+                    </div>
+                    <div class="field-error" id="err-hours">Please select weekly availability.</div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="responsibility">Do you see yourself capable of taking responsibility in the club? Why? / هل ترى نفسك قادرًا على تحمّل مسؤولية داخل النادي؟</label>
+                    <textarea class="field-textarea" id="responsibility" maxlength="300" placeholder="Optional — tell us if you'd be comfortable leading a team or project."></textarea>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">When are you usually available?</label>
+                    <div class="toggle-group">
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="mornings"> Mornings</label>
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="afternoons"> Afternoons</label>
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="evenings"> Evenings</label>
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="weekends"> Weekends</label>
+                        <label class="toggle-pill"><input type="checkbox" name="avail" value="flexible"> Flexible</label>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Do you agree to respect the club rules and regulations? / هل توافق على الالتزام بقانون النادي ونظامه الداخلي؟ <span class="req">*</span></label>
+                    <div class="toggle-group" id="agree-group">
+                        <label class="toggle-pill"><input type="radio" name="agree_rules" value="yes"> ✓ Yes — I agree</label>
+                        <label class="toggle-pill"><input type="radio" name="agree_rules" value="no"> ✗ No</label>
+                    </div>
+                    <div class="field-error" id="err-agree">You must agree to the club rules to apply.</div>
+                </div>
+
+                <div class="step-nav">
+                    <button class="btn-back" id="back-4">← Back</button>
                     <button class="btn-submit-join" id="submit-btn">
                         <span class="btn-lbl">Submit Application</span>
                         <div class="btn-spinner"></div>
@@ -551,7 +643,7 @@ img { display: block; max-width: 100%; }
 
 /* ── Multi-step ── */
 let currentStep = 1;
-const TOTAL = 3;
+const TOTAL = 4;
 
 function showStep(n) {
     document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
@@ -664,40 +756,86 @@ document.getElementById('next-1').addEventListener('click', () => {
 document.getElementById('back-2').addEventListener('click', () => showStep(1));
 document.getElementById('next-2').addEventListener('click', () => {
     let ok = true;
-    ok = showErr('major','err-major', !document.getElementById('major').value) && ok;
-    ok = showErr('year', 'err-year',  !document.getElementById('year').value) && ok;
+    ok = showErr('reg-number', 'err-reg-number', !document.getElementById('reg-number').value.trim()) && ok;
+    ok = showErr('faculty',    'err-faculty',    !document.getElementById('faculty').value) && ok;
+    ok = showErr('major',      'err-major',      !document.getElementById('major').value.trim()) && ok;
+    ok = showErr('year',       'err-year',       !document.getElementById('year').value) && ok;
     if (ok) { clearAlert(); showStep(3); }
 });
 
 /* ── STEP 3 ── */
 document.getElementById('back-3').addEventListener('click', () => showStep(2));
+document.getElementById('next-3').addEventListener('click', () => {
+    let ok = true;
+    const anyInterest = document.querySelector('input[name="interests"]:checked');
+    const anySkill    = document.querySelector('input[name="skills"]:checked');
+    const mv = document.getElementById('motivation').value.trim();
+    if (!anyInterest) { document.getElementById('err-interests').classList.add('show'); ok = false; }
+    else               { document.getElementById('err-interests').classList.remove('show'); }
+    if (!anySkill)    { document.getElementById('err-skills').classList.add('show'); ok = false; }
+    else               { document.getElementById('err-skills').classList.remove('show'); }
+    ok = showErr('motivation','err-motivation', mv.length < 30) && ok;
+    if (ok) { clearAlert(); showStep(4); }
+});
+
+/* ── STEP 4 back ── */
+document.getElementById('back-4').addEventListener('click', () => showStep(3));
 
 document.getElementById('submit-btn').addEventListener('click', async () => {
-    const mv = motiv.value.trim();
-    if (!showErr('motivation','err-motivation', mv.length < 30)) return;
+    /* Step 4 validation */
+    let ok = true;
+    const roleVal  = document.querySelector('input[name="role"]:checked');
+    const hoursVal = document.querySelector('input[name="hours"]:checked');
+    const agreeVal = document.querySelector('input[name="agree_rules"]:checked');
+    if (!roleVal)  { document.getElementById('err-role').classList.add('show');  ok = false; }
+    else            { document.getElementById('err-role').classList.remove('show'); }
+    if (!hoursVal) { document.getElementById('err-hours').classList.add('show'); ok = false; }
+    else            { document.getElementById('err-hours').classList.remove('show'); }
+    if (!agreeVal || agreeVal.value !== 'yes') {
+        document.getElementById('err-agree').classList.add('show'); ok = false;
+    } else {
+        document.getElementById('err-agree').classList.remove('show');
+    }
+    if (!ok) { showAlert('Please complete all required fields before submitting.'); return; }
     clearAlert();
 
     const btn = document.getElementById('submit-btn');
     btn.classList.add('is-loading'); btn.disabled = true;
 
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName  = document.getElementById('lastName').value.trim();
-    const email     = document.getElementById('email').value.trim();
-    const password  = document.getElementById('join-password').value;
-    const major     = document.getElementById('major').value;
-    const year      = document.getElementById('year').value;
+    /* Collect all fields */
+    const firstName      = document.getElementById('firstName').value.trim();
+    const lastName       = document.getElementById('lastName').value.trim();
+    const email          = document.getElementById('email').value.trim();
+    const password       = document.getElementById('join-password').value;
+    const phone          = document.getElementById('phone').value.trim();
+    const regNumber      = document.getElementById('reg-number').value.trim();
+    const faculty        = document.getElementById('faculty').value;
+    const major          = document.getElementById('major').value.trim();
+    const year           = document.getElementById('year').value;
+    const interests      = [...document.querySelectorAll('input[name="interests"]:checked')].map(i => i.value);
+    const skills         = [...document.querySelectorAll('input[name="skills"]:checked')].map(i => i.value);
+    const experience     = [...document.querySelectorAll('input[name="experience"]:checked')].map(i => i.value);
+    const motivation     = document.getElementById('motivation').value.trim();
+    const referral       = document.getElementById('referral').value;
+    const role           = roleVal.value;
+    const weeklyHours    = hoursVal.value;
+    const responsibility = document.getElementById('responsibility').value.trim();
+    const availability   = [...document.querySelectorAll('input[name="avail"]:checked')].map(i => i.value);
+    const agreeRules     = agreeVal.value === 'yes';
 
     try {
-        // Single source of truth: EconovoAuth.signUp() handles the
-        // Supabase call AND session persistence (access + refresh token +
-        // expiry) in one place — this page no longer touches
-        // localStorage or fetch() directly for auth.
         await EconovoAuth.signUp({
             email, password, firstName, lastName,
-            extra: { major, year },
+            extra: {
+                phone, reg_number: regNumber, faculty, major, year,
+                interests, skills, experience,
+                motivation, referral,
+                preferred_role: role, weekly_hours: weeklyHours,
+                responsibility, availability,
+                agree_rules: agreeRules,
+            },
         });
 
-        // Show success
         document.getElementById('step-progress').style.display = 'none';
         document.getElementById('form-alert').className = 'form-alert';
         document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
