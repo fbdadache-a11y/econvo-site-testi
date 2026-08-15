@@ -61,6 +61,158 @@
 }
 .md-post-body { white-space: normal; }
 
+/* ══════════════════════════════════════════════
+   MARKDOWN RENDERING — output of js/composer.js's
+   parseMarkdown(). Every color below is a token, so
+   this renders correctly across all 12 themes, not
+   just light/dark.
+   ══════════════════════════════════════════════ */
+
+.md-post-body .md-spacer { height: .5em; }
+
+/* Headings get their font-size/weight/margin set inline by
+   composer.js (kept there so it's colocated with the level→style
+   map); only cross-cutting rules live here. */
+.md-post-body .md-heading { unicode-bidi: plaintext; }
+
+/* Paragraphs */
+.md-post-body .md-p { margin: 2px 0; line-height: 1.68; unicode-bidi: plaintext; }
+
+/* Links */
+.md-post-body .md-link {
+    color: var(--sage-dark, var(--sage));
+    text-decoration: underline;
+    text-decoration-color: var(--sage-dim);
+    text-underline-offset: 2px;
+    word-break: break-all;
+    transition: text-decoration-color 150ms ease;
+}
+.md-post-body .md-link:hover { text-decoration-color: var(--sage); }
+
+/* Blockquote */
+.md-post-body .md-quote {
+    border-left: 3px solid var(--sage);
+    padding: 4px 0 4px 14px;
+    margin: 8px 0;
+    color: var(--text-soft);
+    font-size: .92em;
+    line-height: 1.6;
+}
+[dir="rtl"] .md-post-body .md-quote,
+.md-post-body .md-quote[dir="rtl"] {
+    border-left: none; border-right: 3px solid var(--sage);
+    padding: 4px 14px 4px 0;
+}
+
+/* Horizontal rule */
+.md-post-body .md-hr {
+    border: none; border-top: 1px solid var(--line);
+    margin: 12px 0;
+}
+
+/* Lists */
+.md-post-body .md-ul, .md-post-body .md-ol {
+    list-style: none; margin: 6px 0; padding: 0;
+    display: flex; flex-direction: column; gap: 3px;
+}
+.md-post-body .md-li { display: flex; align-items: flex-start; gap: 8px; line-height: 1.55; }
+.md-post-body .md-bullet { color: var(--sage); flex-shrink: 0; margin-top: 1px; }
+.md-post-body .md-li-ol {
+    counter-increment: md-ol-counter;
+}
+.md-post-body .md-ol { counter-reset: md-ol-counter; }
+.md-post-body .md-li-ol::before {
+    content: counter(md-ol-counter) ".";
+    color: var(--sage); font-weight: 700; flex-shrink: 0;
+    font-family: var(--font-mono, var(--font));
+    font-size: .85em; margin-top: 1px;
+}
+
+/* Checkbox list items (- [ ] / - [x]) */
+.md-post-body .md-li-check { align-items: center; }
+.md-post-body .md-checkbox {
+    width: 16px; height: 16px; border-radius: 4px;
+    border: 1.5px solid var(--line);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: .68rem; line-height: 1;
+    color: var(--obsidian);
+}
+.md-post-body .md-checkbox.checked {
+    background: var(--sage); border-color: var(--sage); color: var(--obsidian);
+}
+.md-post-body .md-checked-text { color: var(--text-muted); text-decoration: line-through; }
+
+/* Tables */
+.md-post-body .md-table-wrap {
+    overflow-x: auto; margin: 10px 0; border-radius: 8px;
+    border: 1px solid var(--line);
+    -webkit-overflow-scrolling: touch;
+}
+.md-post-body .md-table { width: 100%; border-collapse: collapse; font-size: .86em; }
+.md-post-body .md-th, .md-post-body .md-td {
+    padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+}
+[dir="rtl"] .md-post-body .md-th, [dir="rtl"] .md-post-body .md-td { text-align: right; }
+.md-post-body .md-th {
+    background: var(--bg);
+    font-weight: 700; font-family: var(--font-mono, var(--font));
+    font-size: .78em; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--text-soft);
+}
+.md-post-body .md-table tr:last-child .md-td { border-bottom: none; }
+.md-post-body .md-table tr:hover .md-td { background: var(--sage-dim); }
+
+/* Inline code */
+.md-post-body .md-code {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: .85em; padding: 2px 6px; border-radius: 4px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--sage-dark, var(--sage));
+    word-break: break-word;
+}
+
+/* Code blocks */
+.md-post-body .md-codeblock-wrap {
+    margin: 10px 0; border-radius: 8px; overflow-x: auto;
+    background: var(--obsidian); border: 1px solid var(--line);
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+}
+.md-post-body .md-codeblock-wrap[data-lang]::before {
+    content: attr(data-lang);
+    display: block; padding: 6px 12px 0;
+    font-family: var(--font-mono, monospace); font-size: .64rem;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: var(--sage); opacity: .7;
+}
+.md-post-body .md-codeblock {
+    display: block; padding: 10px 14px 12px;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: .82em; line-height: 1.6;
+    color: var(--sage-light, var(--sage));
+    white-space: pre; tab-size: 2;
+}
+
+/* Spoiler — blurred until tapped/clicked */
+.md-post-body .md-spoiler {
+    background: var(--text-muted, var(--text-soft));
+    color: transparent;
+    border-radius: 4px; padding: 0 4px;
+    cursor: pointer; user-select: none;
+    transition: background 150ms ease, color 150ms ease;
+}
+.md-post-body .md-spoiler.revealed {
+    background: var(--sage-dim); color: var(--text);
+    cursor: text; user-select: text;
+}
+
+/* Underline / strikethrough — explicit so they survive any
+   browser default-stylesheet resets elsewhere in the app */
+.md-post-body u { text-decoration: underline; }
+.md-post-body s { text-decoration: line-through; opacity: .7; }
+
 /* ── Gallery ── */
 .post-gallery {
     display: grid; gap: 2px;
