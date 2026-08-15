@@ -61,6 +61,16 @@
 }
 .md-post-body { white-space: normal; }
 
+/* Flat (Twemoji) emoji — sized and aligned to sit on the text
+   baseline like a glyph, not like an inline image. Applies wherever
+   applyTwemoji() runs: post bodies, comments, group posts. */
+img.twemoji-flat {
+    height: 1.25em; width: 1.25em;
+    vertical-align: -0.28em;
+    margin: 0 .04em;
+    display: inline-block;
+}
+
 /* ══════════════════════════════════════════════
    MARKDOWN RENDERING — output of js/composer.js's
    parseMarkdown(). Every color below is a token, so
