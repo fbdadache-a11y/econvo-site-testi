@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Share Editor — Econovo Club</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F4F7F2" id="themeColorMeta">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Early theme application — this page has its OWN theme choice
+     (localStorage key 'econovo-share-theme'), independent from the
+     member's dashboard theme ('econovo-theme'). Someone may want a
+     Dracula-themed dashboard but a Nord-themed shareable image. -->
+<script>(function(){var t=localStorage.getItem('econovo-share-theme')||'light';if(t&&t!=='light')document.documentElement.setAttribute('data-theme',t);})();</script>
+
+<!-- Same stylesheets the dashboard uses, in the same order, so the
+     preview card is pixel-for-pixel identical to the real feed —
+     not a re-implementation that can drift out of sync over time. -->
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/themes.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/posts.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════
+   SHARE EDITOR — standalone page layout only.
+   The post-card preview itself uses zero custom CSS below —
+   it's built from the exact same .post-card/.post-header/.post-body/
+   .reaction-row classes css/posts.css already styles, so any future
+   redesign of the feed automatically applies here too.
+   Dials: VARIANCE 5 / MOTION 4 / DENSITY 5
+   ══════════════════════════════════════════════ */
+
+* { box-sizing: border-box; }
+body {
+    margin: 0; font-family: var(--font);
+    background: var(--bg-muted, var(--bg)); color: var(--text);
+    min-height: 100vh;
+}
+
+/* ── Top bar ── */
+.editor-topbar {
+    position: sticky; top: 0; z-index: 50;
+    height: 56px; display: flex; align-items: center; gap: 12px;
+    padding: 0 18px;
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-bottom: 1px solid var(--line);
+}
+.editor-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; }
+.editor-brand-tag {
+    font-family: var(--font-mono); font-size: .58rem; font-weight: 700;
+    background: var(--obsidian); color: var(--sage);
+    padding: 2px 8px; border-radius: 999px; letter-spacing: .08em;
+}
+[data-theme] .editor-brand-tag { background: var(--sage); color: var(--obsidian); }
+.editor-topbar-actions { margin-left: auto; display: flex; gap: 8px; }
+.btn-close-editor {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border: 1px solid var(--line); border-radius: 8px;
+    font-size: .8rem; font-weight: 600; color: var(--text-soft);
+    background: none; cursor: pointer; transition: background 150ms, border-color 150ms;
+}
+.btn-close-editor:hover { background: var(--bg-raised); border-color: var(--sage); color: var(--text); }
+
+/* ── Layout: preview left, controls right ── */
+.editor-shell {
+    display: grid; grid-template-columns: 1fr 320px;
+    max-width: 1180px; margin: 0 auto; min-height: calc(100vh - 56px);
+}
+.preview-pane {
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 24px;
+    background:
+        linear-gradient(45deg, var(--line) 25%, transparent 25%, transparent 75%, var(--line) 75%) 0 0/16px 16px,
+        linear-gradient(45deg, var(--line) 25%, transparent 25%, transparent 75%, var(--line) 75%) 8px 8px/16px 16px,
+        var(--bg-muted, var(--bg));
+    /* subtle checkerboard so members visually understand "this is the export frame" */
+}
+.controls-pane {
+    border-left: 1px solid var(--line); background: var(--bg-raised);
+    padding: 20px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 24px;
+}
+.control-group-label {
+    font-family: var(--font-mono); font-size: .6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted, var(--text-soft));
+    margin-bottom: 10px; display: block;
+}
+
+/* ── Export frame — sized/cropped by the aspect-ratio control ── */
+#exportFrame {
+    background: var(--bg); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 32px; transition: width 220ms ease, height 220ms ease;
+    box-shadow: 0 12px 40px rgba(0,0,0,.18);
+    overflow: hidden;
+}
+#exportFrame.ratio-square  { width: 480px; height: 480px; }
+#exportFrame.ratio-portrait{ width: 420px; height: 525px; } /* 4:5 — Instagram's 2026-preferred feed ratio */
+#exportFrame.ratio-auto    { width: 480px; height: auto; }
+
+/* The preview card itself is 100% real .post-card markup/CSS —
+   only wrapper sizing lives here. */
+#previewCardWrap { width: 100%; max-width: 400px; }
+#previewCardWrap .post-card { margin-bottom: 0; cursor: default; }
+#previewCardWrap .post-card:hover { transform: none; box-shadow: none; border-color: var(--line); }
+#previewCardWrap .post-footer { display: none; } /* comment/share buttons never belong in an export */
+#previewCardWrap .reaction-row { pointer-events: none; } /* preview reactions are static, not clickable */
+
+/* Watermark row appended below the reaction row inside the export */
+.export-watermark {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px 14px; border-top: 1px solid var(--line);
+    margin-top: 2px;
+}
+.export-watermark-logo {
+    width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0;
+    background: var(--obsidian); display: flex; align-items: center; justify-content: center;
+}
+.export-watermark-logo svg { width: 12px; height: 12px; color: var(--sage); }
+.export-watermark-text { font-family: var(--font-mono); font-size: .62rem; font-weight: 700; letter-spacing: .07em; color: var(--text-muted, var(--text-soft)); text-transform: uppercase; }
+.export-watermark-text .loc { opacity: .7; font-weight: 500; text-transform: none; letter-spacing: 0; }
+
+/* ── Theme grid (same visual pattern as Profile → Appearance) ── */
+.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.theme-swatch {
+    position: relative; border-radius: 10px; overflow: hidden;
+    border: 2px solid var(--line); cursor: pointer;
+    transition: border-color 180ms ease, transform 180ms ease;
+    background: var(--bg-raised);
+}
+.theme-swatch:active { transform: scale(.96); }
+.theme-swatch.selected { border-color: var(--sage); }
+.theme-swatch.selected::after {
+    content: ''; position: absolute; top: 4px; right: 4px;
+    width: 13px; height: 13px; border-radius: 50%; background: var(--sage);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-size: 8px 8px; background-position: center; background-repeat: no-repeat;
+}
+.theme-swatch-preview { height: 34px; display: flex; }
+.theme-swatch-preview span { flex: 1; }
+.theme-swatch-name { font-size: .6rem; font-weight: 600; padding: 4px 6px 5px; color: var(--text); text-align: left; }
+
+/* ── Aspect ratio segmented control ── */
+.segmented { display: flex; border-radius: 9px; background: var(--bg-muted, var(--bg)); padding: 3px; gap: 3px; }
+.segmented button {
+    flex: 1; padding: 8px 6px; border-radius: 7px; border: none; background: none;
+    font-size: .74rem; font-weight: 600; color: var(--text-soft); cursor: pointer;
+    transition: background 150ms, color 150ms;
+}
+.segmented button.active { background: var(--bg-raised); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+/* ── Toggle rows ── */
+.toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0; border-bottom: 1px solid var(--line);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-row-label { font-size: .82rem; font-weight: 600; color: var(--text); }
+.toggle-row-sub { font-size: .68rem; color: var(--text-muted, var(--text-soft)); margin-top: 1px; }
+.switch { position: relative; width: 36px; height: 21px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-track {
+    position: absolute; inset: 0; border-radius: 999px; background: var(--line);
+    cursor: pointer; transition: background 180ms;
+}
+.switch-track::before {
+    content: ''; position: absolute; width: 15px; height: 15px; left: 3px; top: 3px;
+    border-radius: 50%; background: #fff; transition: transform 180ms var(--ease-spring, ease);
+    box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.switch input:checked + .switch-track { background: var(--sage); }
+.switch input:checked + .switch-track::before { transform: translateX(15px); }
+
+/* ── Download button ── */
+.btn-download {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 13px; background: var(--obsidian); color: var(--sage);
+    border: none; border-radius: 10px; font-size: .88rem; font-weight: 700;
+    cursor: pointer; transition: background 150ms, transform 150ms, box-shadow 150ms;
+    margin-top: auto;
+}
+[data-theme] .btn-download { background: var(--sage); color: var(--obsidian); }
+.btn-download:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.btn-download:active { transform: translateY(0) scale(.98); }
+.btn-download:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-download .spin {
+    width: 15px; height: 15px; border: 2px solid rgba(255,255,255,.35); border-top-color: currentColor;
+    border-radius: 50%; animation: editorSpin .65s linear infinite; display: none;
+}
+.btn-download.is-busy .spin { display: block; }
+.btn-download.is-busy .btn-lbl { display: none; }
+@keyframes editorSpin { to { transform: rotate(360deg); } }
+
+.empty-notice {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    text-align: center; padding: 40px; color: var(--text-soft);
+}
+
+#toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(12px);
+    padding: 10px 20px; border-radius: 10px; font-size: .83rem; font-weight: 600;
+    z-index: 9999; opacity: 0; transition: opacity .22s, transform .22s;
+    pointer-events: none; max-width: 320px; text-align: center; color: #fff;
+}
+
+@media (max-width: 880px) {
+    .editor-shell { grid-template-columns: 1fr; }
+    .controls-pane { border-left: none; border-top: 1px solid var(--line); }
+    .preview-pane { padding: 24px 16px; }
+    #exportFrame.ratio-square, #exportFrame.ratio-portrait, #exportFrame.ratio-auto { width: 100%; max-width: 400px; height: auto; aspect-ratio: 1/1; padding: 20px; }
+    #exportFrame.ratio-portrait { aspect-ratio: 4/5; }
+}
+</style>
+</head>
+<body>
+
+<header class="editor-topbar">
+    <div class="editor-brand">Econovo <span class="editor-brand-tag">SHARE</span></div>
+    <div class="editor-topbar-actions">
+        <button class="btn-close-editor" id="btnClose">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            Close
+        </button>
+    </div>
+</header>
+
+<div class="editor-shell">
+    <main class="preview-pane">
+        <div id="exportFrame" class="ratio-square">
+            <div id="previewCardWrap"></div>
+        </div>
+    </main>
+
+    <aside class="controls-pane">
+
+        <div>
+            <span class="control-group-label">Frame Shape</span>
+            <div class="segmented" id="ratioSegmented">
+                <button data-ratio="square" class="active">1:1 Square</button>
+                <button data-ratio="portrait">4:5 Portrait</button>
+                <button data-ratio="auto">Auto</button>
+            </div>
+        </div>
+
+        <div>
+            <span class="control-group-label">Card Options</span>
+            <div class="toggle-row">
+                <div>
+                    <div class="toggle-row-label">Show reactions</div>
+                    <div class="toggle-row-sub">Top 3 reactions this post received</div>
+                </div>
+                <label class="switch"><input type="checkbox" id="toggleReactions" checked><span class="switch-track"></span></label>
+            </div>
+            <div class="toggle-row">
+                <div>
+                    <div class="toggle-row-label">Show timestamp</div>
+                    <div class="toggle-row-sub">"3h ago" under the author name</div>
+                </div>
+                <label class="switch"><input type="checkbox" id="toggleTime" checked><span class="switch-track"></span></label>
+            </div>
+            <div class="toggle-row">
+                <div>
+                    <div class="toggle-row-label">Econovo watermark</div>
+                    <div class="toggle-row-sub">Club name + Bordj Bou Arreridj</div>
+                </div>
+                <label class="switch"><input type="checkbox" id="toggleWatermark" checked><span class="switch-track"></span></label>
+            </div>
+        </div>
+
+        <div>
+            <span class="control-group-label">Appearance</span>
+            <div class="theme-grid" id="themeGrid"></div>
+        </div>
+
+        <button class="btn-download" id="btnDownload">
+            <span class="btn-lbl">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download PNG
+            </span>
+            <div class="spin"></div>
+        </button>
+
+    </aside>
+</div>
+
+<div id="toast"></div>
+
+<script src="../js/share-editor.js" defer></script>
+</body>
+</html>
