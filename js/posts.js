@@ -54,75 +54,46 @@ function renderSkeletonFeed(count = 3) {
 
 /* ══════════════════════════════════════════════════════════════
    SHARE AS IMAGE
-   Builds a clean, isolated export card (author, avatar, content,
-   Econovo watermark) off-screen, rasterizes it with html2canvas,
-   then triggers a PNG download. Deliberately does NOT screenshot
-   the live feed card — that has buttons, reaction pills, and a
-   comment toggle that don't belong in a shareable image.
+   Opens pages/share-editor.html — a standalone page (own theme
+   switch, own layout controls) rather than exporting immediately.
+   Post data is handed off via sessionStorage under a fixed key;
+   nothing here touches Supabase or needs a DB migration. The editor
+   page reads the key once on load and clears it, so re-opening the
+   editor tab twice for the same post doesn't leave stale data behind.
    ══════════════════════════════════════════════════════════════ */
-async function sharePostAsImage(content, authorName, avatarUrl, createdAt, btnEl) {
-    if (typeof window.html2canvas !== 'function') {
-        toast('Share feature is still loading — try again in a moment.', 'err');
+function openShareEditor(content, authorName, avatarUrl, createdAt, reactionSummary) {
+    const payload = {
+        content: content || '',
+        authorName: authorName || 'Member',
+        avatarUrl: avatarUrl || null,
+        createdAt: createdAt || new Date().toISOString(),
+        reactions: reactionSummary || [],
+    };
+    try {
+        sessionStorage.setItem('econovo-share-payload', JSON.stringify(payload));
+    } catch (e) {
+        console.error('openShareEditor: sessionStorage write failed', e);
+        toast('Could not open the share editor.', 'err');
         return;
     }
-    if (btnEl) btnEl.classList.add('is-busy');
+    window.open('share-editor.html', '_blank');
+}
 
-    // Build the export card off-screen (not display:none — html2canvas
-    // can't rasterize elements with no layout box, so we position it
-    // far outside the viewport instead).
-    const exportRoot = document.createElement('div');
-    exportRoot.style.cssText = `
-        position: fixed; top: -9999px; left: -9999px;
-        width: 480px; padding: 28px;
-        background: linear-gradient(155deg, #0E2A24 0%, #163a32 100%);
-        font-family: ${getComputedStyle(document.body).fontFamily};
-        box-sizing: border-box;
-    `;
-
-    const initials = (authorName || 'M').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-    const dateStr = createdAt ? new Date(createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-
-    exportRoot.innerHTML = `
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
-            <div style="width:44px;height:44px;border-radius:12px;flex-shrink:0;overflow:hidden;
-                        background:linear-gradient(135deg,#8FB8A6,#b8d4c8);display:flex;align-items:center;
-                        justify-content:center;font-weight:800;font-size:15px;color:#0E2A24;">
-                ${avatarUrl ? `<img src="${avatarUrl}" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${escHtml(initials)}',style:'font-weight:800;font-size:15px;color:#0E2A24;'}))">` : escHtml(initials)}
-            </div>
-            <div>
-                <div style="font-weight:700;font-size:15px;color:#fff;">${escHtml(authorName || 'Member')}</div>
-                <div style="font-size:12px;color:rgba(255,255,255,.5);">${escHtml(dateStr)}</div>
-            </div>
-        </div>
-        <div style="font-size:16px;line-height:1.65;color:#EFF5F1;white-space:pre-wrap;word-break:break-word;">
-            ${escHtml(content || '')}
-        </div>
-        <div style="margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);
-                     display:flex;align-items:center;gap:8px;">
-            <span style="font-family:monospace;font-size:11px;font-weight:700;letter-spacing:.08em;
-                         color:#8FB8A6;text-transform:uppercase;">ECONOVO CLUB</span>
-        </div>
-    `;
-    document.body.appendChild(exportRoot);
-
-    try {
-        const canvas = await window.html2canvas(exportRoot, {
-            backgroundColor: null,
-            scale: 2,           // retina-quality export
-            useCORS: true,      // needed for avatar images hosted on Supabase storage
-        });
-        const link = document.createElement('a');
-        link.download = `econovo-post-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        toast('Image saved — check your downloads.');
-    } catch (e) {
-        console.error('sharePostAsImage:', e);
-        toast('Could not generate image.', 'err');
-    } finally {
-        exportRoot.remove();
-        if (btnEl) btnEl.classList.remove('is-busy');
-    }
+/* Reads the top 3 reaction counts straight off the live DOM reaction
+   row so the share editor can show "the same reactions this post
+   actually has" without a second network request. Matches the exact
+   markup renderReactionBar() produces: .reaction-btn[data-key], with
+   a .reaction-count child only present when the count is > 0. */
+function collectReactionSummary(card) {
+    const buttons = card.querySelectorAll('.reaction-row .reaction-btn[data-key]');
+    const out = [];
+    buttons.forEach(btn => {
+        const key = btn.dataset.key;
+        const countText = btn.querySelector('.reaction-count')?.textContent;
+        const count = countText ? parseInt(countText, 10) : 0;
+        if (key && count > 0) out.push({ key, count });
+    });
+    return out.sort((a, b) => b.count - a.count).slice(0, 3);
 }
 
 const REACTIONS = [
@@ -1545,7 +1516,8 @@ function attachPostEvents(card, row, token, currentUserId) {
         shareBtn.addEventListener('click', () => {
             const authorName = card.querySelector('.post-author')?.textContent || 'Member';
             const avatarImg = card.querySelector('.post-avatar img');
-            sharePostAsImage(row.content, authorName, avatarImg?.src || null, row.created_at, shareBtn);
+            const reactions = collectReactionSummary(card);
+            openShareEditor(row.content, authorName, avatarImg?.src || null, row.created_at, reactions);
         });
     }
 
@@ -1960,7 +1932,8 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
         gShareBtn.addEventListener('click', () => {
             const authorName = card.querySelector('.post-author')?.textContent || 'Member';
             const avatarImg = card.querySelector('.post-avatar img');
-            sharePostAsImage(row.content, authorName, avatarImg?.src || null, row.created_at, gShareBtn);
+            const reactions = collectReactionSummary(card);
+            openShareEditor(row.content, authorName, avatarImg?.src || null, row.created_at, reactions);
         });
     }
 
