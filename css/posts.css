@@ -50,6 +50,57 @@
 .post-time { font-size: .7rem; color: var(--text-muted); }
 .post-edited-tag { font-style: italic; opacity: .7; }
 
+/* ══════════════════════════════════════════════
+   SKELETON LOADERS — replaces the plain spinner while
+   the feed fetches. Dimensions mirror .post-card exactly
+   (38px avatar, same padding/gaps) so swapping skeleton →
+   real card causes zero layout shift.
+   ══════════════════════════════════════════════ */
+@keyframes skeleton-shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+.sk-block {
+    background: linear-gradient(
+        100deg,
+        var(--line) 30%,
+        color-mix(in srgb, var(--line) 40%, var(--sage) 20%) 50%,
+        var(--line) 70%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    border-radius: 5px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .sk-block { animation: none; opacity: .5; }
+}
+
+.sk-post-card {
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+.sk-post-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px 0;
+}
+.sk-avatar { width: 38px; height: 38px; min-width: 38px; border-radius: 50%; }
+.sk-post-meta { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.sk-line-author { height: 11px; width: 34%; }
+.sk-line-time   { height: 9px;  width: 20%; }
+.sk-post-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.sk-line-body { height: 11px; }
+.sk-line-body.w-90 { width: 90%; }
+.sk-line-body.w-75 { width: 75%; }
+.sk-line-body.w-50 { width: 50%; }
+.sk-post-footer {
+    display: flex; gap: 6px; padding: 10px 16px 14px;
+    border-top: 1px solid var(--line); margin-top: 2px;
+}
+.sk-pill { height: 26px; width: 54px; border-radius: 40px; }
+
 /* ── Body ── */
 .post-body {
     padding: 10px 16px 14px;
@@ -379,6 +430,23 @@ img.twemoji-flat {
     background: var(--sage-dim); border-color: var(--sage); color: var(--text);
 }
 .post-comment-toggle svg { flex-shrink: 0; }
+
+/* ── Share as image — icon-only pill, sits right after Comments ── */
+.post-share-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1.5px solid var(--line); background: transparent;
+    cursor: pointer; color: var(--text-soft); flex-shrink: 0;
+    margin-left: 6px;
+    transition: background 120ms, border-color 120ms, color 120ms, transform 120ms;
+}
+.post-share-btn:hover {
+    background: var(--sage-dim); border-color: var(--sage); color: var(--text);
+}
+.post-share-btn:active { transform: scale(.92); }
+.post-share-btn svg { flex-shrink: 0; }
+.post-share-btn.is-busy { pointer-events: none; opacity: .55; }
+.post-share-btn.is-busy svg { animation: skeleton-shimmer 1s linear infinite; }
 
 /* ══════════════════════════════════════════════════════
    COMMENTS
