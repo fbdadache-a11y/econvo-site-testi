@@ -112,7 +112,65 @@ to add or update them.
 
 ## Changelog
 
-### v3.2 — Flat (Twemoji-style) emoji rendering (current)
+### v3.3 — Skeleton loaders + share-post-as-image (current)
+
+**Skeleton loaders**
+
+Replaced the plain "Loading…" spinner with animated placeholder cards that
+mirror the real `.post-card` layout (avatar, name/time lines, body lines,
+reaction pills) so there's no layout jump when real content swaps in.
+
+- **`css/posts.css`** — added `.sk-*` classes and a `skeleton-shimmer`
+  keyframe animation (respects `prefers-reduced-motion`, falls back to a
+  static dimmed block).
+- **`js/posts.js`** — added `renderSkeletonFeed(count)`, wired into both
+  `loadPosts()` (home feed) and `loadGroupPosts()` (group feed) in place of
+  the old spinner markup. The old `.posts-loading`/`.posts-spinner` CSS was
+  left in place (unused now, but harmless) rather than removed, in case
+  another part of the codebase not covered by this pass still references it.
+
+**Share post as image**
+
+Added a share icon next to the Comments button on every post (home feed
+and group feed) that exports the post as a downloadable PNG — useful for
+reposting to Instagram/WhatsApp stories.
+
+- **`pages/dashboard.html`** — added the
+  [html2canvas](https://html2canvas.hertzen.com/) CDN script (v1.4.1, via
+  cdnjs) loaded after `composer.js`/`twemoji`, before `posts.js`.
+- **`js/posts.js`** — added `sharePostAsImage(content, authorName,
+  avatarUrl, createdAt, btnEl)`. Deliberately does **not** screenshot the
+  live feed card — it builds a separate, clean off-screen export card
+  (author, avatar, plain-escaped content, Econovo watermark) and rasterizes
+  *that* instead, so buttons/reaction pills/comment toggles never end up in
+  the exported image. Avatar images use `crossorigin="anonymous"` +
+  `useCORS: true` (required for html2canvas to read pixels from
+  Supabase-hosted images) with an `onerror` fallback to initials if the
+  image fails to load or is blocked by CORS. Content is intentionally
+  rendered as escaped plain text, not through `parseMarkdown()` — the export
+  card is meant to look like a clean quote card, not a fully-styled post.
+  Added the same button + wiring to group posts for consistency.
+- **`css/posts.css`** — added `.post-share-btn` (icon-only circular button,
+  mirrors `.post-comment-toggle`'s hover/active states) and a `.is-busy`
+  state that reuses the skeleton shimmer animation on the icon while the
+  image is being generated.
+
+**Known naming-collision pattern (not a bug, but worth knowing):** both
+`js/posts.js` and `pages/dashboard.html`'s inline `<script>` define their
+own `toast(msg, type)` function as a bare global. Because `dashboard.html`'s
+inline script loads after `posts.js` (non-deferred, runs after all deferred
+scripts), its version wins and is the one actually used — `posts.js`'s own
+`toast()` (which creates its own `#posts-toast` element if missing) never
+runs in practice. This happens to work today because `dashboard.html`'s
+version targets `#eco-toast`, which does exist in the page. This is the same
+shared-global-name hazard documented in v3.1 for `escH`/`escMd` — flagged
+here rather than fixed, since consolidating the two would mean editing
+`dashboard.html`'s inline script, and `sharePostAsImage()` in this pass
+only *calls* `toast()`, it doesn't define it.
+
+---
+
+### v3.2 — Flat (Twemoji-style) emoji rendering
 
 Native/system emoji render differently on every OS — Android, iOS, and
 Windows each ship different artwork for the same Unicode character, so the
