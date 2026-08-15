@@ -9,7 +9,7 @@
    HELPERS
    ══════════════════════════════════════════════════════════════ */
 
-function escH(s) {
+function escMd(s) {
     if (!s) return '';
     return String(s)
         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -68,9 +68,9 @@ window.parseMarkdown = function parseMarkdown(text) {
     // كتل كود متعددة الأسطر ```lang\n...\n```
     text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
         const idx      = codeBlocks.length;
-        const langAttr = lang ? ` data-lang="${escH(lang)}"` : '';
+        const langAttr = lang ? ` data-lang="${escMd(lang)}"` : '';
         codeBlocks.push(
-            `<pre class="md-codeblock-wrap"${langAttr}><code class="md-codeblock">${escH(code.replace(/^\n|\n$/g,''))}</code></pre>`
+            `<pre class="md-codeblock-wrap"${langAttr}><code class="md-codeblock">${escMd(code.replace(/^\n|\n$/g,''))}</code></pre>`
         );
         return `\x00CODE_BLOCK_${idx}\x00`;
     });
@@ -78,7 +78,7 @@ window.parseMarkdown = function parseMarkdown(text) {
     // كود داخل السطر `code`
     text = text.replace(/`([^`\n]+?)`/g, (_, code) => {
         const idx = inlineCodes.length;
-        inlineCodes.push(`<code class="md-code">${escH(code)}</code>`);
+        inlineCodes.push(`<code class="md-code">${escMd(code)}</code>`);
         return `\x00INLINE_CODE_${idx}\x00`;
     });
 
