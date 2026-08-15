@@ -12,29 +12,34 @@ GitHub Pages or any static host.
 econovo-fixed/
 ├── index.html                  # Public landing page (homepage)
 ├── pages/
-│   ├── dashboard.html          # Member portal (auth-gated)
+│   ├── dashboard.html          # Member portal (approved members only)
+│   ├── admin.html              # Admin control room (admin role only)
+│   ├── pending.html            # "Awaiting approval" screen for new sign-ups
 │   ├── login.html              # Login page
 │   └── join.html               # Registration / sign-up page
 ├── css/
 │   ├── style.css               # Design tokens, reset, dark mode
+│   ├── themes.css              # 12 palettes (Nord, Dracula, Catppuccin, etc.)
 │   ├── components.css          # Navbar, buttons, cards, badges, modals
 │   ├── sections.css            # Hero, stats, journey, team, events, footer
-│   ├── posts.css               # Feed, composer, reactions, comments, groups
+│   ├── posts.css               # Feed, composer, reactions, comments, groups, markdown rendering
+│   ├── animations-supplement.css
 │   └── responsive.css          # Tablet + mobile breakpoints
 ├── js/
 │   ├── main.js                 # Navbar scroll, mobile menu, dark mode toggle
 │   ├── language.js             # Loads content-{lang}.json and renders sections
 │   ├── posts.js                # Posts feed, reactions, comments, image upload
+│   ├── composer.js             # Discord-style Markdown parser (parseMarkdown)
 │   ├── icons.js                # Group icon registry (Lucide SVGs by key name)
-│   ├── animations.js           # GSAP hero entrance + scroll reveal
-│   ├── auth.js                 # Auth helpers
+│   ├── animations.js            # Dashboard scroll-driven + WAAPI entrance/reveal
+│   ├── login-animations.js      # Same system, scoped to pages/login.html
+│   ├── join-animations.js       # Same system, scoped to pages/join.html
+│   ├── auth.js                 # Auth helpers + approval-status page guards
+│   ├── admin.js                # Admin control room logic
 │   └── faq.js                  # FAQ accordion
 ├── data/
 │   ├── content-en.json         # All English copy (edit here, not the HTML)
 │   └── content-ar.json         # All Arabic copy
-├── assets/
-│   ├── images/                 # Place real photos here
-│   └── icons/                  # Place custom icons here
 ├── groups_migration.sql        # Creates groups + group_members tables in Supabase
 └── reactions_migration.sql     # Creates reactions table in Supabase
 ```
@@ -106,6 +111,43 @@ to add or update them.
 ---
 
 ## Changelog
+
+### v3.1 — Rich Markdown composer wired up (current)
+
+The team added `js/composer.js` (a full Discord-style Markdown parser —
+headings, quotes, tables, checkbox lists, code blocks, spoilers, bold/italic/
+strikethrough/underline) and `posts.js` was already written to call
+`window.parseMarkdown()` when it exists. **The script tag linking
+`composer.js` into `pages/dashboard.html` was missing**, so the parser never
+actually ran — every post silently fell back to plain escaped text. Two things were fixed:
+
+1. **`pages/dashboard.html`** — added `<script src="../js/composer.js" defer>`,
+   loaded before `posts.js` (order matters: `posts.js` checks for
+   `window.parseMarkdown` at render time).
+2. **`css/posts.css`** — added ~150 lines of markdown rendering styles.
+   Previously only `.md-post-body { white-space: normal }` existed; every
+   other class the parser produces (`.md-table`, `.md-codeblock`, `.md-quote`,
+   `.md-checkbox`, `.md-spoiler`, `.md-link`, etc.) had zero styling, so even
+   with the script linked, output would have rendered as unstyled HTML.
+   All new rules use theme tokens (`var(--sage)`, `var(--bg)`, `var(--line)`,
+   etc.), so markdown renders correctly across all 12 themes, not just light/dark.
+3. **`js/composer.js`** — internal escaping helper renamed from `escH` to
+   `escMd`. `pages/dashboard.html`'s own inline script defines a *different*
+   `escH` (one that converts `\n` to `<br>`) as a global function; since both
+   scripts share the same page (non-module `<script>` tags), the later-loaded
+   one would silently overwrite the earlier one. This didn't currently break
+   anything by luck of load order, but was one refactor away from corrupting
+   code-block rendering (`<br>` tags don't respect `white-space: pre`).
+   Renaming to a unique name removes the shared-global-name hazard entirely.
+
+If you write custom scripts that also need HTML-escaping, prefer a
+uniquely-named local helper over a bare global `escH`/`esc`/etc. — this
+project now has three independent escaping functions across
+`composer.js` (`escMd`), `dashboard.html`'s inline script (`escH`), and
+`posts.js` (`escHtml`), each correctly scoped, but a fourth added carelessly
+could re-introduce the same collision risk.
+
+---
 
 ### v3.0 — Live announcements & events (current)
 
