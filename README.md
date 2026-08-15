@@ -16,7 +16,8 @@ econovo-fixed/
 │   ├── admin.html              # Admin control room (admin role only)
 │   ├── pending.html            # "Awaiting approval" screen for new sign-ups
 │   ├── login.html              # Login page
-│   └── join.html               # Registration / sign-up page
+│   ├── join.html               # Registration / sign-up page
+│   └── share-editor.html       # Standalone "share post as image" editor (own tab)
 ├── css/
 │   ├── style.css               # Design tokens, reset, dark mode
 │   ├── themes.css              # 12 palettes (Nord, Dracula, Catppuccin, etc.)
@@ -30,6 +31,7 @@ econovo-fixed/
 │   ├── language.js             # Loads content-{lang}.json and renders sections
 │   ├── posts.js                # Posts feed, reactions, comments, image upload
 │   ├── composer.js             # Discord-style Markdown parser (parseMarkdown)
+│   ├── share-editor.js         # Logic for pages/share-editor.html
 │   ├── icons.js                # Group icon registry (Lucide SVGs by key name)
 │   ├── animations.js            # Dashboard scroll-driven + WAAPI entrance/reveal
 │   ├── login-animations.js      # Same system, scoped to pages/login.html
@@ -112,7 +114,59 @@ to add or update them.
 
 ## Changelog
 
-### v3.3 — Skeleton loaders + share-post-as-image (current)
+### v3.4 — Standalone share editor page (current)
+
+Replaced v3.3's "click and immediately download" share flow with a proper
+editor page — the export image was previously a simplified re-implementation
+of a post's look (custom inline styles) rather than the real thing, and
+there was no way to adjust anything before downloading.
+
+- **`pages/share-editor.html`** *(new)* — standalone page, own top bar, own
+  theme switch. **Not** wired into the dashboard's sidebar/nav — it only
+  opens via a post's share button, in a new tab, matching the "independent
+  from the dashboard" request. Loads the exact same stylesheet chain as
+  `dashboard.html` (`style.css` → `themes.css` → `components.css` →
+  `posts.css`) so the preview card is pixel-identical to a real feed post,
+  not a lookalike — any future redesign of `.post-card` in `posts.css`
+  automatically applies here too, with zero duplicated CSS.
+- **`js/share-editor.js`** *(new)* — reads the post handed off via
+  `sessionStorage['econovo-share-payload']` (cleared immediately after
+  reading, so a stale tab can't reuse old post data), builds the preview
+  using the real `.post-card`/`.post-header`/`.post-avatar`/`.reaction-row`
+  markup, and rasterizes it with html2canvas on download. Uses its **own**
+  `localStorage` key (`econovo-share-theme`), independent from the
+  dashboard's `econovo-theme` — picking a Dracula-themed export shouldn't
+  change a member's actual dashboard theme.
+- **`js/posts.js`** — `sharePostAsImage()` (the old immediate-export
+  function) replaced with `openShareEditor()`, which packages the post's
+  content/author/avatar/date/top-3-reactions into sessionStorage and calls
+  `window.open('share-editor.html', '_blank')`. Added
+  `collectReactionSummary(card)`, which reads reaction counts straight off
+  the already-rendered DOM (`.reaction-btn[data-key]` /
+  `.reaction-count` — matching `renderReactionBar()`'s actual markup) so the
+  editor can show real reactions without a second network request.
+
+**Editor features** (researched against 2026 social-sharing best practices
+before building):
+
+| Control | Why |
+|---|---|
+| **1:1 / 4:5 / Auto aspect ratio** | 4:5 portrait is now Meta's preferred feed ratio for 2026 (more vertical screen space, measurably better reach than square); 1:1 remains the universal safe default across every other platform; Auto for anyone who just wants the card at its natural height. |
+| **Show/hide reactions** | Some members may not want reaction counts visible when reposting externally. |
+| **Show/hide timestamp** | Same reasoning — optional context, not always wanted. |
+| **Show/hide Econovo watermark** | Watermark text upgraded from v3.3's plain "ECONOVO CLUB" to include the club's actual location ("Econovo Club · Bordj Bou Arreridj", pulled from `content-en.json`'s location info) — reinforces local identity when a post is shared outside the club. |
+| **Theme picker (all 12 palettes)** | Directly requested — lets a member pick any of the existing themes for the exported image, independent of their dashboard theme. |
+| Export at 2x scale | 2026 guidance: export at 2x target dimensions so the platform's server-side re-compression pass doesn't introduce visible banding/softness. |
+| PNG output | Preserves crisp text/logo edges — JPEG's compression blurs text, which is most of what's in these cards. |
+
+Checkerboard background behind the export frame in the preview pane makes
+it visually obvious "this transparent-ish area is the actual export
+boundary" — a pattern borrowed from image editors (Photoshop, Figma) rather
+than invented for this project.
+
+---
+
+### v3.3 — Skeleton loaders + share-post-as-image
 
 **Skeleton loaders**
 
