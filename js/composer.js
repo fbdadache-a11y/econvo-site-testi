@@ -16,6 +16,35 @@ function escMd(s) {
         .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
+/* ── Flat (Twemoji-style) emoji rendering ──────────────────────
+   Replaces native/system emoji glyphs (which render differently on
+   every OS — Android, iOS, Windows all look different) with the same
+   flat SVG artwork Discord/Twitter/Slack use, so every member sees
+   identical emoji regardless of device.
+
+   Call this AFTER inserting parseMarkdown()'s output into the DOM —
+   NOT on the raw HTML string. twemoji.parse() on a real DOM element
+   walks only #text nodes and automatically skips <code>, <pre>, and
+   <script> content, so code blocks are never touched even if they
+   happen to contain emoji-looking characters. String-based parsing
+   doesn't have that safety and could corrupt HTML attributes.
+
+   No-ops silently if the Twemoji CDN script failed to load (offline,
+   ad-blocker, etc.) — flat emoji is a visual nicety, never a hard
+   dependency for posts to render.
+────────────────────────────────────────────────────────────────── */
+function applyTwemoji(el) {
+    if (!el || typeof window.twemoji === 'undefined') return;
+    try {
+        window.twemoji.parse(el, {
+            folder: 'svg',
+            ext: '.svg',
+            className: 'twemoji-flat',
+        });
+    } catch (_) { /* never let a rendering nicety break the feed */ }
+}
+window.applyTwemoji = applyTwemoji;
+
 function parseTableRow(line) {
     return line.replace(/^\||\|$/g, '').split('|').map(cell => cell.trim());
 }

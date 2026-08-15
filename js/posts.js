@@ -755,6 +755,9 @@ ${post.content ? `<p class="post-body md-post-body" data-post-body="${escHtml(po
 
     /* Owner menu toggle — handled by attachPostEvents */
 
+    /* Flat (Twemoji-style) emoji — see composer.js applyTwemoji() */
+    applyTwemoji(card.querySelector('.post-body'));
+
     return card;
 }
 
@@ -793,6 +796,7 @@ function renderComment(c, opts = {}) {
         </div>
     `;
     div.insertBefore(avatarEl, div.firstChild);
+    applyTwemoji(div.querySelector('.comment-body'));
     return div;
 }
 
@@ -1328,6 +1332,7 @@ function onRemoteUpdatePost(record) {
         bodyEl.innerHTML = typeof window.parseMarkdown === 'function'
             ? window.parseMarkdown(record.content)
             : escHtml(record.content);
+        applyTwemoji(bodyEl);
     }
 }
 
@@ -1897,6 +1902,9 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
             subBtn.disabled = false;
         }
     });
+
+    /* Flat (Twemoji-style) emoji — see composer.js applyTwemoji() */
+    applyTwemoji(card.querySelector('.post-body'));
 
     return card;
 }
