@@ -13,8 +13,118 @@ const AVATAR_BUCKET = 'avatars';
 const MAX_IMAGES    = 50;
 
 /* ══════════════════════════════════════════════════════════════
-   REACTIONS — Lucide SVG icons
+   SKELETON LOADER
+   Shown while a feed request is in flight, instead of a bare
+   spinner. Dimensions mirror the real .post-card markup exactly
+   (see css/posts.css .sk-* rules) so there's no layout jump when
+   the skeleton is swapped for actual post cards.
    ══════════════════════════════════════════════════════════════ */
+function renderSkeletonFeed(count = 3) {
+    // Slightly varied body-line widths per card so the placeholder
+    // doesn't look like a mechanically repeated block.
+    const bodyPatterns = [
+        ['w-90', 'w-75', 'w-50'],
+        ['w-90', 'w-50'],
+        ['w-75', 'w-90', 'w-75'],
+    ];
+    let html = '';
+    for (let i = 0; i < count; i++) {
+        const lines = bodyPatterns[i % bodyPatterns.length];
+        html += `
+            <div class="sk-post-card" aria-hidden="true">
+                <div class="sk-post-header">
+                    <div class="sk-block sk-avatar"></div>
+                    <div class="sk-post-meta">
+                        <div class="sk-block sk-line-author"></div>
+                        <div class="sk-block sk-line-time"></div>
+                    </div>
+                </div>
+                <div class="sk-post-body">
+                    ${lines.map(w => `<div class="sk-block sk-line-body ${w}"></div>`).join('')}
+                </div>
+                <div class="sk-post-footer">
+                    <div class="sk-block sk-pill"></div>
+                    <div class="sk-block sk-pill"></div>
+                    <div class="sk-block sk-pill"></div>
+                </div>
+            </div>`;
+    }
+    return html;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SHARE AS IMAGE
+   Builds a clean, isolated export card (author, avatar, content,
+   Econovo watermark) off-screen, rasterizes it with html2canvas,
+   then triggers a PNG download. Deliberately does NOT screenshot
+   the live feed card — that has buttons, reaction pills, and a
+   comment toggle that don't belong in a shareable image.
+   ══════════════════════════════════════════════════════════════ */
+async function sharePostAsImage(content, authorName, avatarUrl, createdAt, btnEl) {
+    if (typeof window.html2canvas !== 'function') {
+        toast('Share feature is still loading — try again in a moment.', 'err');
+        return;
+    }
+    if (btnEl) btnEl.classList.add('is-busy');
+
+    // Build the export card off-screen (not display:none — html2canvas
+    // can't rasterize elements with no layout box, so we position it
+    // far outside the viewport instead).
+    const exportRoot = document.createElement('div');
+    exportRoot.style.cssText = `
+        position: fixed; top: -9999px; left: -9999px;
+        width: 480px; padding: 28px;
+        background: linear-gradient(155deg, #0E2A24 0%, #163a32 100%);
+        font-family: ${getComputedStyle(document.body).fontFamily};
+        box-sizing: border-box;
+    `;
+
+    const initials = (authorName || 'M').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const dateStr = createdAt ? new Date(createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
+    exportRoot.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+            <div style="width:44px;height:44px;border-radius:12px;flex-shrink:0;overflow:hidden;
+                        background:linear-gradient(135deg,#8FB8A6,#b8d4c8);display:flex;align-items:center;
+                        justify-content:center;font-weight:800;font-size:15px;color:#0E2A24;">
+                ${avatarUrl ? `<img src="${avatarUrl}" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${escHtml(initials)}',style:'font-weight:800;font-size:15px;color:#0E2A24;'}))">` : escHtml(initials)}
+            </div>
+            <div>
+                <div style="font-weight:700;font-size:15px;color:#fff;">${escHtml(authorName || 'Member')}</div>
+                <div style="font-size:12px;color:rgba(255,255,255,.5);">${escHtml(dateStr)}</div>
+            </div>
+        </div>
+        <div style="font-size:16px;line-height:1.65;color:#EFF5F1;white-space:pre-wrap;word-break:break-word;">
+            ${escHtml(content || '')}
+        </div>
+        <div style="margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);
+                     display:flex;align-items:center;gap:8px;">
+            <span style="font-family:monospace;font-size:11px;font-weight:700;letter-spacing:.08em;
+                         color:#8FB8A6;text-transform:uppercase;">ECONOVO CLUB</span>
+        </div>
+    `;
+    document.body.appendChild(exportRoot);
+
+    try {
+        const canvas = await window.html2canvas(exportRoot, {
+            backgroundColor: null,
+            scale: 2,           // retina-quality export
+            useCORS: true,      // needed for avatar images hosted on Supabase storage
+        });
+        const link = document.createElement('a');
+        link.download = `econovo-post-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        toast('Image saved — check your downloads.');
+    } catch (e) {
+        console.error('sharePostAsImage:', e);
+        toast('Could not generate image.', 'err');
+    } finally {
+        exportRoot.remove();
+        if (btnEl) btnEl.classList.remove('is-busy');
+    }
+}
+
 const REACTIONS = [
     {
         key:   'like',
@@ -710,6 +820,13 @@ ${post.content ? `<p class="post-body md-post-body" data-post-body="${escHtml(po
                 </svg>
                 <span class="comment-count-label" data-id="${post.id}">Comments</span>
             </button>
+            <button class="post-share-btn" data-id="${post.id}" aria-label="Share as image" title="Share as image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+            </button>
         </div>
         <div class="post-comments" id="comments-${post.id}" style="display:none;">
             <div class="comments-list" id="comments-list-${post.id}">
@@ -964,7 +1081,7 @@ async function loadComments(postId, token, currentUserId) {
 
 /* ── Load posts ── */
 async function loadPosts(container, token, currentUserId) {
-    container.innerHTML = '<div class="posts-loading"><span class="posts-spinner"></span> Loading posts…</div>';
+    container.innerHTML = renderSkeletonFeed(3);
     try {
         const [rows, allImages] = await Promise.all([
             pgGet('posts?order=created_at.desc&select=id,content,image_url,created_at,edited_at,user_id,full_name,profiles(full_name,avatar_url)', token),
@@ -1422,6 +1539,16 @@ function attachPostEvents(card, row, token, currentUserId) {
         });
     }
 
+    /* Share as image */
+    const shareBtn = card.querySelector('.post-share-btn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            const authorName = card.querySelector('.post-author')?.textContent || 'Member';
+            const avatarImg = card.querySelector('.post-avatar img');
+            sharePostAsImage(row.content, authorName, avatarImg?.src || null, row.created_at, shareBtn);
+        });
+    }
+
     /* Edit */
     const editBtn = card.querySelector('.post-edit-btn');
     if (editBtn) {
@@ -1644,7 +1771,7 @@ window.initGroupFeed = function(group, token, currentUserId, feedEl, composerWra
 
     /* ── Load & render group posts ── */
     async function loadGroupPosts() {
-        feedEl.innerHTML = '<div class="posts-loading"><span class="posts-spinner"></span> Loading…</div>';
+        feedEl.innerHTML = renderSkeletonFeed(2);
         try {
             const [rows, allImages] = await Promise.all([
                 pgGet(`group_posts?group_id=eq.${group.id}&order=created_at.desc&select=id,content,created_at,edited_at,user_id,profiles(full_name,avatar_url)`, token),
@@ -1735,6 +1862,13 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
                 </svg>
                 <span class="gcomment-count-label" data-gid="${row.id}">Comments</span>
             </button>
+            <button class="post-share-btn" data-gid="${row.id}" aria-label="Share as image" title="Share as image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+            </button>
         </div>
         <div class="post-comments" id="gcomments-${row.id}" style="display:none;">
             <div class="comments-list" id="gcomments-list-${row.id}">
@@ -1819,6 +1953,16 @@ ${row.content ? `<p class="post-body md-post-body" data-gpost-body="${escHtml(ro
             }
         });
        }
+
+    /* Share as image */
+    const gShareBtn = card.querySelector('.post-share-btn');
+    if (gShareBtn) {
+        gShareBtn.addEventListener('click', () => {
+            const authorName = card.querySelector('.post-author')?.textContent || 'Member';
+            const avatarImg = card.querySelector('.post-avatar img');
+            sharePostAsImage(row.content, authorName, avatarImg?.src || null, row.created_at, gShareBtn);
+        });
+    }
 
     /* Edit */
     const editBtn = card.querySelector('.gpost-edit-btn');
