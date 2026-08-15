@@ -112,7 +112,43 @@ to add or update them.
 
 ## Changelog
 
-### v3.1 — Rich Markdown composer wired up (current)
+### v3.2 — Flat (Twemoji-style) emoji rendering (current)
+
+Native/system emoji render differently on every OS — Android, iOS, and
+Windows each ship different artwork for the same Unicode character, so the
+same post could look inconsistent across members' devices. Added
+[Twemoji](https://github.com/twitter/twemoji) (the same flat emoji set
+Discord, Twitter/X, and Slack use) so every member sees identical emoji
+regardless of device.
+
+1. **`pages/dashboard.html`** — added the Twemoji CDN script
+   (`@twemoji/api` via jsDelivr — the old MaxCDN endpoint documented in
+   Twemoji's own README is dead) loaded before `js/composer.js`, so
+   `window.twemoji` exists by the time posts render.
+2. **`js/composer.js`** — added `applyTwemoji(el)`, a small global helper
+   that calls `twemoji.parse()` on a real DOM element (not a raw HTML
+   string). DOM-based parsing only walks `#text` nodes and automatically
+   skips `<code>`, `<pre>`, and `<script>` content, so emoji-looking
+   characters inside a code block are never touched — string-based parsing
+   doesn't have that safety and could corrupt HTML attributes. Fails silently
+   if the CDN script didn't load (offline, ad-blocker, etc.) — flat emoji is
+   a visual nicety, never a hard dependency for a post to render.
+3. **`css/posts.css`** — added sizing/baseline-alignment rules for
+   `img.twemoji-flat` so the SVG images sit on the text baseline like a
+   glyph instead of looking like an oversized inline image.
+4. **`js/posts.js`** — wired `applyTwemoji()` into all four places where
+   rendered content gets inserted into the DOM: regular post cards, group
+   post cards, realtime content updates, and comments.
+
+**Known gap found during this pass (not fixed — flagged for a future pass):**
+editing a group post (`js/posts.js`, the `openEditModal` callback around
+line ~1831) writes the new content back with `escHtml()` only, skipping
+`parseMarkdown()`. A group post loses its Markdown formatting the moment
+it's edited, even though the original (unedited) post renders it correctly.
+
+---
+
+### v3.1 — Rich Markdown composer wired up
 
 The team added `js/composer.js` (a full Discord-style Markdown parser —
 headings, quotes, tables, checkbox lists, code blocks, spoilers, bold/italic/
@@ -149,7 +185,7 @@ could re-introduce the same collision risk.
 
 ---
 
-### v3.0 — Live announcements & events (current)
+### v3.0 — Live announcements & events
 
 **`pages/dashboard.html`**
 
