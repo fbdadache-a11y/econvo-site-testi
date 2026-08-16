@@ -114,7 +114,51 @@ to add or update them.
 
 ## Changelog
 
-### v3.5 — Landing page: broken theming fixed + visual unification with the dashboard (current)
+### v3.6 — Fixed the sticky "Join Now" bar showing at the same time as the hero's CTA (current)
+
+On mobile, the hero's "Become a Member" button and the always-fixed
+`.mobile-join` sticky bar at the bottom of the screen could both be visible
+in the same viewport — three "Join Now"-type buttons on screen at once
+(navbar + hero + sticky bar) when only the sticky one should ever appear,
+and only once the hero has actually scrolled past.
+
+The hide/show logic already existed (`initMobileJoinVisibility()` in
+`js/main.js`, calling `hide()` immediately on load and toggling
+`.is-hidden` via `IntersectionObserver`) — it just didn't work correctly
+for a **tall** `.hero` section. `.hero` uses `min-height: 100svh` and, with
+enough content, is often taller than one mobile screen. The observer was
+watching the *entire* hero element with `threshold: 0.2`, meaning
+`isIntersecting` only stays `true` while ≥20% of the hero's total area
+overlaps the viewport — on a hero taller than the screen, that ratio can
+drop below 20% (making the sticky bar reappear) while the hero is still
+visually "the thing currently on screen," well before its actual bottom
+edge has scrolled up to meet the sticky bar.
+
+**Fix** (`js/main.js`): replaced whole-section percentage-based observation
+with the standard sentinel-element technique (the same pattern used for
+sticky-header scroll detection) — a 1×1px invisible `<div>` is now pinned
+to the *bottom edge* of `.hero` and `.cta-section`, and the observer
+watches those instead, with `threshold: 0` and a `-20%` bottom
+`rootMargin` so the sticky bar reveals itself slightly before the edge
+hits the very bottom of the screen (avoids a one-frame flash). This is
+correct regardless of how tall the watched section is, since it only
+ever cares about one edge crossing the viewport, not what fraction of a
+(possibly very tall) section is currently visible.
+
+**Correction to v3.5's changelog below:** that entry flagged `index.html`
+as reading `localStorage.getItem('econovo-token')` directly instead of
+going through `EconovoAuth`. On closer inspection while fixing this issue,
+`js/main.js`'s `initAuthCheck()` actually already calls
+`window.EconovoAuth.ensureSession()` correctly. That note in v3.5 was
+either based on an earlier version of the file or was a documentation
+mistake at the time — leaving this correction here rather than silently
+editing history, since the changelog is meant to be an accurate record.
+`pages/pending.html`'s missing `themes.css` link (also flagged in v3.5)
+is still an open item.
+
+---
+
+### v3.5 — Landing page: broken theming fixed + visual unification with the dashboard
 
 `index.html` hadn't been touched in about a month while the dashboard went
 through several rounds of theming/animation work — this pass first fixed
