@@ -4,13 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Awaiting Approval — Econovo Club</title>
-<meta name="theme-color" content="#F4F7F2">
+<meta name="theme-color" content="#F4F7F2" id="themeColorMeta">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<!-- Early theme application — same 12-palette system as every other
+     page. Was completely missing here, so a member with a non-default
+     theme selected in Profile → Appearance saw this screen reset to
+     plain light, which is the first thing they see right after signing
+     up — the exact bug already fixed for index.html in v3.5, found here
+     on a second page. -->
+<script>(function(){var t=localStorage.getItem('econovo-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t&&t!=='light')document.documentElement.setAttribute('data-theme',t);})();</script>
+
 <link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/themes.css">
 <link rel="stylesheet" href="../css/components.css">
 <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -34,7 +43,9 @@ body {
     background: var(--sage-dim); display: flex; align-items: center; justify-content: center;
     color: var(--obsidian);
 }
-[data-theme="dark"] .pending-icon { color: var(--sage); }
+/* [data-theme] (not [data-theme="dark"]) — applies to any of the 12
+   palettes, not just the original binary dark/light pair. */
+[data-theme] .pending-icon { color: var(--sage); }
 .pending-icon svg { width: 26px; height: 26px; }
 .pending-title { font-size: 1.25rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 10px; }
 .pending-sub { font-size: .9rem; color: var(--text-soft); line-height: 1.6; margin-bottom: 26px; }
