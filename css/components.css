@@ -210,8 +210,11 @@
     justify-content: center;
     gap: var(--s1);
     padding: 12px 24px;
-    /* Signature asymmetric radius — editorial, not generic pill */
-    border-radius: 2px 2px 10px 10px;
+    /* Radius unified with the dashboard's button system (var(--r-md)) —
+       this used to be an asymmetric "editorial" radius unique to the
+       landing page, which was the main source of the two surfaces not
+       feeling like the same product. */
+    border-radius: var(--r-md);
     font-weight: 700;
     font-size: .875rem;
     font-family: var(--font);
@@ -269,7 +272,7 @@
     background: transparent;
     border: 1.5px solid var(--line);
     color: var(--text-soft);
-    border-radius: 2px 2px 10px 10px;
+    border-radius: var(--r-md);
 }
 .btn-outline:hover {
     border-color: rgba(143,184,166,.5);
