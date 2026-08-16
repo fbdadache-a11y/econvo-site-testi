@@ -44,6 +44,25 @@
 </head>
 <body>
 
+    <!-- Most of this page's text is populated by js/language.js
+         (data-i18n attributes — 59 of them). On a slow/unreliable
+         connection where scripts fail to load, a visitor would
+         otherwise see a mostly-blank page with no explanation. -->
+    <noscript>
+        <div style="max-width:560px;margin:60px auto;padding:32px;text-align:center;
+                    font-family:system-ui,sans-serif;background:#F4F7F2;color:#0E2A24;
+                    border:1px solid rgba(14,42,36,.12);border-radius:12px;">
+            <h1 style="font-size:1.3rem;margin-bottom:12px;">Econovo Club</h1>
+            <p style="font-size:.95rem;line-height:1.6;margin-bottom:16px;">
+                This page needs JavaScript enabled to load properly. In the meantime,
+                you can reach us directly on Instagram:
+            </p>
+            <a href="https://www.instagram.com/econovo.club" style="color:#0E2A24;font-weight:700;">
+                @econovo.club →
+            </a>
+        </div>
+    </noscript>
+
     <div class="scroll-progress" id="scrollProgress"></div>
 
     <!-- ═══════════════════════════════════════════
@@ -358,6 +377,14 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="js/faq.js"></script>
     <script src="js/language.js"></script>
+    <!-- animations.js is written to use GSAP + ScrollTrigger when available
+         (checks window.gsap/window.ScrollTrigger before every animated
+         path, falling back to an instant forceVisible() otherwise) — but
+         neither library was ever actually linked here, so every gated
+         animation silently took the instant fallback with zero motion.
+         Loaded here, right before animations.js needs them. -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js" crossorigin="anonymous"></script>
     <script src="js/animations.js"></script>
     <script src="js/main.js"></script>
 

@@ -114,7 +114,51 @@ to add or update them.
 
 ## Changelog
 
-### v3.6 — Fixed the sticky "Join Now" bar showing at the same time as the hero's CTA (current)
+### v3.7 — Three quick fixes: pending.html theming, dead GSAP dependency, offline/no-JS fallback (current)
+
+**1. `pages/pending.html` — same missing-`themes.css` bug as `index.html` (v3.5), found on a second page.**
+No link to `css/themes.css`, no anti-flicker theme script at all (not even
+the old binary dark/light one), and `[data-theme="dark"]` narrowed to only
+one of the 12 palettes. A member with a custom theme selected sees this
+screen — the very first thing shown right after signing up — reset to
+plain light. Fixed with the same pattern used everywhere else: link
+`themes.css`, add the anti-flicker script, broaden the
+`[data-theme="dark"]` CSS rule to `[data-theme]`.
+
+**2. `index.html` — GSAP was never actually loaded, silently disabling every animation gated behind it.**
+Found while auditing the project for other half-built features (the same
+pattern as v3.6's sticky-bar bug — CSS/JS written and ready, but not
+wired up). `js/animations.js` checks `window.gsap` before ~11 different
+animated paths (hero entrance, cursor glow, parallax, scroll reveals) and
+falls back to an instant `forceVisible()` (no transition at all) when
+GSAP isn't present — which was *always*, since neither `gsap.min.js` nor
+`ScrollTrigger.min.js` were ever linked in `<head>`. The dashboard's own
+animation system (`pages/dashboard.html`'s inline script) was rebuilt on
+native Web Animations API in an earlier pass specifically to drop the
+GSAP dependency, so this wasn't "GSAP is missing everywhere" — it was
+specifically the landing page's older, GSAP-authored animation file never
+having its dependency linked. Rewriting `animations.js` to WAAPI (matching
+the dashboard) was judged out of scope for a quick fix; loading the two
+missing CDN scripts (`gsap@3/dist/gsap.min.js` +
+`gsap@3/dist/ScrollTrigger.min.js`, via jsDelivr) before `animations.js`
+was the minimal correct fix — every animation this file was already
+written for now actually runs. The `window.gsap && !REDUCED` guards mean
+this degrades safely (same instant-show fallback as before) if the CDN
+is ever unreachable.
+
+**3. `index.html` — added a `<noscript>` fallback.**
+59 elements on this page are populated by `js/language.js` via
+`data-i18n` attributes. On a very weak connection where scripts fail to
+load — worth designing for, given the club's Algeria-based membership and
+variable mobile data quality — a visitor would see a nearly blank page
+with zero explanation. Added a minimal static fallback (club name + a
+direct Instagram link) inside `<noscript>`. `font-display: swap` was
+already in place via the Google Fonts URL's `&display=swap` parameter, so
+no change was needed there.
+
+---
+
+### v3.6 — Fixed the sticky "Join Now" bar showing at the same time as the hero's CTA
 
 On mobile, the hero's "Become a Member" button and the always-fixed
 `.mobile-join` sticky bar at the bottom of the screen could both be visible
