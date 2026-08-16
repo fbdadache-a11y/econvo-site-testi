@@ -114,7 +114,71 @@ to add or update them.
 
 ## Changelog
 
-### v3.4 — Standalone share editor page (current)
+### v3.5 — Landing page: broken theming fixed + visual unification with the dashboard (current)
+
+`index.html` hadn't been touched in about a month while the dashboard went
+through several rounds of theming/animation work — this pass first fixed
+what had actually broken, then unified the one real visual mismatch found.
+
+**Bugs found and fixed:**
+
+1. **`css/themes.css` was never linked in `index.html`.** All 12 palettes
+   (Nord, Dracula, Catppuccin, etc.) work everywhere else in the project —
+   the landing page silently didn't support any of them. A member who set
+   a non-default theme in Profile → Appearance would see it correctly on
+   `dashboard.html` but have it quietly ignored on the public homepage.
+2. **A stray literal Arabic comment fragment (`← هنا`) was baked directly
+   into the `<link>` tag on the animations-supplement.css line** — actual
+   corrupted bytes in the file, not a copy-paste artifact from reviewing
+   it. Harmless to rendering (browsers ignore trailing garbage after `>`),
+   but it broke `grep`/`sed`-based tooling and needed removing regardless.
+3. **The anti-flicker theme script only checked `t === 'dark'`** (binary),
+   while every other page in the project checks `t && t !== 'light'` to
+   support all 12 themes. Updated to match.
+
+**Visual unification (the actual "make it match the dashboard" request):**
+
+Audited every shared design token — colors, shadows, fonts, logo sizing,
+navbar treatment — against the dashboard's actual CSS rather than
+guessing. Nearly everything was already consistent (same Host Grotesk /
+IBM Plex Mono fonts, same Obsidian/Sage color tokens, same frosted-glass
+navbar technique with `color-mix()`, same ~30px logo treatment). The one
+real, visible mismatch:
+
+- **`css/components.css`** — `.btn` and `.btn-outline` used a
+  `border-radius: 2px 2px 10px 10px` ("asymmetric editorial" radius,
+  literally labeled as such in the original comment) left over from an
+  earlier design pass, unique to the landing page. Every button/pill/card
+  on the dashboard uses the plain `var(--r-md)` (8px) token. Unified both
+  button classes to `var(--r-md)` — this was the single biggest reason the
+  two surfaces didn't read as "the same product" despite sharing a palette.
+
+**Deliberately left alone** (checked against Econovo's actual Brand Book
+PDF — Obsidian Black `#0E2A24`, Silver Sage `#8FB8A6`, Chalk White
+`#F4F7F2`/`#F6F4F0`, Host Grotesk + IBM Plex Sans Arabic — not a generic
+brand-styling skill, which does not apply to this project): a few
+hardcoded pixel radius values in `sections.css`/`components.css` (10px,
+16px, etc.) that are close to but not exactly on the `--r-sm/md/lg/xl`
+scale. These are minor and not visually jarring the way the asymmetric
+button radius was; normalizing every single one was judged to be outside
+the scope of "unify the identity" and risked introducing regressions for
+marginal visual gain.
+
+**Known issue flagged, not fixed (out of scope for a landing-page-only
+pass):** `index.html`'s inline auth-aware-UI script reads
+`localStorage.getItem('econovo-token')` directly instead of going through
+`EconovoAuth.getValidToken()` (the pattern established in `login.html`/
+`join.html`/`dashboard.html`). This means the navbar can show a member as
+signed in using stale cached data even after their session has actually
+expired, until they click through and get redirected to log in again —
+the exact class of bug `EconovoAuth.getValidToken()` was built to prevent
+elsewhere. `pages/pending.html` was also found to only support
+`data-theme="dark"` (binary), not linking `themes.css` at all — same root
+cause as bug #1 above, but on a different page.
+
+---
+
+### v3.4 — Standalone share editor page
 
 Replaced v3.3's "click and immediately download" share flow with a proper
 editor page — the export image was previously a simplified re-implementation

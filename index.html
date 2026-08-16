@@ -24,16 +24,21 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/sections.css">
-<link rel="stylesheet" href="css/animations-supplement.css">  ← هنا
-<link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/sections.css">
+    <link rel="stylesheet" href="css/animations-supplement.css">
+    <link rel="stylesheet" href="css/responsive.css">
 
-    <!-- Instant theme — before CSS paint to prevent flicker -->
+    <!-- Instant theme — before CSS paint to prevent flicker.
+         Supports all 12 palettes (same logic as pages/dashboard.html),
+         not just binary dark/light — a member who picked Nord or Dracula
+         in Profile → Appearance should see it on the landing page too,
+         not have it silently reset to light. -->
     <script>
     (function(){
         var t = localStorage.getItem('econovo-theme') || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
-        if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+        if (t && t !== 'light') document.documentElement.setAttribute('data-theme', t);
     })();
     </script>
 </head>
