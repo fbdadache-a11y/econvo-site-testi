@@ -79,15 +79,40 @@
         const show = () => bar.classList.remove('is-hidden');
         hide();
 
+        // Watch a thin sentinel pinned to each section's bottom edge
+        // instead of the section itself. .hero can be much taller than
+        // one screen (min-height: 100svh + a lot of content on small
+        // devices), so a percentage-based threshold on the whole section
+        // triggers false "left the hero" reads while the hero is still
+        // visually the main thing on screen — this is the same sentinel
+        // technique used for sticky-header scroll detection, and it's
+        // correct regardless of how tall the watched section is.
+        function makeBottomSentinel(section) {
+            const sentinel = document.createElement('div');
+            sentinel.style.cssText = 'position:absolute; bottom:0; left:0; width:1px; height:1px; pointer-events:none;';
+            const parent = getComputedStyle(section).position === 'static'
+                ? (section.style.position = 'relative', section)
+                : section;
+            parent.appendChild(sentinel);
+            return sentinel;
+        }
+
+        const heroSentinel = makeBottomSentinel(hero);
+        const ctaSentinel  = cta ? makeBottomSentinel(cta) : null;
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.target === hero) entry.isIntersecting ? hide() : show();
-                if (cta && entry.target === cta) entry.isIntersecting ? hide() : show();
+                if (entry.target === heroSentinel) entry.isIntersecting ? hide() : show();
+                if (ctaSentinel && entry.target === ctaSentinel) entry.isIntersecting ? hide() : show();
             });
-        }, { threshold: 0.2 });
+        }, { threshold: 0, rootMargin: '0px 0px -20% 0px' });
+        // rootMargin shrinks the effective viewport by 20% from the
+        // bottom, so the bar shows a moment *before* the hero's edge
+        // reaches the very bottom of the screen — avoids a 1-frame flash
+        // of the sticky bar appearing then the hero-edge nav re-hiding it.
 
-        observer.observe(hero);
-        if (cta) observer.observe(cta);
+        observer.observe(heroSentinel);
+        if (ctaSentinel) observer.observe(ctaSentinel);
     }
 
     function initMobileMenu() {
