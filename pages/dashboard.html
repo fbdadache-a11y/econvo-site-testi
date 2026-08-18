@@ -558,19 +558,90 @@ img { display: block; max-width: 100%; }
 
 /* ── GROUPS ── */
 .groups-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-.group-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; cursor: pointer; transition: border-color 150ms, box-shadow 150ms, transform 150ms; }
+.group-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; cursor: pointer; transition: border-color 150ms, box-shadow 150ms, transform 150ms; position: relative; }
 .group-card:hover { border-color: var(--sage); box-shadow: var(--e2); transform: translateY(-2px); }
+.group-card.is-joined { border-left: 3px solid var(--sage); }
 .group-card-body { padding: 12px 14px 14px; }
 .group-icon-box { border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.group-card-name { font-size: .88rem; font-weight: 700; margin-bottom: 3px; line-height: 1.25; }
+.group-card-name-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.group-card-name { font-size: .88rem; font-weight: 700; line-height: 1.25; }
+.group-owner-badge {
+  font-family: var(--mono); font-size: .56rem; font-weight: 700;
+  padding: 1px 6px; border-radius: var(--r-pill);
+  background: var(--obsidian); color: var(--sage);
+  text-transform: uppercase; letter-spacing: .05em; flex-shrink: 0;
+}
+[data-theme] .group-owner-badge { background: var(--sage); color: var(--obsidian); }
 .group-card-desc { font-size: .76rem; color: var(--text-soft); line-height: 1.45; margin-bottom: 10px; }
-.group-card-meta { display: flex; align-items: center; justify-content: space-between; font-size: .7rem; color: var(--text-muted); font-family: var(--mono); }
+.group-card-meta { display: flex; align-items: center; justify-content: space-between; font-size: .7rem; color: var(--text-muted); font-family: var(--mono); gap: 8px; }
+.group-card-stats { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.group-card-stat { display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+.group-card-stat svg { width: 11px; height: 11px; flex-shrink: 0; opacity: .7; }
+.group-card-activity {
+  display: flex; align-items: center; gap: 4px; font-size: .68rem;
+  color: var(--text-muted); font-family: var(--mono); white-space: nowrap;
+}
+.group-card-activity .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--line-mid); flex-shrink: 0; }
+.group-card-activity.is-hot .dot { background: #5dbd7e; box-shadow: 0 0 0 2px rgba(93,189,126,.2); }
 .btn-join-group { padding: 4px 12px; border: 1.5px solid var(--sage); border-radius: var(--r-pill); font-size: .71rem; font-weight: 700; color: var(--obsidian); background: var(--sage-dim); cursor: pointer; transition: background 120ms, transform 100ms; font-family: var(--font); }
 .btn-join-group:hover { background: var(--sage); transform: scale(1.04); }
 .btn-join-group.joined { background: var(--sage); color: var(--obsidian); }
 .create-group-btn { display: flex; align-items: center; gap: 9px; padding: 13px 16px; border: 1.5px dashed var(--line-mid); border-radius: 14px; color: var(--text-soft); font-size: .84rem; font-weight: 600; width: 100%; margin-bottom: 20px; transition: border-color 150ms, color 150ms, background 150ms; }
 .create-group-btn:hover { border-color: var(--sage); color: var(--text); background: var(--sage-dim); }
 .create-group-btn svg { width: 15px; height: 15px; }
+
+/* ══ GROUPS MINI-DASHBOARD ══ */
+.groups-stats-bar {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin-bottom: 18px;
+}
+.groups-stat-tile {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 14px;
+}
+.groups-stat-num {
+  font-family: var(--mono); font-size: 1.3rem; font-weight: 700;
+  letter-spacing: -.02em; color: var(--text); line-height: 1;
+}
+.groups-stat-lbl {
+  font-size: .66rem; color: var(--text-muted); margin-top: 4px;
+  text-transform: uppercase; letter-spacing: .05em; font-weight: 600;
+}
+.groups-stat-tile.is-highlight .groups-stat-num { color: var(--obsidian); }
+[data-theme] .groups-stat-tile.is-highlight .groups-stat-num { color: var(--sage); }
+.groups-stat-tile.is-highlight { border-color: var(--sage-mid); }
+
+.groups-controls {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+}
+.groups-search-wrap { position: relative; flex: 1; }
+.groups-search-wrap svg {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: var(--text-muted); pointer-events: none;
+}
+.groups-search-input {
+  width: 100%; padding: 9px 12px 9px 32px; border-radius: var(--r-pill);
+  border: 1px solid var(--line); background: var(--card); color: var(--text);
+  font-family: var(--font); font-size: .82rem; outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.groups-search-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-dim); }
+.groups-search-input::placeholder { color: var(--text-muted); }
+
+.groups-tabs { display: flex; gap: 4px; flex-shrink: 0; }
+.groups-tab {
+  padding: 8px 13px; border-radius: var(--r-pill); border: 1px solid var(--line);
+  background: var(--card); color: var(--text-soft); font-size: .78rem; font-weight: 600;
+  cursor: pointer; transition: background 120ms, border-color 120ms, color 120ms;
+  white-space: nowrap;
+}
+.groups-tab:hover { border-color: var(--sage); }
+.groups-tab.active { background: var(--sage); border-color: var(--sage); color: var(--obsidian); }
+
+.groups-empty-filtered {
+  text-align: center; padding: 32px 16px; color: var(--text-muted);
+  font-size: .82rem; grid-column: 1 / -1;
+}
 .group-view-hdr { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 18px; }
 .group-view-icon { flex-shrink: 0; }
 .group-view-name { font-size: 1.15rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 3px; }
@@ -1090,6 +1161,20 @@ img { display: block; max-width: 100%; }
           <div class="view-title">Groups</div>
           <div class="view-sub">Member-created spaces around shared interests. Join one or start your own.</div>
         </div>
+
+        <div class="groups-stats-bar" id="groups-stats-bar"></div>
+
+        <div class="groups-controls">
+          <div class="groups-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="groups-search-input" id="groups-search" placeholder="Search groups…">
+          </div>
+          <div class="groups-tabs">
+            <button class="groups-tab active" data-filter="all">All</button>
+            <button class="groups-tab" data-filter="mine">My Groups</button>
+          </div>
+        </div>
+
         <button class="create-group-btn" id="open-create-group">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Create a new group
@@ -1809,9 +1894,10 @@ document.addEventListener('econovo:auth-ready', () => {
 
   async function loadGroups() {
     try {
-      const [groups, memberships] = await Promise.all([
+      const [groups, memberships, posts] = await Promise.all([
         sbGet('groups?select=id,name,description,icon_key,created_by,created_at&order=created_at.asc'),
         sbGet('group_members?select=group_id,user_id'),
+        sbGet('group_posts?select=id,group_id,created_at&order=created_at.desc'),
       ]);
       const countByGroup = {};
       const myGroupIds = new Set();
@@ -1819,39 +1905,137 @@ document.addEventListener('econovo:auth-ready', () => {
         countByGroup[m.group_id] = (countByGroup[m.group_id] || 0) + 1;
         if (m.user_id === USER_ID) myGroupIds.add(m.group_id);
       });
+
+      // Post count + most recent post timestamp per group, computed
+      // locally from the same group_posts rows already fetched above —
+      // no new column, no new table, no schema change.
+      const postCountByGroup = {};
+      const lastActivityByGroup = {};
+      posts.forEach(p => {
+        postCountByGroup[p.group_id] = (postCountByGroup[p.group_id] || 0) + 1;
+        // posts arrive newest-first (order=created_at.desc), so the
+        // first one seen per group_id is that group's most recent post.
+        if (!lastActivityByGroup[p.group_id]) lastActivityByGroup[p.group_id] = p.created_at;
+      });
+
       GROUPS_CACHE = groups.map(g => ({
         id: g.id, name: g.name, desc: g.description,
         iconKey: g.icon_key, created_by: g.created_by,
+        createdAt: g.created_at,
         members: countByGroup[g.id] || 0,
         joined: myGroupIds.has(g.id),
+        postCount: postCountByGroup[g.id] || 0,
+        lastActivity: lastActivityByGroup[g.id] || g.created_at,
       }));
+
+      // Most-recently-active first — a group with a post today should
+      // read as "alive" before one that's been silent for a month, even
+      // if the silent one was created earlier.
+      GROUPS_CACHE.sort((a, b) => new Date(b.lastActivity) - new Date(a.lastActivity));
     } catch(e) {
       console.error('loadGroups:', e);
       toast('Could not load groups.', 'err');
     }
   }
 
+  /* Relative "last active" label, same tiering as post timestamps
+     elsewhere in the dashboard (timeAgo-style), kept local to groups
+     since it needs slightly different thresholds for a "hot" cutoff. */
+  function groupActivityLabel(iso) {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const hours = diffMs / 36e5;
+    if (hours < 1)   return { text: 'Active now',        hot: true  };
+    if (hours < 24)  return { text: 'Active today',       hot: true  };
+    if (hours < 168) return { text: `Active ${Math.floor(hours/24)}d ago`, hot: false };
+    return { text: `Active ${Math.floor(hours/24/7)}w ago`, hot: false };
+  }
+
+  let groupsFilter = 'all';
+  let groupsSearchTerm = '';
+
+  function renderGroupsStatsBar() {
+    const bar = document.getElementById('groups-stats-bar');
+    if (!bar) return;
+    const total = GROUPS_CACHE.length;
+    const mine = GROUPS_CACHE.filter(g => g.joined).length;
+    const mostActive = GROUPS_CACHE[0]; // already sorted by lastActivity desc
+    bar.innerHTML = `
+      <div class="groups-stat-tile">
+        <div class="groups-stat-num">${total}</div>
+        <div class="groups-stat-lbl">Total Groups</div>
+      </div>
+      <div class="groups-stat-tile is-highlight">
+        <div class="groups-stat-num">${mine}</div>
+        <div class="groups-stat-lbl">You're In</div>
+      </div>
+      <div class="groups-stat-tile">
+        <div class="groups-stat-num" style="font-size:.92rem;line-height:1.3;padding-top:1px;">${mostActive ? escH(mostActive.name) : '—'}</div>
+        <div class="groups-stat-lbl">Most Active</div>
+      </div>
+    `;
+  }
+
   function renderGroups() {
     const grid = document.getElementById('groups-grid');
     if (!grid || !Icons) return;
+
+    renderGroupsStatsBar();
+
     if (!GROUPS_CACHE.length) {
       grid.innerHTML = '<div class="feed-empty">No groups yet. Create the first one!</div>';
       return;
     }
+
+    // Apply the active tab filter (all / mine) + live search term.
+    // Both are pure client-side filters over the already-loaded
+    // GROUPS_CACHE — no extra request per keystroke or tab click.
+    const term = groupsSearchTerm.trim().toLowerCase();
+    const visible = GROUPS_CACHE.filter(g => {
+      if (groupsFilter === 'mine' && !g.joined) return false;
+      if (term && !g.name.toLowerCase().includes(term) && !(g.desc || '').toLowerCase().includes(term)) return false;
+      return true;
+    });
+
+    if (!visible.length) {
+      const msg = term
+        ? `No groups match "${escH(groupsSearchTerm)}".`
+        : "You haven't joined any groups yet.";
+      grid.innerHTML = `<div class="groups-empty-filtered">${msg}</div>`;
+      return;
+    }
+
     grid.innerHTML = '';
-    GROUPS_CACHE.forEach(g => {
+    visible.forEach(g => {
+      const isOwner = g.created_by === USER_ID;
+      const activity = groupActivityLabel(g.lastActivity);
+
       const card = document.createElement('div');
-      card.className = 'group-card';
+      card.className = 'group-card' + (g.joined ? ' is-joined' : '');
       card.dataset.gid = g.id;
       card.innerHTML = Icons.renderGroupThumbnail(g.iconKey, 0, 90) +
         `<div class="group-card-body">
-          <div class="group-card-name">${escH(g.name)}</div>
+          <div class="group-card-name-row">
+            <div class="group-card-name">${escH(g.name)}</div>
+            ${isOwner ? '<span class="group-owner-badge">Yours</span>' : ''}
+          </div>
           <div class="group-card-desc">${escH(g.desc || '')}</div>
           <div class="group-card-meta">
-            <span>${g.members} member${g.members !== 1 ? 's' : ''}</span>
+            <div class="group-card-stats">
+              <span class="group-card-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                ${g.members}
+              </span>
+              <span class="group-card-stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                ${g.postCount}
+              </span>
+            </div>
             <button class="btn-join-group ${g.joined ? 'joined' : ''}" data-gid="${g.id}">
               ${g.joined ? 'Joined ✓' : 'Join'}
             </button>
+          </div>
+          <div class="group-card-activity ${activity.hot ? 'is-hot' : ''}">
+            <span class="dot"></span>${activity.text}
           </div>
         </div>`;
       const thumb = card.querySelector('.group-thumbnail');
@@ -1880,6 +2064,22 @@ document.addEventListener('econovo:auth-ready', () => {
       grid.appendChild(card);
     });
   }
+
+  /* Search input + tab clicks both just re-filter/re-render the
+     already-loaded GROUPS_CACHE — bound once here rather than inside
+     renderGroups() so re-render doesn't re-bind (and duplicate) listeners. */
+  document.getElementById('groups-search')?.addEventListener('input', (e) => {
+    groupsSearchTerm = e.target.value;
+    renderGroups();
+  });
+  document.querySelectorAll('.groups-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.groups-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      groupsFilter = tab.dataset.filter;
+      renderGroups();
+    });
+  });
 
   /* ══ openGroupFeed — Actions dropdown replaces inline Edit/Delete ══ */
   function openGroupFeed(group) {
