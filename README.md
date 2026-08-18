@@ -114,7 +114,59 @@ to add or update them.
 
 ## Changelog
 
-### v3.7 — Three quick fixes: pending.html theming, dead GSAP dependency, offline/no-JS fallback (current)
+### v3.8 — Groups mini-dashboard: activity sorting, post counts, owner badges, search/filter (current)
+
+The Groups tab was a flat grid of static cards (icon, name, description,
+member count, join button) — no sense of which groups were actually
+active, no way to find your own groups at a glance in a long list, and no
+search. Everything below uses data already fetched from existing tables
+(`groups`, `group_members`, `group_posts`) — **no schema change, no new
+columns, no migration file needed.**
+
+**`pages/dashboard.html` — `loadGroups()`:**
+Added a third parallel fetch, `group_posts?select=id,group_id,created_at`,
+alongside the existing `groups` and `group_members` queries. Post count and
+"most recent post" timestamp per group are computed client-side from those
+rows (same pattern the file already used to compute member counts from
+`group_members`). `GROUPS_CACHE` is now sorted by most-recent-activity
+first by default, instead of creation date — a group with a post today
+reads as "alive" ahead of one that's been silent for a month even if it's
+older.
+
+**New: stats bar.** Three tiles above the grid — total groups, how many
+the member has joined, and the single most-active group by name. Gives an
+at-a-glance read of the community's health without opening anything.
+
+**New: search + tabs.** A live text filter (matches group name or
+description) and an All / My Groups tab toggle, both pure client-side
+filters over the already-loaded `GROUPS_CACHE` — zero additional network
+calls per keystroke or tab click. Matters more as the number of groups
+grows past the current handful.
+
+**Group card additions:**
+- **"Yours" badge** next to the name when `created_by === USER_ID` — was
+  previously only visible after opening the group's own feed page; now
+  visible directly in the grid.
+- **Sage left-border** on cards for groups the member has already joined
+  (`.group-card.is-joined`), so "my groups" are visually distinct in the
+  All tab without needing to switch to the My Groups tab first.
+- **Post count**, shown next to member count with a small icon, computed
+  from the same `group_posts` fetch above.
+- **Activity label** ("Active now" / "Active today" / "Active 3d ago" /
+  "Active 3w ago"), with a small green dot for anything active within the
+  last 24 hours (`groupActivityLabel()` — a lightweight local time-tiering
+  helper, separate from the dashboard's other `timeAgo()` since the
+  thresholds/wording needed to differ slightly for a "what counts as hot"
+  read specific to groups).
+
+Every existing behavior — click-card-to-open, join/leave toggle, the
+create-group flow, the Actions dropdown inside an open group — was left
+untouched; this only changes what's shown on the grid and in what order,
+not how any of the existing interactions work.
+
+---
+
+### v3.7 — Three quick fixes: pending.html theming, dead GSAP dependency, offline/no-JS fallback
 
 **1. `pages/pending.html` — same missing-`themes.css` bug as `index.html` (v3.5), found on a second page.**
 No link to `css/themes.css`, no anti-flicker theme script at all (not even
