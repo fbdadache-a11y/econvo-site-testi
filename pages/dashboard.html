@@ -688,6 +688,23 @@ img { display: block; max-width: 100%; }
 .btn-confirm:active { transform: translateY(0); }
 [data-theme]  .btn-confirm { background: var(--sage); color: var(--obsidian); }
 
+/* ── Group owner dashboard ── */
+.gd-modal-box { max-width: 560px; }
+.gd-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0 20px; }
+.gd-stat-tile { background: var(--muted); border: 1px solid var(--line); border-radius: 12px; padding: 12px 10px; text-align: center; }
+.gd-stat-num { font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; color: var(--text); font-family: var(--mono); }
+.gd-stat-lbl { font-size: .66rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+.gd-section-title { font-family: var(--mono); font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--text-soft); margin-bottom: 8px; }
+.gd-members-list { display: flex; flex-direction: column; gap: 2px; max-height: 220px; overflow-y: auto; margin-bottom: 18px; border: 1px solid var(--line); border-radius: 12px; padding: 6px; }
+.gd-member-row { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 9px; transition: background 120ms; }
+.gd-member-row:hover { background: var(--muted); }
+.gd-member-av { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--sage-dim); color: var(--obsidian); font-size: .65rem; font-weight: 700; overflow: hidden; }
+.gd-member-name { font-size: .81rem; font-weight: 600; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gd-member-joined { font-size: .68rem; color: var(--text-muted); font-family: var(--mono); flex-shrink: 0; }
+.gd-owner-tag { font-size: .62rem; font-weight: 700; color: var(--sage); background: var(--sage-dim); padding: 2px 7px; border-radius: 6px; flex-shrink: 0; }
+.gd-empty { padding: 14px; text-align: center; font-size: .78rem; color: var(--text-muted); }
+.gd-loading { padding: 20px; text-align: center; font-size: .82rem; color: var(--text-muted); }
+
 /* ── PROFILE ── */
 .profile-hdr { display: flex; align-items: center; gap: 18px; padding: 20px; margin-bottom: 24px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
 .profile-av-xl { width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0; background: linear-gradient(135deg, var(--sage) 0%, #b8d4c8 100%); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; color: var(--obsidian); overflow: hidden; cursor: pointer; position: relative; box-shadow: 0 0 0 3px var(--card), 0 0 0 4.5px var(--sage); }
@@ -2012,7 +2029,7 @@ document.addEventListener('econovo:auth-ready', () => {
       const card = document.createElement('div');
       card.className = 'group-card' + (g.joined ? ' is-joined' : '');
       card.dataset.gid = g.id;
-      card.innerHTML = Icons.renderGroupThumbnail(g.iconKey, 0, 90) +
+      card.innerHTML = Icons.renderGroupThumbnail(g.iconKey, 0, 90, g.id || g.name) +
         `<div class="group-card-body">
           <div class="group-card-name-row">
             <div class="group-card-name">${escH(g.name)}</div>
@@ -2086,7 +2103,7 @@ document.addEventListener('econovo:auth-ready', () => {
     if (!Icons) return;
     const isCreator = group.created_by === USER_ID;
     const hdr = document.getElementById('group-feed-hdr');
-    const thumbHtml = Icons.renderGroupThumbnail(group.iconKey, 0, 110);
+    const thumbHtml = Icons.renderGroupThumbnail(group.iconKey, 0, 110, group.id || group.name);
 
     hdr.innerHTML = `
       ${thumbHtml}
@@ -2107,6 +2124,16 @@ document.addEventListener('econovo:auth-ready', () => {
                 Actions
               </button>
               <div class="group-actions-menu" id="g-actions-menu">
+                <button class="group-action-item" id="g-dash-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="9" rx="1.5"/>
+                    <rect x="14" y="3" width="7" height="5" rx="1.5"/>
+                    <rect x="14" y="12" width="7" height="9" rx="1.5"/>
+                    <rect x="3" y="16" width="7" height="5" rx="1.5"/>
+                  </svg>
+                  Dashboard
+                </button>
                 <button class="group-action-item" id="g-edit-btn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                        stroke-linecap="round" stroke-linejoin="round">
@@ -2157,6 +2184,11 @@ document.addEventListener('econovo:auth-ready', () => {
         }
       });
     }
+
+    hdr.querySelector('#g-dash-btn')?.addEventListener('click', () => {
+      actionsWrap?.classList.remove('open');
+      openGroupDashboard(group);
+    });
 
     hdr.querySelector('#g-edit-btn')?.addEventListener('click', () => {
       actionsWrap?.classList.remove('open');
@@ -2262,6 +2294,71 @@ document.addEventListener('econovo:auth-ready', () => {
         openGroupFeed(group);
       } catch(e) { toast('Could not save.', 'err'); saveBtn.disabled = false; }
     });
+  }
+
+  /* ══ Simple owner-only dashboard for a single group ══
+     Read-only stats + member list. Reuses the same modal shell as
+     edit/create so it matches the rest of the app visually. */
+  async function openGroupDashboard(group) {
+    document.getElementById('group-dash-overlay')?.remove();
+    const overlay = document.createElement('div');
+    overlay.id = 'group-dash-overlay';
+    overlay.className = 'modal-overlay open';
+    overlay.innerHTML = `
+      <div class="modal-box gd-modal-box">
+        <div class="modal-title">${escH(group.name)} — Dashboard</div>
+        <div class="modal-sub">Quick stats for your group.</div>
+        <div class="gd-stats-row">
+          <div class="gd-stat-tile"><div class="gd-stat-num" id="gd-members-num">—</div><div class="gd-stat-lbl">Members</div></div>
+          <div class="gd-stat-tile"><div class="gd-stat-num" id="gd-posts-num">—</div><div class="gd-stat-lbl">Posts</div></div>
+          <div class="gd-stat-tile"><div class="gd-stat-num" id="gd-week-num">—</div><div class="gd-stat-lbl">Posts / 7d</div></div>
+        </div>
+        <div class="gd-section-title">Members</div>
+        <div class="gd-members-list" id="gd-members-list"><div class="gd-loading">Loading…</div></div>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="gd-close">Close</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#gd-close').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+    try {
+      const [members, posts] = await Promise.all([
+        sbGet(`group_members?group_id=eq.${group.id}&select=user_id,joined_at,profiles(full_name,avatar_url)&order=joined_at.asc`),
+        sbGet(`group_posts?group_id=eq.${group.id}&select=id,created_at`),
+      ]);
+
+      const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const postsThisWeek = posts.filter(p => new Date(p.created_at).getTime() >= weekAgo).length;
+
+      overlay.querySelector('#gd-members-num').textContent = members.length;
+      overlay.querySelector('#gd-posts-num').textContent = posts.length;
+      overlay.querySelector('#gd-week-num').textContent = postsThisWeek;
+
+      const listEl = overlay.querySelector('#gd-members-list');
+      if (!members.length) {
+        listEl.innerHTML = '<div class="gd-empty">No members yet.</div>';
+      } else {
+        listEl.innerHTML = members.map(m => {
+          const name = m.profiles?.full_name || 'Member';
+          const isOwner = m.user_id === group.created_by;
+          const joined = new Date(m.joined_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+          const avEl = m.profiles?.avatar_url
+            ? `<img src="${escH(m.profiles.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;">`
+            : inits(name);
+          return `<div class="gd-member-row">
+            <div class="gd-member-av">${avEl}</div>
+            <div class="gd-member-name">${escH(name)}</div>
+            ${isOwner ? '<span class="gd-owner-tag">Owner</span>' : ''}
+            <span class="gd-member-joined">${joined}</span>
+          </div>`;
+        }).join('');
+      }
+    } catch (e) {
+      overlay.querySelector('#gd-members-list').innerHTML = '<div class="gd-empty">Could not load dashboard data.</div>';
+      console.error('group dashboard:', e);
+    }
   }
 
   function renderWidgetEvents() {
