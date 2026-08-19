@@ -339,26 +339,79 @@ function renderGroupIcon(iconKey, sizePx, iconPx) {
     </div>`;
 }
 
-/* Renders the large thumbnail (illustration + icon overlay) for a group card header */
-function renderGroupThumbnail(iconKey, widthPx, heightPx) {
+/* ── deterministic per-group gradient ──────────────────────────
+   Same seed always produces the same gradient (stable across
+   re-renders), but every group gets its own angle/spread/stops
+   instead of one flat category color. Stays anchored to the
+   category color so the palette still reads as "finance = green
+   family", etc. — just no two groups in that family look identical. */
+function hashSeed(str) {
+    let h = 0;
+    const s = String(str || '');
+    for (let i = 0; i < s.length; i++) {
+        h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+    }
+    return Math.abs(h);
+}
+
+function hexToRgb(hex) {
+    const n = parseInt(hex.replace('#', ''), 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+function rgbToHex(r, g, b) {
+    const c = v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+    return `#${c(r)}${c(g)}${c(b)}`;
+}
+
+/* Shift a hex color's hue-ish balance + lightness slightly, seeded */
+function shade(hex, seed, lightenBy, hueShift) {
+    const { r, g, b } = hexToRgb(hex);
+    const rs = r + hueShift.r + lightenBy;
+    const gs = g + hueShift.g + lightenBy;
+    const bs = b + hueShift.b + lightenBy;
+    return rgbToHex(rs, gs, bs);
+}
+
+function groupGradient(iconKey, seedStr) {
+    const meta  = iconMeta(iconKey);
+    const base  = categoryColor(meta.category);
+    const seed  = hashSeed(seedStr || iconKey);
+
+    const angle = 25 + (seed % 130);                       // 25–155deg
+    const hueR  = ((seed >> 3) % 41) - 20;                  // -20..20
+    const hueG  = ((seed >> 7) % 41) - 20;
+    const hueB  = ((seed >> 11) % 41) - 20;
+
+    const stopA = shade(base, seed, 6,  { r: hueR, g: hueG, b: hueB });
+    const stopB = shade(base, seed, -18, { r: -hueR, g: -hueB, b: hueG });
+
+    return { angle, stopA, stopB, base };
+}
+
+/* Renders the large thumbnail (illustration + icon overlay) for a group card header.
+   seedStr should be the group's id (or name as fallback) so the gradient is
+   unique per group but stable across re-renders. */
+function renderGroupThumbnail(iconKey, widthPx, heightPx, seedStr) {
     const meta  = iconMeta(iconKey);
     const color = categoryColor(meta.category);
     const illus = CATEGORY_ILLUSTRATIONS[meta.category] || CATEGORY_ILLUSTRATIONS.growth;
+    const grad  = groupGradient(iconKey, seedStr);
 
     return `<div class="group-thumbnail" style="
         width:${widthPx}px;height:${heightPx}px;
-        background:${color}0d;
+        background:linear-gradient(${grad.angle}deg, ${grad.stopA}2e, ${grad.stopB}17 55%, ${grad.stopB}05);
         border-bottom:1px solid ${color}22;
         color:${color};
         position:relative;overflow:hidden;display:flex;
         align-items:center;justify-content:center;border-radius:12px 12px 0 0;">
         <div style="position:absolute;inset:0;display:flex;align-items:center;
-                    justify-content:center;opacity:.65;">
+                    justify-content:center;opacity:.55;">
             ${illus}
         </div>
         <div class="group-icon-box" style="position:relative;z-index:1;
-            width:44px;height:44px;background:${color}22;
-            border:1.5px solid ${color}44;backdrop-filter:blur(6px);
+            width:44px;height:44px;background:${color}26;
+            border:1.5px solid ${color}4d;backdrop-filter:blur(6px);
             -webkit-backdrop-filter:blur(6px);color:${color};">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
@@ -374,6 +427,7 @@ window.EconovoIcons = {
     CATEGORY_ILLUSTRATIONS,
     iconMeta,
     categoryColor,
+    groupGradient,
     renderGroupIcon,
     renderGroupThumbnail,
 };
