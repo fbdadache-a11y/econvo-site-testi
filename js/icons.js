@@ -124,194 +124,80 @@ const ICON_LIBRARY = {
    SVG line-art مضمّن كـ string، بيتم تلوينه بلون فئة الأيقونة.
    كل فئة لها رسمة واحدة تمثّل فضاءها بصرياً — بسيطة وخفيفة.
    ══════════════════════════════════════════════════════════════ */
-const CATEGORY_ILLUSTRATIONS = {
-    finance: `
-        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-             width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-            <!-- Chart bars -->
-            <rect x="20" y="70" width="20" height="35" rx="3" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <rect x="50" y="45" width="20" height="60" rx="3" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <rect x="80" y="55" width="20" height="50" rx="3" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <rect x="110" y="30" width="20" height="75" rx="3" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <rect x="140" y="15" width="20" height="90" rx="3" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <!-- Trend line -->
-            <polyline points="30,65 60,42 90,52 120,28 150,12" stroke="currentColor" stroke-width="2.2" fill="none" stroke-dasharray="5 3" opacity=".6"/>
-            <!-- Arrow up -->
-            <polyline points="145,12 155,8 159,18" stroke="currentColor" stroke-width="2" fill="none" opacity=".8"/>
-            <!-- Baseline -->
-            <line x1="10" y1="108" x2="190" y2="108" stroke="currentColor" stroke-width="1.5" opacity=".4"/>
-            <!-- Coin -->
-            <circle cx="173" cy="38" r="14" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".7"/>
-            <text x="173" y="43" text-anchor="middle" font-size="13" fill="currentColor" font-family="serif" opacity=".8">$</text>
-        </svg>`,
-    tech: `
-        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-             width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-            <!-- Monitor outline -->
-            <rect x="25" y="15" width="110" height="72" rx="5" stroke="currentColor" stroke-width="1.8" fill="none"/>
-            <line x1="80" y1="87" x2="80" y2="105" stroke="currentColor" stroke-width="1.8" opacity=".8"/>
-            <line x1="55" y1="105" x2="105" y2="105" stroke="currentColor" stroke-width="1.8" opacity=".8"/>
-            <!-- Code lines -->
-            <line x1="38" y1="32" x2="70" y2="32" stroke="currentColor" stroke-width="2" opacity=".9" stroke-linecap="round"/>
-            <line x1="38" y1="44" x2="90" y2="44" stroke="currentColor" stroke-width="2" opacity=".7" stroke-linecap="round"/>
-            <line x1="38" y1="56" x2="60" y2="56" stroke="currentColor" stroke-width="2" opacity=".9" stroke-linecap="round"/>
-            <line x1="38" y1="68" x2="82" y2="68" stroke="currentColor" stroke-width="2" opacity=".6" stroke-linecap="round"/>
-            <!-- Rocket -->
-            <path d="M155 85 C155 65 170 50 175 20 C180 50 185 65 175 85" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <path d="M165 82 L155 90 L165 88" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".7"/>
-            <path d="M185 82 L195 90 L185 88" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".7"/>
-            <circle cx="175" cy="42" r="4" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".8"/>
-            <!-- Spark -->
-            <circle cx="155" cy="18" r="2" fill="currentColor" opacity=".5"/>
-            <circle cx="165" cy="12" r="1.5" fill="currentColor" opacity=".4"/>
-            <circle cx="175" cy="9"  r="2" fill="currentColor" opacity=".35"/>
-        </svg>`,
-    creative: `
-        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-             width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-            <!-- Canvas -->
-            <rect x="50" y="10" width="100" height="80" rx="4" stroke="currentColor" stroke-width="1.8" fill="none"/>
-            <!-- Brush strokes -->
-            <path d="M65 30 Q80 20 95 35 Q110 50 125 38" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".9"/>
-            <path d="M65 55 Q90 45 115 60" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".6"/>
-            <path d="M65 75 Q85 68 100 75 Q115 82 130 70" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".8"/>
-            <!-- Palette dots -->
-            <circle cx="25" cy="40" r="6" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".8"/>
-            <circle cx="25" cy="60" r="6" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".6"/>
-            <circle cx="25" cy="80" r="6" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".4"/>
-            <!-- Brush handle -->
-            <line x1="25" y1="14" x2="45" y2="30" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".9"/>
-            <path d="M20 14 L30 8 L35 18 L25 20 Z" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".9"/>
-            <!-- Stars -->
-            <path d="M168 20 L170 26 L176 28 L170 30 L168 36 L166 30 L160 28 L166 26 Z" stroke="currentColor" stroke-width="1.2" fill="none" opacity=".6"/>
-            <circle cx="180" cy="70" r="3" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".5"/>
-        </svg>`,
-    knowledge: `
-        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-             width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-            <!-- Book pages -->
-            <path d="M100 20 L100 100" stroke="currentColor" stroke-width="1.8" opacity=".8"/>
-            <path d="M100 20 C80 18 55 22 35 30 L35 100 C55 94 80 96 100 100" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <path d="M100 20 C120 18 145 22 165 30 L165 100 C145 94 120 96 100 100" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <!-- Left page lines -->
-            <line x1="48" y1="45" x2="90" y2="43" stroke="currentColor" stroke-width="1.4" opacity=".6" stroke-linecap="round"/>
-            <line x1="48" y1="56" x2="90" y2="55" stroke="currentColor" stroke-width="1.4" opacity=".5" stroke-linecap="round"/>
-            <line x1="48" y1="67" x2="85" y2="66" stroke="currentColor" stroke-width="1.4" opacity=".5" stroke-linecap="round"/>
-            <line x1="48" y1="78" x2="90" y2="77" stroke="currentColor" stroke-width="1.4" opacity=".4" stroke-linecap="round"/>
-            <!-- Right page lines -->
-            <line x1="110" y1="43" x2="153" y2="45" stroke="currentColor" stroke-width="1.4" opacity=".6" stroke-linecap="round"/>
-            <line x1="110" y1="55" x2="153" y2="56" stroke="currentColor" stroke-width="1.4" opacity=".5" stroke-linecap="round"/>
-            <line x1="110" y1="66" x2="148" y2="67" stroke="currentColor" stroke-width="1.4" opacity=".5" stroke-linecap="round"/>
-            <!-- Lightbulb -->
-            <path d="M182 15 A8 8 0 0 1 188 22 A6 6 0 0 1 185 28 L185 33 L179 33 L179 28 A6 6 0 0 1 176 22 A8 8 0 0 1 182 15Z" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".8"/>
-            <line x1="179" y1="35" x2="185" y2="35" stroke="currentColor" stroke-width="1.5" opacity=".7"/>
-            <line x1="180" y1="38" x2="184" y2="38" stroke="currentColor" stroke-width="1.5" opacity=".6"/>
-        </svg>`,
-    science: `
-        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-             width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-            <!-- Flask -->
-            <path d="M75 15 L75 55 L45 100 L155 100 L125 55 L125 15" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <line x1="65" y1="15" x2="135" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>
-            <!-- Liquid surface -->
-            <path d="M53 80 Q100 70 147 80" stroke="currentColor" stroke-width="1.5" fill="none" stroke-dasharray="4 3" opacity=".7"/>
-            <!-- Bubbles -->
-            <circle cx="80"  cy="88" r="4" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".7"/>
-            <circle cx="100" cy="82" r="3" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".6"/>
-            <circle cx="120" cy="90" r="5" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".7"/>
-            <!-- Atom orbit (small, top right) -->
-            <circle cx="170" cy="30" r="10" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".6"/>
-            <ellipse cx="170" cy="30" rx="18" ry="7" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".5" transform="rotate(50 170 30)"/>
-            <ellipse cx="170" cy="30" rx="18" ry="7" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".5" transform="rotate(-50 170 30)"/>
-            <circle cx="170" cy="30" r="3" stroke="currentColor" stroke-width="1.2" fill="none" opacity=".8"/>
-            <!-- Stars dots -->
-            <circle cx="25" cy="25" r="2" fill="currentColor" opacity=".5"/>
-            <circle cx="35" cy="40" r="1.5" fill="currentColor" opacity=".4"/>
-            <circle cx="20" cy="55" r="2" fill="currentColor" opacity=".35"/>
-        </svg>`,
-    growth: `
-        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-             width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-            <!-- Mountain -->
-            <path d="M10 105 L70 25 L130 105" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <!-- Snow cap -->
-            <path d="M60 40 L70 25 L80 40 Z" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".8"/>
-            <!-- Second mountain -->
-            <path d="M80 105 L130 48 L180 105" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".7"/>
-            <!-- Snow cap 2 -->
-            <path d="M120 62 L130 48 L140 62 Z" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".7"/>
-            <!-- Flag on first peak -->
-            <line x1="70" y1="25" x2="70" y2="10" stroke="currentColor" stroke-width="1.6" opacity=".9"/>
-            <path d="M70 10 L82 14 L70 18" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".9"/>
-            <!-- Target rings top right -->
-            <circle cx="175" cy="28" r="14" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".5"/>
-            <circle cx="175" cy="28" r="8"  stroke="currentColor" stroke-width="1.3" fill="none" opacity=".6"/>
-            <circle cx="175" cy="28" r="3"  stroke="currentColor" stroke-width="1.3" fill="none" opacity=".8"/>
-            <!-- Ground line -->
-            <line x1="5" y1="108" x2="195" y2="108" stroke="currentColor" stroke-width="1.2" opacity=".3"/>
-        </svg>`,
-    society: `
-        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-             width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-            <!-- People outlines: 3 figures -->
-            <!-- Center person -->
-            <circle cx="100" cy="30" r="12" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <path d="M78 80 C78 55 122 55 122 80" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <!-- Left person -->
-            <circle cx="55" cy="38" r="10" stroke="currentColor" stroke-width="1.6" fill="none" opacity=".7"/>
-            <path d="M35 85 C35 63 75 63 75 85" stroke="currentColor" stroke-width="1.6" fill="none" opacity=".7"/>
-            <!-- Right person -->
-            <circle cx="145" cy="38" r="10" stroke="currentColor" stroke-width="1.6" fill="none" opacity=".7"/>
-            <path d="M125 85 C125 63 165 63 165 85" stroke="currentColor" stroke-width="1.6" fill="none" opacity=".7"/>
-            <!-- Connection arcs -->
-            <path d="M65 55 Q100 45 135 55" stroke="currentColor" stroke-width="1.2" fill="none" stroke-dasharray="4 3" opacity=".5"/>
-            <!-- Heart -->
-            <path d="M96 104 L100 109 L104 104 A3 3 0 0 0 96 104Z" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".8"/>
-        </svg>`,
-    environment: `
-        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-             width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-            <!-- Tree trunk + foliage -->
-            <line x1="100" y1="105" x2="100" y2="65" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".9"/>
-            <!-- Branches -->
-            <line x1="100" y1="80" x2="80" y2="70" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>
-            <line x1="100" y1="72" x2="118" y2="62" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>
-            <!-- Leaf canopy -->
-            <ellipse cx="100" cy="45" rx="32" ry="26" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".9"/>
-            <ellipse cx="78"  cy="58" rx="18" ry="14" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".65"/>
-            <ellipse cx="122" cy="54" rx="18" ry="14" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".65"/>
-            <!-- Sun -->
-            <circle cx="165" cy="25" r="12" stroke="currentColor" stroke-width="1.6" fill="none" opacity=".8"/>
-            <line x1="165" y1="8"  x2="165" y2="4"  stroke="currentColor" stroke-width="1.4" opacity=".7"/>
-            <line x1="165" y1="42" x2="165" y2="46" stroke="currentColor" stroke-width="1.4" opacity=".7"/>
-            <line x1="148" y1="25" x2="144" y2="25" stroke="currentColor" stroke-width="1.4" opacity=".7"/>
-            <line x1="182" y1="25" x2="186" y2="25" stroke="currentColor" stroke-width="1.4" opacity=".7"/>
-            <line x1="153" y1="13" x2="150" y2="10" stroke="currentColor" stroke-width="1.4" opacity=".6"/>
-            <line x1="177" y1="37" x2="180" y2="40" stroke="currentColor" stroke-width="1.4" opacity=".6"/>
-            <!-- Ground & roots -->
-            <path d="M75 108 Q100 100 125 108" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".6"/>
-            <path d="M90 105 Q85 112 78 115" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".4"/>
-            <path d="M110 105 Q115 112 122 115" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".4"/>
-            <!-- Small leaves -->
-            <circle cx="30"  cy="70" r="5" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".5"/>
-            <circle cx="22"  cy="82" r="4" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".4"/>
-        </svg>`,
-    health: `
-        <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"
-             width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-            <!-- Heart outline -->
-            <path d="M100 95 L35 48 A28 28 0 0 1 100 28 A28 28 0 0 1 165 48 Z" stroke="currentColor" stroke-width="1.8" fill="none" opacity=".85"/>
-            <!-- ECG pulse line across heart -->
-            <polyline points="55,60 70,60 80,35 90,85 100,60 110,60 120,45 130,60 145,60" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
-            <!-- Cross / plus (medical) -->
-            <line x1="175" y1="15" x2="175" y2="35" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>
-            <line x1="165" y1="25" x2="185" y2="25" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>
-            <!-- Small heartbeat dots -->
-            <circle cx="25" cy="40" r="2.5" fill="currentColor" opacity=".4"/>
-            <circle cx="20" cy="55" r="2" fill="currentColor" opacity=".35"/>
-            <circle cx="28" cy="68" r="2" fill="currentColor" opacity=".3"/>
-        </svg>`,
-};
+/* ══════════════════════════════════════════════════════════════
+   GROUP COVERS — dynamic gradients, not hand-drawn illustrations.
+   No external CDN dependency (unDraw's own color-link service was
+   discontinued after their 2025 license change, and third-party
+   mirrors on GitHub aren't reliable enough to build on). Every
+   cover is generated purely from the group's own category color —
+   same palette as the icon itself, so the cover and the icon
+   always read as "the same group," not two disconnected assets.
+
+   Deterministic per group: seeded by icon_key + id, so the same
+   group always renders the same gradient (no reshuffle on refresh),
+   while different groups in the same category still look distinct
+   from one another instead of all sharing one flat swatch.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Small deterministic hash — turns a string into a stable 0..1 float.
+   Not cryptographic, just needs to be stable and reasonably spread out. */
+function seedFloat(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) {
+        h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+    }
+    return ((h % 1000) + 1000) % 1000 / 1000;
+}
+
+/* Lighten/darken a hex color by a percentage (-1..1). Used to build
+   a 2-stop gradient from a single category color without needing a
+   second hardcoded color per category. */
+function shadeColor(hex, percent) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent * 100);
+    const r = Math.min(255, Math.max(0, (num >> 16) + amt));
+    const g = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
+    const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+    return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
+}
+
+/* Builds the cover SVG: a gradient field + a scattering of soft
+   translucent circles, angle/position/count all seeded from the
+   group's own icon_key+id so it's stable across renders but visually
+   distinct group-to-group. */
+function renderGroupCover(color, seedKey) {
+    const s1 = seedFloat(seedKey + 'a');
+    const s2 = seedFloat(seedKey + 'b');
+    const s3 = seedFloat(seedKey + 'c');
+    const angle = Math.round(110 + s1 * 90);            // 110–200deg
+    const light = shadeColor(color, 0.16 + s2 * 0.08);  // lighter stop — subtle, stays recognizably the category color
+    const dark  = shadeColor(color, -0.14 - s3 * 0.08); // darker stop — same
+
+    // 3 soft circles, positions/sizes derived from the seed so every
+    // group's cover is unique but never random-on-reload.
+    const circles = [0, 1, 2].map(i => {
+        const cx = Math.round(seedFloat(seedKey + 'cx' + i) * 100);
+        const cy = Math.round(seedFloat(seedKey + 'cy' + i) * 100);
+        const r  = Math.round(18 + seedFloat(seedKey + 'r' + i) * 30);
+        const op  = (0.10 + seedFloat(seedKey + 'o' + i) * 0.10).toFixed(2);
+        return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff" opacity="${op}"/>`;
+    }).join('');
+
+    const gid = 'cov' + seedKey.replace(/[^a-zA-Z0-9]/g, '').slice(0, 12);
+
+    return `
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none"
+             width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="${gid}" gradientTransform="rotate(${angle} .5 .5)">
+                    <stop offset="0%" stop-color="${light}"/>
+                    <stop offset="100%" stop-color="${dark}"/>
+                </linearGradient>
+            </defs>
+            <rect width="100" height="100" fill="url(#${gid})"/>
+            ${circles}
+        </svg>`;
+}
 
 /* ══════════════════════════════════════════════════════════════
    HELPERS
@@ -339,80 +225,19 @@ function renderGroupIcon(iconKey, sizePx, iconPx) {
     </div>`;
 }
 
-/* ── deterministic per-group gradient ──────────────────────────
-   Same seed always produces the same gradient (stable across
-   re-renders), but every group gets its own angle/spread/stops
-   instead of one flat category color. Stays anchored to the
-   category color so the palette still reads as "finance = green
-   family", etc. — just no two groups in that family look identical. */
-function hashSeed(str) {
-    let h = 0;
-    const s = String(str || '');
-    for (let i = 0; i < s.length; i++) {
-        h = ((h << 5) - h + s.charCodeAt(i)) | 0;
-    }
-    return Math.abs(h);
-}
-
-function hexToRgb(hex) {
-    const n = parseInt(hex.replace('#', ''), 16);
-    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
-}
-
-function rgbToHex(r, g, b) {
-    const c = v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
-    return `#${c(r)}${c(g)}${c(b)}`;
-}
-
-/* Shift a hex color's hue-ish balance + lightness slightly, seeded */
-function shade(hex, seed, lightenBy, hueShift) {
-    const { r, g, b } = hexToRgb(hex);
-    const rs = r + hueShift.r + lightenBy;
-    const gs = g + hueShift.g + lightenBy;
-    const bs = b + hueShift.b + lightenBy;
-    return rgbToHex(rs, gs, bs);
-}
-
-function groupGradient(iconKey, seedStr) {
-    const meta  = iconMeta(iconKey);
-    const base  = categoryColor(meta.category);
-    const seed  = hashSeed(seedStr || iconKey);
-
-    const angle = 25 + (seed % 130);                       // 25–155deg
-    const hueR  = ((seed >> 3) % 41) - 20;                  // -20..20
-    const hueG  = ((seed >> 7) % 41) - 20;
-    const hueB  = ((seed >> 11) % 41) - 20;
-
-    const stopA = shade(base, seed, 6,  { r: hueR, g: hueG, b: hueB });
-    const stopB = shade(base, seed, -18, { r: -hueR, g: -hueB, b: hueG });
-
-    return { angle, stopA, stopB, base };
-}
-
-/* Renders the large thumbnail (illustration + icon overlay) for a group card header.
-   seedStr should be the group's id (or name as fallback) so the gradient is
-   unique per group but stable across re-renders. */
-function renderGroupThumbnail(iconKey, widthPx, heightPx, seedStr) {
+/* Renders the large thumbnail (gradient cover + icon overlay) for a group card header.
+   Seeded by iconKey — every group using "credit-card" gets a visually
+   related cover, every group using "rocket" gets a different one, and
+   it's the same cover every time (not reshuffled per page load). */
+function renderGroupThumbnail(iconKey, widthPx, heightPx) {
     const meta  = iconMeta(iconKey);
     const color = categoryColor(meta.category);
-    const illus = CATEGORY_ILLUSTRATIONS[meta.category] || CATEGORY_ILLUSTRATIONS.growth;
-    const grad  = groupGradient(iconKey, seedStr);
+    const cover = renderGroupCover(color, iconKey);
+    const radiusStyle = widthPx ? '' : 'border-radius:12px 12px 0 0;';
 
-    return `<div class="group-thumbnail" style="
-        width:${widthPx}px;height:${heightPx}px;
-        background:linear-gradient(${grad.angle}deg, ${grad.stopA}2e, ${grad.stopB}17 55%, ${grad.stopB}05);
-        border-bottom:1px solid ${color}22;
-        color:${color};
-        position:relative;overflow:hidden;display:flex;
-        align-items:center;justify-content:center;border-radius:12px 12px 0 0;">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;
-                    justify-content:center;opacity:.55;">
-            ${illus}
-        </div>
-        <div class="group-icon-box" style="position:relative;z-index:1;
-            width:44px;height:44px;background:${color}26;
-            border:1.5px solid ${color}4d;backdrop-filter:blur(6px);
-            -webkit-backdrop-filter:blur(6px);color:${color};">
+    return `<div class="group-thumbnail" style="width:${widthPx || '100%'};height:${heightPx}px;${radiusStyle}">
+        <div style="position:absolute;inset:0;">${cover}</div>
+        <div class="group-icon-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
                 ${meta.paths}
@@ -424,10 +249,9 @@ function renderGroupThumbnail(iconKey, widthPx, heightPx, seedStr) {
 window.EconovoIcons = {
     ICON_CATEGORIES,
     ICON_LIBRARY,
-    CATEGORY_ILLUSTRATIONS,
     iconMeta,
     categoryColor,
-    groupGradient,
     renderGroupIcon,
     renderGroupThumbnail,
+    renderGroupCover,
 };
