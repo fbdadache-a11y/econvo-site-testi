@@ -114,7 +114,73 @@ to add or update them.
 
 ## Changelog
 
-### v3.8 — Groups mini-dashboard: activity sorting, post counts, owner badges, search/filter (current)
+### v3.9 — Group card redesign: dynamic gradient covers replace the hand-drawn illustrations (current)
+
+The 9 hand-drawn line-art illustrations in `js/icons.js`
+(`CATEGORY_ILLUSTRATIONS`, ~190 lines of hardcoded SVG paths — a bar chart
+for finance, a robot for tech, etc.) read as generic stock-icon filler
+rather than something that belonged to Econovo specifically, and every
+group in the same category shared the exact same picture.
+
+**Illustration-library research (documented since it changed the plan
+mid-way):** looked into wiring up a real flat-illustration library with
+per-group cover images, as originally requested. unDraw was the obvious
+choice — CC0, one consistent flat style, and it used to support live color
+customization via a hosted API (`undraw.oswaldlabs.com/{hex}/{slug}.svg`).
+That service's own maintainer has since posted that they're retiring it,
+because unDraw's 2025 license change now explicitly prohibits third
+parties from compiling/redistributing its catalog as a service — which is
+exactly what that endpoint did. No official replacement exists. A couple
+of small unofficial GitHub mirrors turned up in search, but building a
+production feature on an single-maintainer, low-star repo with no
+guaranteed uptime was judged too fragile to ship.
+
+**Final approach — dynamic gradient covers, no external dependency at
+all:**
+
+- **`js/icons.js`** — `CATEGORY_ILLUSTRATIONS` removed entirely, replaced
+  with `renderGroupCover(color, seedKey)`. Generates a 2-stop linear
+  gradient (rotation angle + 3 soft translucent circles) purely from the
+  group's own category color — no network request, works offline, never
+  breaks if a CDN goes down. Seeded by **`icon_key`**, not a random roll or
+  the group's `id`: every group using the "credit-card" icon gets a
+  visually related cover, every "rocket" group gets a different one, and
+  it's the *same* cover on every reload — a real icon → cover
+  relationship, not noise. Two small deterministic helpers back this:
+  `seedFloat()` (string → stable 0–1 float, not cryptographic, just needs
+  to be stable) and `shadeColor()` (lighten/darken a hex color by a
+  percentage). The lighten/darken range was tuned down from an initial
+  ±30–45% (which produced near-black/near-white gradient stops on already-
+  dark category colors — harsh, not "elegant gradients") to ±14–24%, which
+  keeps each category's color clearly recognizable at both ends of the
+  gradient.
+- **`renderGroupThumbnail()`** rewritten to compose the new cover + a
+  frosted-glass icon badge on top, instead of a flat-tinted background
+  behind a static illustration.
+
+**Card visual redesign (`pages/dashboard.html`):**
+- Gradient cover now has a subtle dot-grid overlay (`radial-gradient`,
+  14px spacing) — the same texture already used on `index.html`'s hero
+  section, so a group card visually ties back to the rest of the brand
+  instead of being a one-off style unique to this component.
+- Icon badge gets a small scale + rotate on card hover (spring easing,
+  matches the motion language used elsewhere in the dashboard).
+- Card shadow/hover now uses the shared `--e1`/`--e3` elevation tokens
+  (was a mix of `--e2` and a one-off `box-shadow` value) and lifts further
+  on hover (`translateY(-3px)`, was `-2px`) for a slightly more confident
+  hover response.
+- Moved icon-badge styling out of inline `style="..."` attributes (which
+  were duplicating what should be CSS and couldn't be touched by a
+  stylesheet change) into real `.group-icon-box`/`.group-thumbnail`
+  classes — JS now only sets what's genuinely dynamic (width/height
+  params), CSS owns the visual language.
+
+No SQL changes — `groups.icon_key` is read exactly as it already was; the
+only thing that changed is what gets drawn from it.
+
+---
+
+### v3.8 — Groups mini-dashboard: activity sorting, post counts, owner badges, search/filter
 
 The Groups tab was a flat grid of static cards (icon, name, description,
 member count, join button) — no sense of which groups were actually
