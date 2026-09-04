@@ -114,7 +114,42 @@ to add or update them.
 
 ## Changelog
 
-### v3.9 — Group card redesign: dynamic gradient covers replace the hand-drawn illustrations (current)
+### v3.10 — Group covers simplified: flat category color, no more gradient/seeding logic (current)
+
+v3.9's dynamic gradient cover system (`seedFloat()` hashing, `shadeColor()`
+lighten/darken math, a rotated 2-stop gradient, and 3 seeded translucent
+circles per cover) was judged more complexity than the result was worth.
+Replaced with the simplest possible version: **the cover is just the
+group's category color, flat.**
+
+- **`js/icons.js`** — `seedFloat()` and `shadeColor()` removed entirely.
+  `renderGroupCover(color)` now takes only the category color (no more
+  `seedKey` / `icon_key` argument) and returns a single `<rect fill="...">`
+  — no gradient, no per-group randomness. Same "credit-card" icon still
+  always means the same finance-green cover, simply because both come
+  from the same category color — not because of any seeding logic keeping
+  them in sync.
+- **Bug caught and fixed during the simplification, not shipped:** the
+  first simplification pass used a gradient with a hardcoded
+  `id="covGrad"`. SVG element IDs must be unique across the whole HTML
+  document, not just unique per `<svg>` — with more than one group card
+  on screen (the normal case, since groups render in a grid), every card
+  would have collided on that ID and only the first card's gradient
+  would have actually applied to all of them. Dropped the gradient
+  entirely in favor of a flat fill instead of generating a unique ID per
+  card, which sidesteps the collision risk completely rather than papering
+  over it.
+- **`renderGroupThumbnail()`** updated to call `renderGroupCover(color)`
+  with the new one-argument signature; stale comments referencing the
+  removed per-icon variation behavior were corrected.
+
+No other files were affected — `renderGroupCover` was only ever called
+from inside `icons.js` itself, so narrowing its signature didn't require
+touching `pages/dashboard.html` or anything else that renders group cards.
+
+---
+
+### v3.9 — Group card redesign: dynamic gradient covers replace the hand-drawn illustrations
 
 The 9 hand-drawn line-art illustrations in `js/icons.js`
 (`CATEGORY_ILLUSTRATIONS`, ~190 lines of hardcoded SVG paths — a bar chart
