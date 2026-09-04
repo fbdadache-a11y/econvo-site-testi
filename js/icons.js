@@ -128,74 +128,22 @@ const ICON_LIBRARY = {
    GROUP COVERS — dynamic gradients, not hand-drawn illustrations.
    No external CDN dependency (unDraw's own color-link service was
    discontinued after their 2025 license change, and third-party
-   mirrors on GitHub aren't reliable enough to build on). Every
-   cover is generated purely from the group's own category color —
-   same palette as the icon itself, so the cover and the icon
-   always read as "the same group," not two disconnected assets.
-
-   Deterministic per group: seeded by icon_key + id, so the same
-   group always renders the same gradient (no reshuffle on refresh),
-   while different groups in the same category still look distinct
-   from one another instead of all sharing one flat swatch.
+   mirrors on GitHub aren't reliable enough to build on). The cover
+   is simply the group's category color — same palette as the icon
+   itself, so the cover and the icon always read as "the same group."
+   No per-group randomness, no seeding, no hashing — every group in
+   a category looks the same on purpose, which is the whole point:
+   the color tells you the category at a glance.
    ══════════════════════════════════════════════════════════════ */
 
-/* Small deterministic hash — turns a string into a stable 0..1 float.
-   Not cryptographic, just needs to be stable and reasonably spread out. */
-function seedFloat(str) {
-    let h = 0;
-    for (let i = 0; i < str.length; i++) {
-        h = ((h << 5) - h + str.charCodeAt(i)) | 0;
-    }
-    return ((h % 1000) + 1000) % 1000 / 1000;
-}
-
-/* Lighten/darken a hex color by a percentage (-1..1). Used to build
-   a 2-stop gradient from a single category color without needing a
-   second hardcoded color per category. */
-function shadeColor(hex, percent) {
-    const num = parseInt(hex.replace('#', ''), 16);
-    const amt = Math.round(2.55 * percent * 100);
-    const r = Math.min(255, Math.max(0, (num >> 16) + amt));
-    const g = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
-    const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
-    return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
-}
-
-/* Builds the cover SVG: a gradient field + a scattering of soft
-   translucent circles, angle/position/count all seeded from the
-   group's own icon_key+id so it's stable across renders but visually
-   distinct group-to-group. */
-function renderGroupCover(color, seedKey) {
-    const s1 = seedFloat(seedKey + 'a');
-    const s2 = seedFloat(seedKey + 'b');
-    const s3 = seedFloat(seedKey + 'c');
-    const angle = Math.round(110 + s1 * 90);            // 110–200deg
-    const light = shadeColor(color, 0.16 + s2 * 0.08);  // lighter stop — subtle, stays recognizably the category color
-    const dark  = shadeColor(color, -0.14 - s3 * 0.08); // darker stop — same
-
-    // 3 soft circles, positions/sizes derived from the seed so every
-    // group's cover is unique but never random-on-reload.
-    const circles = [0, 1, 2].map(i => {
-        const cx = Math.round(seedFloat(seedKey + 'cx' + i) * 100);
-        const cy = Math.round(seedFloat(seedKey + 'cy' + i) * 100);
-        const r  = Math.round(18 + seedFloat(seedKey + 'r' + i) * 30);
-        const op  = (0.10 + seedFloat(seedKey + 'o' + i) * 0.10).toFixed(2);
-        return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff" opacity="${op}"/>`;
-    }).join('');
-
-    const gid = 'cov' + seedKey.replace(/[^a-zA-Z0-9]/g, '').slice(0, 12);
-
+/* The cover is just the category color, flat. No gradient, no id
+   to manage, no risk of colliding <svg> ids when multiple group
+   cards render on the same page. */
+function renderGroupCover(color) {
     return `
         <svg viewBox="0 0 100 100" preserveAspectRatio="none"
              width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="${gid}" gradientTransform="rotate(${angle} .5 .5)">
-                    <stop offset="0%" stop-color="${light}"/>
-                    <stop offset="100%" stop-color="${dark}"/>
-                </linearGradient>
-            </defs>
-            <rect width="100" height="100" fill="url(#${gid})"/>
-            ${circles}
+            <rect width="100" height="100" fill="${color}"/>
         </svg>`;
 }
 
@@ -229,10 +177,15 @@ function renderGroupIcon(iconKey, sizePx, iconPx) {
    Seeded by iconKey — every group using "credit-card" gets a visually
    related cover, every group using "rocket" gets a different one, and
    it's the same cover every time (not reshuffled per page load). */
+/* Renders the large thumbnail (flat category-color cover + icon overlay)
+   for a group card header. Cover color comes from the icon's category —
+   same "credit-card" icon always means the same finance-green cover,
+   simply because they share a category, not because of any per-group
+   seeding logic. */
 function renderGroupThumbnail(iconKey, widthPx, heightPx) {
     const meta  = iconMeta(iconKey);
     const color = categoryColor(meta.category);
-    const cover = renderGroupCover(color, iconKey);
+    const cover = renderGroupCover(color);
     const radiusStyle = widthPx ? '' : 'border-radius:12px 12px 0 0;';
 
     return `<div class="group-thumbnail" style="width:${widthPx || '100%'};height:${heightPx}px;${radiusStyle}">
