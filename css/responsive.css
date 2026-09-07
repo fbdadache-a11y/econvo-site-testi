@@ -11,6 +11,7 @@
     .hero-content h1 em::after { display: none; } /* skip on mobile */
 
     .timeline::before { left: 0; transform: none; }
+    [lang="ar"] .timeline::before { left: auto; right: 0; }
     .timeline-item,
     .timeline-item:nth-child(even) { flex-direction: column !important; align-items: flex-start; padding-left: var(--s4); }
     [lang="ar"] .timeline-item { padding-left: 0; padding-right: var(--s4); }
@@ -37,9 +38,8 @@
     :root { --s7: 3.5rem; --s8: 4.5rem; }
 
     .nav-links { display: none; }
-    .nav-toggle { display: inline-flex; }
-    .mobile-join { display: block; }
-    body { padding-bottom: 80px; }
+    .nav-toggle { display: inline-flex; width: 44px; height: 44px; }
+    .nav-toggle svg, .nav-toggle i { width: 18px; height: 18px; }
 
     .nav-actions .icon-btn.js-theme-toggle,
     .nav-actions .lang-btn.js-lang-toggle,
@@ -58,6 +58,15 @@
 
     /* Mobile: reduce animation complexity */
     .stat-cell::after { display: none; }
+
+    /* Stats ledger: the desktop padding (--s5 --s4 = 48px/32px) leaves
+       under 110px of usable width per cell in a 2-col mobile layout,
+       so labels like "Ideas Welcomed" / "أفكار مرحّب بها" wrap tight
+       against the border. Tighten padding, drop the value's font-size
+       floor, and loosen the letter-spacing squeeze on the label. */
+    .stat-cell { padding: var(--s3) var(--s2); }
+    .stat-value { font-size: clamp(1.7rem, 7vw, 2.4rem); }
+    .stat-label { letter-spacing: .06em; }
 }
 
 @media (max-width: 480px) {
