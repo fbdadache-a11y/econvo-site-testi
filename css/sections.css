@@ -19,12 +19,30 @@
     padding-bottom: var(--s7);
     position: relative;
     overflow: hidden;
-    /* Dot grid — more editorial than lines */
-    background-image:
-        radial-gradient(circle, rgba(14,42,36,.08) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-position: center center;
 }
+
+/* Ambient gradient wash — three soft sage/obsidian stops slowly drifting
+   position and gently breathing in scale. Deliberately shapeless (no
+   circle, no grid) so it reads as atmosphere rather than a decorative
+   graphic competing with the wordmark's own geometry. Colors are pulled
+   from the theme tokens, so it re-tunes itself automatically in dark mode. */
+.hero-bg-shape {
+    position: absolute; inset: -15%;
+    background:
+        radial-gradient(ellipse 60% 50% at 20% 25%, var(--sage-glow) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 60% at 82% 70%, rgba(143,184,166,.10) 0%, transparent 65%),
+        radial-gradient(ellipse 70% 55% at 50% 100%, var(--sage-dim) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+    animation: heroWash 26s var(--ease-out) infinite alternate;
+    will-change: background-position, transform;
+}
+@keyframes heroWash {
+    0%   { background-position: 0% 0%, 100% 100%, 50% 100%; transform: scale(1); }
+    50%  { background-position: 8% 6%,  92% 92%,  46% 94%;  transform: scale(1.04); }
+    100% { background-position: -4% 4%, 104% 88%, 54% 102%; transform: scale(1.02); }
+}
+@media (prefers-reduced-motion: reduce) { .hero-bg-shape { animation: none; } }
 
 /* Top accent line — brand rule */
 .hero::before {
@@ -35,26 +53,6 @@
     z-index: 2;
     opacity: .6;
 }
-
-/* Animated bg orb — subtler, pulled to corner */
-.hero-bg-shape {
-    position: absolute; top: -10%; right: -5%;
-    width: 640px; height: 640px;
-    background: conic-gradient(from 180deg at 50% 50%,
-        rgba(143,184,166,.07) 0deg,
-        rgba(14,42,36,.04) 120deg,
-        rgba(143,184,166,.07) 240deg,
-        rgba(14,42,36,.04) 360deg);
-    border-radius: 50%;
-    z-index: 0;
-    pointer-events: none;
-    animation: orbSpin 24s linear infinite;
-}
-@keyframes orbSpin {
-    from { transform: rotate(0deg) scale(1); }
-    to   { transform: rotate(360deg) scale(1.06); }
-}
-@media (prefers-reduced-motion: reduce) { .hero-bg-shape { animation: none; } }
 
 .hero-grid {
     display: grid;
