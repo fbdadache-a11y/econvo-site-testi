@@ -488,31 +488,6 @@
 }
 
 /* ═══════════════════════════════════════
-   MOBILE STICKY JOIN
-   ═══════════════════════════════════════ */
-.mobile-join {
-    display: none;
-    position: fixed;
-    left: 50%; z-index: 1200;
-    width: calc(100% - 32px);
-    max-width: 360px;
-    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-    transform: translateX(-50%);
-    transition: transform var(--t-base) var(--ease-spring), opacity var(--t-base);
-    opacity: 1;
-}
-.mobile-join.is-hidden {
-    transform: translateX(-50%) translateY(120%);
-    opacity: 0;
-    pointer-events: none;
-}
-.mobile-join .btn {
-    width: 100%;
-    box-shadow: 0 6px 24px rgba(14,42,36,.25);
-    border-radius: var(--r-md);
-}
-
-/* ═══════════════════════════════════════
    MOBILE SIDE MENU
    ═══════════════════════════════════════ */
 .mobile-menu-overlay {
@@ -568,7 +543,8 @@
 .mobile-menu.open li:nth-child(5) .nav-link { transition-delay: .25s; }
 .mobile-menu.open li:nth-child(6) .nav-link { transition-delay: .3s; }
 .mobile-menu .nav-link:hover { color: var(--text); }
-.mobile-menu-close { align-self: flex-end; }
+.mobile-menu-close { align-self: flex-end; width: 44px; height: 44px; }
+.mobile-menu-close svg, .mobile-menu-close i { width: 18px; height: 18px; }
 .mobile-menu-utility {
     display: flex; align-items: center; gap: var(--s2);
     padding-bottom: var(--s2);
