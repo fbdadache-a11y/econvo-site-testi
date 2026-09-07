@@ -12,7 +12,6 @@
         initScrollProgress();
         initMobileMenu();
         initThemeToggle();
-        initMobileJoinVisibility();
         await initAuthCheck();   // async — waits for silent token refresh if needed
         if (window.lucide) window.lucide.createIcons();
     });
@@ -37,7 +36,7 @@
         if (!isValid) return; // not logged in or session dead
 
         // Session is valid — update nav buttons
-        const joinBtns = document.querySelectorAll('#nav-join-btn, .mobile-join a, .btn-join');
+        const joinBtns = document.querySelectorAll('#nav-join-btn, .btn-join');
         joinBtns.forEach(btn => {
             btn.textContent = 'Dashboard';
             btn.setAttribute('href', 'dashboard.html');
@@ -69,52 +68,6 @@
         update();
     }
 
-    function initMobileJoinVisibility() {
-        const bar  = document.querySelector('.mobile-join');
-        const hero = document.querySelector('.hero');
-        const cta  = document.querySelector('.cta-section');
-        if (!bar || !hero) return;
-
-        const hide = () => bar.classList.add('is-hidden');
-        const show = () => bar.classList.remove('is-hidden');
-        hide();
-
-        // Watch a thin sentinel pinned to each section's bottom edge
-        // instead of the section itself. .hero can be much taller than
-        // one screen (min-height: 100svh + a lot of content on small
-        // devices), so a percentage-based threshold on the whole section
-        // triggers false "left the hero" reads while the hero is still
-        // visually the main thing on screen — this is the same sentinel
-        // technique used for sticky-header scroll detection, and it's
-        // correct regardless of how tall the watched section is.
-        function makeBottomSentinel(section) {
-            const sentinel = document.createElement('div');
-            sentinel.style.cssText = 'position:absolute; bottom:0; left:0; width:1px; height:1px; pointer-events:none;';
-            const parent = getComputedStyle(section).position === 'static'
-                ? (section.style.position = 'relative', section)
-                : section;
-            parent.appendChild(sentinel);
-            return sentinel;
-        }
-
-        const heroSentinel = makeBottomSentinel(hero);
-        const ctaSentinel  = cta ? makeBottomSentinel(cta) : null;
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.target === heroSentinel) entry.isIntersecting ? hide() : show();
-                if (ctaSentinel && entry.target === ctaSentinel) entry.isIntersecting ? hide() : show();
-            });
-        }, { threshold: 0, rootMargin: '0px 0px -20% 0px' });
-        // rootMargin shrinks the effective viewport by 20% from the
-        // bottom, so the bar shows a moment *before* the hero's edge
-        // reaches the very bottom of the screen — avoids a 1-frame flash
-        // of the sticky bar appearing then the hero-edge nav re-hiding it.
-
-        observer.observe(heroSentinel);
-        if (ctaSentinel) observer.observe(ctaSentinel);
-    }
-
     function initMobileMenu() {
         const openBtn  = document.getElementById('navToggle');
         const closeBtn = document.getElementById('mobileMenuClose');
@@ -140,20 +93,28 @@
 
         if (!btns.length) return;
         btns.forEach(btn => btn.addEventListener('click', () => {
+            // The toggle button is a simple light/dark switch — it only
+            // ever lands on those two. Members who picked one of the 12
+            // named palettes (Nord, Dracula, ...) do so from the
+            // Dashboard's Profile → Appearance grid, not from here.
             const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             applyTheme(next);
             localStorage.setItem('econovo-theme', next);
         }));
 
         function applyTheme(theme) {
-            if (theme === 'dark') root.setAttribute('data-theme', 'dark');
+            // Any non-"light" theme — dark, or one of the 12 named
+            // palettes from themes.css — needs the attribute set so its
+            // [data-theme="…"] block in themes.css/style.css applies.
+            // Only bare "light" (or nothing) means "no attribute".
+            if (theme && theme !== 'light') root.setAttribute('data-theme', theme);
             else root.removeAttribute('data-theme');
             document.querySelectorAll('.js-theme-icon').forEach(icon => {
                 icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
             });
             if (window.lucide) window.lucide.createIcons();
             const meta = document.getElementById('themeColorMeta');
-            if (meta) meta.setAttribute('content', theme === 'dark' ? '#1F1F1F' : '#F4F7F2');
+            if (meta) meta.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim() || (theme === 'dark' ? '#1F1F1F' : '#F4F7F2'));
         }
     }
 })();
