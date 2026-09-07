@@ -43,7 +43,11 @@
         const stored = localStorage.getItem('econovo-theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const theme = stored || (prefersDark ? 'dark' : 'light');
-        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        // theme can be "dark" or one of the 12 named palettes from
+        // themes.css (set via Dashboard → Profile → Appearance) — only
+        // bare "light" means no attribute. See js/main.js initThemeToggle
+        // for the same fix (this ran independently and had the same bug).
+        if (theme && theme !== 'light') document.documentElement.setAttribute('data-theme', theme);
         else document.documentElement.removeAttribute('data-theme');
     }
 
